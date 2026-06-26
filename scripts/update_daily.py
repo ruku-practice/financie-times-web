@@ -439,6 +439,135 @@ def build_site_data():
     with open("data/projects_summary.json", 'w', encoding='utf-8') as f:
         json.dump(projects_summary, f, ensure_ascii=False, indent=2)
 
+    # 4. タイムトラベル用日次ランキングファイル（data/daily/YYYYMMDD.json）の生成
+    print("Generating daily historical rankings...")
+    os.makedirs("data/daily", exist_ok=True)
+    
+    daily_data = {}
+    for d in sorted_dates:
+        daily_data[d] = []
+
+    for folder, proj in history.items():
+        slug = proj["slug"]
+        name = proj["name"]
+        logo = proj["logo"]
+        data_map = proj["data"]
+        
+        proj_dates = sorted(data_map.keys())
+        for idx, d in enumerate(proj_dates):
+            d_info = data_map[d]
+            
+            # 各種値の取得
+            price = d_info.get("current_price", 0.0)
+            volume_24h = d_info.get("volume", 0.0)
+            members = d_info.get("num_member", 0)
+            stock = d_info.get("stock", 0)
+            marketCap = d_info.get("marketCap", 0)
+            
+            price_diff = 0.0
+            volume_24h_diff = 0.0
+            members_diff = 0
+            stock_diff = 0
+            
+            if idx > 0:
+                prev_d = proj_dates[idx-1]
+                prev_info = data_map[prev_d]
+                price_diff = price - prev_info.get("current_price", 0.0)
+                volume_24h_diff = volume_24h - prev_info.get("volume", 0.0)
+                members_diff = members - prev_info.get("num_member", 0)
+                stock_diff = stock - prev_info.get("stock", 0)
+            
+            daily_data[d].append({
+                "folder": folder,
+                "slug": slug,
+                "name": name,
+                "logo": logo,
+                "price": price,
+                "price_diff": round(price_diff, 4),
+                "volume_24h": volume_24h,
+                "volume_24h_diff": round(volume_24h_diff, 4),
+                "members": members,
+                "members_diff": members_diff,
+                "stock": stock,
+                "stock_diff": stock_diff,
+                "marketCap": marketCap,
+                "active_ranking": d_info.get("active_ranking", "-")
+            })
+            
+    for d, items in daily_data.items():
+        daily_file_path = f"data/daily/{d}.json"
+        with open(daily_file_path, 'w', encoding='utf-8') as f:
+            json.dump(items, f, ensure_ascii=False, indent=2)
+
+    # 5. 月次および累計取引量ランキング（data/monthly/YYYYMM.json ＆ all_time.json）の生成
+    print("Generating monthly and all-time volume rankings...")
+    os.makedirs("data/monthly", exist_ok=True)
+    
+    monthly_volumes = {}
+    all_time_volumes = {}
+    
+    for folder, proj in history.items():
+        data_map = proj["data"]
+        all_time_sum = 0.0
+        
+        for d, d_info in data_map.items():
+            vol = d_info.get("volume", 0.0)
+            all_time_sum += vol
+            
+            if len(d) >= 6:
+                ym = d[:6]
+                if ym not in monthly_volumes:
+                    monthly_volumes[ym] = {}
+                if folder not in monthly_volumes[ym]:
+                    monthly_volumes[ym][folder] = 0.0
+                monthly_volumes[ym][folder] += vol
+                
+        all_time_volumes[folder] = all_time_sum
+
+    for ym, folder_vols in monthly_volumes.items():
+        rank_list = []
+        for folder, vol in folder_vols.items():
+            if folder not in history:
+                continue
+            proj_info = history[folder]
+            rank_list.append({
+                "folder": folder,
+                "slug": proj_info["slug"],
+                "name": proj_info["name"],
+                "logo": proj_info["logo"],
+                "total_volume": round(vol, 4)
+            })
+        
+        rank_list.sort(key=lambda x: x["total_volume"], reverse=True)
+        for rank_idx, item in enumerate(rank_list):
+            item["rank"] = rank_idx + 1
+            
+        with open(f"data/monthly/{ym}.json", 'w', encoding='utf-8') as f:
+            json.dump(rank_list, f, ensure_ascii=False, indent=2)
+
+    all_time_list = []
+    for folder, vol in all_time_volumes.items():
+        if folder not in history:
+            continue
+        proj_info = history[folder]
+        all_time_list.append({
+            "folder": folder,
+            "slug": proj_info["slug"],
+            "name": proj_info["name"],
+            "logo": proj_info["logo"],
+            "total_volume": round(vol, 4)
+        })
+    all_time_list.sort(key=lambda x: x["total_volume"], reverse=True)
+    for rank_idx, item in enumerate(all_time_list):
+        item["rank"] = rank_idx + 1
+        
+    with open("data/monthly/all_time.json", 'w', encoding='utf-8') as f:
+        json.dump(all_time_list, f, ensure_ascii=False, indent=2)
+
+    monthly_list = sorted(list(monthly_volumes.keys()))
+    with open("data/monthly/list.json", 'w', encoding='utf-8') as f:
+        json.dump(monthly_list, f, ensure_ascii=False, indent=2)
+
     print("Success! Web JSON Rebuild Completed.")
 
 

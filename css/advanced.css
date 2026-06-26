@@ -504,3 +504,453 @@ body {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* -------------------------------------------------------------
+ * 追加機能（タブ、ピン留め、複数比較、日付・月次ランキング）用スタイル
+ * ------------------------------------------------------------- */
+
+/* タブナビゲーション */
+.tabs-navigation {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tab-nav-btn {
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.6rem 1.2rem;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: var(--transition-smooth);
+}
+
+.tab-nav-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.tab-nav-btn.active {
+  background: var(--accent-gradient);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: var(--shadow-sm);
+}
+
+/* サイドバー非表示制御 */
+.dashboard-layout.no-sidebar {
+  grid-template-columns: 1fr;
+}
+
+.dashboard-layout.no-sidebar .sidebar {
+  display: none !important;
+}
+
+/* ピン留めプロジェクト見出しとレイアウト */
+.project-group-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-warning);
+  padding: 0.5rem 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
+  border-bottom: 1px solid var(--glass-border);
+  margin-top: 0.8rem;
+  margin-bottom: 0.3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.project-group-title.all-projects {
+  color: var(--text-secondary);
+  margin-top: 1rem;
+}
+
+.project-item.pinned {
+  background: rgba(245, 158, 11, 0.04);
+  border-left: 3px solid var(--accent-warning);
+}
+
+.project-item.pinned:hover {
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.pinned-icon {
+  color: var(--accent-warning);
+  font-size: 0.8rem;
+  margin-left: auto;
+}
+
+/* 比較用チェックボックス */
+.project-item-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid var(--text-secondary);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  margin-right: 0.2rem;
+  flex-shrink: 0;
+}
+
+.project-item.selected .project-item-checkbox {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.project-item.selected .project-item-checkbox::after {
+  content: '✓';
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.hidden-element {
+  display: none !important;
+}
+
+/* 比較モード通知 */
+.sidebar-search-area {
+  position: relative;
+}
+
+#compare-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  padding: 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+}
+
+.notice-badge {
+  background: var(--accent-color);
+  color: #white;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.notice-text {
+  color: var(--text-secondary);
+}
+
+/* 比較バッジリスト */
+.selected-compare-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius);
+  min-height: 54px;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.no-selection-placeholder {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  width: 100%;
+  text-align: center;
+}
+
+.compare-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.compare-badge-color {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.compare-badge-remove {
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-weight: bold;
+  margin-left: 0.2rem;
+  transition: var(--transition-smooth);
+}
+
+.compare-badge-remove:hover {
+  color: var(--accent-danger);
+}
+
+/* 日付・月次コントロールバー */
+.travel-controls-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1.5rem;
+}
+
+.action-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: var(--transition-smooth);
+}
+
+.action-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.action-btn.btn-primary {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  color: #fff;
+}
+
+.date-picker-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  padding: 0 0.8rem;
+}
+
+.calendar-icon {
+  color: var(--text-secondary);
+  margin-right: 0.5rem;
+  width: 16px;
+  height: 16px;
+}
+
+.travel-date-picker-input {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 0.5rem 0;
+  outline: none;
+  cursor: pointer;
+}
+
+.sort-criteria-group {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.25rem;
+  border-radius: 6px;
+  border: 1px solid var(--glass-border);
+}
+
+.sort-tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.8rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.sort-tab-btn.active {
+  background: var(--accent-gradient);
+  color: white;
+}
+
+/* 月次セレクトボックス */
+.selector-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.selector-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.monthly-select-input {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 0.5rem 1.5rem 0.5rem 0.8rem;
+  outline: none;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.monthly-select-input:focus {
+  border-color: var(--accent-color);
+}
+
+/* スプレッドシート風テーブル */
+.historical-table-card {
+  background: #ffffff; /* 完全な白背景 */
+  border: 1px solid #999999;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+}
+
+.table-scroll-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.historic-ranking-table, .monthly-ranking-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  color: #000000;
+}
+
+.historic-ranking-table th, .historic-ranking-table td,
+.monthly-ranking-table th, .monthly-ranking-table td {
+  border: 1px solid #d9d9d9 !important; /* 薄いグレーのグリッド */
+  padding: 8px 6px;
+  vertical-align: middle;
+}
+
+.historic-ranking-table th, .monthly-ranking-table th {
+  background-color: #d9ead3 !important; /* スプシ標準の薄い緑 */
+  font-weight: bold;
+  text-align: center;
+  color: #000000;
+  font-size: 12px;
+}
+
+.historic-ranking-table td {
+  color: #000000;
+}
+
+.historic-ranking-table td.text-center, .monthly-ranking-table td.text-center {
+  text-align: center;
+}
+
+.historic-ranking-table td.text-left, .monthly-ranking-table td.text-left {
+  text-align: left;
+}
+
+.historic-ranking-table td.text-right, .monthly-ranking-table td.text-right {
+  text-align: right;
+}
+
+.bold-text {
+  font-weight: bold;
+}
+
+/* 前日差セルの配色 */
+.diff-bg-up {
+  background-color: #cfe2f3 !important; /* スプレッドシート標準の薄い青 */
+  color: #000000;
+}
+
+.diff-bg-down {
+  background-color: #f4cccc !important; /* スプレッドシート標準の薄い赤 */
+  color: #000000;
+}
+
+/* テーブル内のプロジェクト名リンク */
+.table-pj-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #000000;
+  font-weight: bold;
+}
+
+.table-pj-link:hover {
+  text-decoration: underline;
+  color: #2b5f8c;
+}
+
+.table-pj-img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #cccccc;
+}
+
+/* もっと表示するボタン */
+.more-btn-area {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-top: 1px solid #d9d9d9;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-more {
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  color: #333333;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.6rem 2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.btn-more:hover {
+  background: #f1f3f4;
+  border-color: #c6c6c6;
+}
+
+@media (max-width: 1024px) {
+  .sort-criteria-group {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+  }
+}
