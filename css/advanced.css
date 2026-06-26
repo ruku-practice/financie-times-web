@@ -136,6 +136,25 @@ body {
   border-color: var(--text-secondary);
 }
 
+.btn-external {
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.02);
+  transition: var(--transition-smooth);
+  white-space: nowrap;
+}
+
+.btn-external:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--text-secondary);
+}
+
 /* メインコンテンツ分割レイアウト */
 .dashboard-layout {
   display: grid;
