@@ -5,7 +5,13 @@ import re
 import argparse
 import asyncio
 import time
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+JST = timezone(timedelta(hours=9))
+
+
+def now_jst():
+    return datetime.now(JST)
 import gc as sys_gc
 import psutil
 import math
@@ -24,24 +30,52 @@ SLUG_LIST_SHEET = "list"
 
 # クレデンシャル取得ヘルパー
 def get_credentials():
-    # GitHub Actions等の環境変数から取得を試みる
+    creds_path = os.environ.get("GOOGLE_CREDENTIALS_PATH")
+    if creds_path and os.path.exists(creds_path):
+        print(f"Using credentials file at: {creds_path}")
+        return Credentials.from_service_account_file(creds_path, scopes=scope)
+
     creds_json = os.environ.get("GOOGLE_CREDENTIALS_JSON")
     if creds_json:
         print("Using credentials from environment variable GOOGLE_CREDENTIALS_JSON")
         info = json.loads(creds_json)
         return Credentials.from_service_account_info(info, scopes=scope)
-    
-    # ローカルファイルから取得
+
     local_path = "/Users/kurokzhr/Library/CloudStorage/GoogleDrive-ruku.practice@gmail.com/マイドライブ/00_XXX_TIMES/00_CreateAutoTimes/100_FiNANCiE/writeinfo2spreadsheet-d08cec7b431b.json"
     if not os.path.exists(local_path):
-        # カレントディレクトリ等も探す
         local_path = "./writeinfo2spreadsheet-d08cec7b431b.json"
-        
+
     if os.path.exists(local_path):
         print(f"Using credentials file at: {local_path}")
         return Credentials.from_service_account_file(local_path, scopes=scope)
-    
-    raise FileNotFoundError("Google service account credentials not found. Please set GOOGLE_CREDENTIALS_JSON or provide key JSON file.")
+
+    raise FileNotFoundError(
+        "Google service account credentials not found. "
+        "Set GOOGLE_CREDENTIALS_PATH, GOOGLE_CREDENTIALS_JSON, or provide key JSON file."
+    )
+
+
+def save_history_meta(date_key):
+    meta = {
+        "latest_collected": {
+            "date": f"{date_key[:4]}-{date_key[4:6]}-{date_key[6:8]}",
+            "date_key": date_key,
+            "updated_at": now_jst().isoformat(),
+        }
+    }
+    with open("data/history_meta.json", "w", encoding="utf-8") as f:
+        json.dump(meta, f, ensure_ascii=False, indent=2)
+
+
+def already_collected_today():
+    today_key = now_jst().strftime("%Y%m%d")
+    meta_path = "data/history_meta.json"
+    if os.path.exists(meta_path):
+        with open(meta_path, "r", encoding="utf-8") as f:
+            meta = json.load(f)
+        if meta.get("latest_collected", {}).get("date_key") == today_key:
+            return True
+    return False
 
 # グローバルワークブックオブジェクト
 workbook = None
@@ -275,7 +309,7 @@ def write_to_spreadsheet(sheet_name, data):
 
     max_column = ws.col_count + 1
 
-    now = datetime.now()
+    now = now_jst()
     formatted_date = now.strftime("%Y%m%d")
     today_as_number = int(formatted_date)
     current_time = now.strftime('%H:%M')
@@ -358,7 +392,7 @@ def build_site_data():
         all_dates.update(proj["data"].keys())
     
     sorted_dates = sorted(list(all_dates))
-    latest_date = sorted_dates[-1] if sorted_dates else datetime.now().strftime("%Y%m%d")
+    latest_date = sorted_dates[-1] if sorted_dates else now_jst().strftime("%Y%m%d")
 
     for folder, proj in history.items():
         slug = proj["slug"]
@@ -576,12 +610,16 @@ async def main_async():
     parser = argparse.ArgumentParser(description="FiNANCiE TIMES daily updater script.")
     parser.add_argument("--build-only", action="store_true", help="Only rebuild frontend web JSON from history.json, skip scraping.")
     parser.add_argument("--test", action="store_true", help="Run scraping but skip writing to Google Spreadsheet.")
+    parser.add_argument("--force", action="store_true", help="Run even if today's data is already collected.")
     parser.add_argument("--threads", type=int, default=4, help="Scraping concurrency threads.")
     args = parser.parse_args()
 
-    # 1. ビルドのみモード
     if args.build_only:
         build_site_data()
+        return
+
+    if not args.force and already_collected_today():
+        print("Today's data is already collected. Use --force to run anyway.")
         return
 
     global workbook, gc
@@ -624,7 +662,7 @@ async def main_async():
     else:
         history = {}
 
-    today_str = datetime.now().strftime("%Y%m%d")
+    today_str = now_jst().strftime("%Y%m%d")
 
     for slug, data in results.items():
         folder = data["sheet_name"]
@@ -658,10 +696,10 @@ async def main_async():
             "current_price": data["current_price"]
         }
 
-    # history.json を保存
     print("Saving updated history.json...")
     with open(history_path, 'w', encoding='utf-8') as f:
         json.dump(history, f, ensure_ascii=False, indent=2)
+    save_history_meta(today_str)
 
     # 5. Web表示用JSONを再ビルド
     build_site_data()

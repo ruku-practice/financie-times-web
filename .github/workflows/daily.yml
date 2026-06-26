@@ -3,17 +3,31 @@ name: Daily Update
 on:
   schedule:
     # 毎日 JST 0:00 (UTC 15:00) に実行
-    - cron: '0 15 * * *'
-  workflow_dispatch: # 手動実行をサポート
+    - cron: "0 15 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "本日分が既にあっても強制実行する"
+        required: false
+        default: false
+        type: boolean
+      test_mode:
+        description: "スクレイピングのみ（スプレッドシート書き込みをスキップ）"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
+
+concurrency:
+  group: financie-daily-update
+  cancel-in-progress: false
 
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,26 +35,84 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-          cache: 'pip'
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Check if already updated today (JST)
+        id: check
+        env:
+          FORCE_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.force == true }}
+        run: |
+          TODAY=$(TZ=Asia/Tokyo date +%Y-%m-%d)
+          LAST=$(python -c "import json; print(json.load(open('data/history_meta.json')).get('latest_collected',{}).get('date',''))" 2>/dev/null || echo "")
+          echo "today(JST)=$TODAY / latest_collected=$LAST"
+          if [ "$FORCE_RUN" = "true" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "▶ force=true のため強制実行します。"
+          elif [ "$LAST" = "$TODAY" ]; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "✅ 本日($TODAY)は既に更新済み。以降のステップをスキップします。"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "▶ 本日($TODAY)は未更新。実行します。"
+          fi
 
       - name: Install dependencies
+        if: steps.check.outputs.run == 'true'
         run: |
           python -m pip install --upgrade pip
-          pip install gspread google-auth playwright psutil
+          pip install -r requirements.txt
 
-      - name: Install Playwright Browsers
-        run: |
-          playwright install chromium --with-deps
+      - name: Install Playwright Chromium
+        if: steps.check.outputs.run == 'true'
+        run: python -m playwright install --with-deps chromium
 
-      - name: Run daily update
+      - name: Write service account credentials
+        if: steps.check.outputs.run == 'true'
         env:
           GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
         run: |
-          python scripts/update_daily.py
+          printf '%s' "$GOOGLE_CREDENTIALS_JSON" > service_account.json
+          echo "wrote service_account.json ($(wc -c < service_account.json) bytes)"
 
-      - name: Commit and Push changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore: Auto update daily stats [skip ci]"
-          file_pattern: "data/*"
+      - name: Run daily update (retry on failure only)
+        if: steps.check.outputs.run == 'true'
+        env:
+          GOOGLE_CREDENTIALS_PATH: ${{ github.workspace }}/service_account.json
+          PYTHONUNBUFFERED: "1"
+          TEST_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.test_mode == true }}
+        run: |
+          set -o pipefail
+          ARGS=""
+          if [ "$TEST_MODE" = "true" ]; then
+            ARGS="--test"
+          fi
+          for attempt in 1 2 3; do
+            echo "===== 試行 $attempt/3 ====="
+            if python scripts/update_daily.py $ARGS; then
+              echo "✅ 試行 $attempt で成功"
+              exit 0
+            fi
+            echo "⚠ 試行 $attempt が失敗しました"
+            if [ "$attempt" -lt 3 ]; then
+              echo "120秒待機して再試行します..."
+              sleep 120
+            fi
+          done
+          echo "❌ 3回とも失敗しました"
+          exit 1
+
+      - name: Commit and push changes
+        if: steps.check.outputs.run == 'true'
+        run: |
+          rm -f service_account.json
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/
+          if git diff --cached --quiet; then
+            echo "変更なし（push スキップ）"
+          else
+            git commit -m "chore: daily data update ($(TZ=Asia/Tokyo date +%Y-%m-%dT%H:%MJST))"
+            git push
+          fi
