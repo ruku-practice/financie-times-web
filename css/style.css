@@ -1,0 +1,319 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+
+:root {
+  --bg-green-header: #d9ead3; /* スプレッドシート標準の薄い緑 */
+  --diff-up: #cfe2f3;         /* スプレッドシート標準の薄い青 */
+  --diff-down: #f4cccc;       /* スプレッドシート標準の薄い赤 */
+  --border-color: #999999;
+  --text-color: #000000;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #ffffff; /* 完全な白背景 */
+  color: var(--text-color);
+  font-family: var(--font-family);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 1024px; /* 13列表示のために幅を広げる */
+  background-color: #ffffff;
+}
+
+/* --- Header Table (Borderless, Spreadsheet paper feel) --- */
+.header-table {
+  border: none !important;
+  margin-bottom: 20px !important;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.header-table td {
+  border: none !important;
+  background: transparent !important;
+  height: auto !important;
+  padding: 0 !important;
+}
+
+.title-cell {
+  vertical-align: middle;
+  text-align: left;
+}
+
+.logo-title-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.financie-logo {
+  height: 28px;
+  object-fit: contain;
+}
+
+#header-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+.date-time-cell {
+  vertical-align: middle;
+  text-align: right;
+}
+
+.date-time-container {
+  display: inline-block;
+  text-align: right;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--text-color);
+}
+
+.date-label {
+  display: inline-block;
+  margin-right: 15px;
+}
+
+.date-value {
+  display: inline-block;
+  font-weight: bold;
+}
+
+.time-value {
+  font-weight: bold;
+}
+
+/* --- Times Table --- */
+.paper-body {
+  width: 100%;
+}
+
+.times-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  border: none !important; /* 外枠なし */
+  table-layout: fixed; /* 列幅を完全に強制 */
+  margin-bottom: 20px;
+}
+
+.times-table th, .times-table td {
+  border: none !important; /* 全ての縦横の罫線をなしにする */
+  padding: 6px 4px;
+  vertical-align: middle;
+  color: #000000;
+}
+
+/* Header Cells styling */
+.section-header-row {
+  height: 28px;
+}
+
+.times-table th {
+  background-color: var(--bg-green-header) !important;
+  font-weight: bold;
+  text-align: center;
+  color: #000000;
+  border-bottom: 1px solid #999999 !important; /* ヘッダーの下部のみ薄グレーの横線を入れる */
+}
+
+/* 1段目と2段目のヘッダー境界の横線を調整 */
+.times-table thead tr:first-child th {
+  border-bottom: none !important;
+}
+
+.times-table thead tr:last-child th {
+  border-bottom: 1px solid #999999 !important;
+}
+
+/* Cell alignment & weight */
+.label-cell {
+  font-weight: normal;
+  text-align: left;
+  color: #000000;
+}
+
+/* 順位セル */
+.text-center.bold {
+  text-align: right;
+  font-weight: bold;
+  padding-right: 8px !important;
+}
+
+.value-cell {
+  text-align: right;
+  font-weight: bold; /* メイン値は太字 */
+  padding-right: 2px !important; /* 前日差と密着させるために右パディングを極小化 */
+}
+
+.diff-cell {
+  text-align: left; /* 前日差は左寄せ */
+  font-weight: normal; /* 前日差は細字 */
+  padding-left: 2px !important; /* メイン値と密着させるために左パディングを極小化 */
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Diff coloring background */
+.diff-cell.up {
+  background-color: var(--diff-up) !important;
+  color: #000000;
+}
+
+.diff-cell.down {
+  background-color: var(--diff-down) !important;
+  color: #000000;
+}
+
+/* PJ Logo & Name layout */
+.pj-name-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.pj-img {
+  width: 24px;
+  height: 24px;
+  object-fit: cover;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 1px solid #cccccc;
+}
+
+.pj-name-txt {
+  font-weight: bold;
+  font-size: 13px;
+  text-align: left;
+  text-decoration: none;
+  color: #000000;
+}
+
+.pj-name-txt:hover {
+  text-decoration: underline;
+  color: #2b5f8c;
+}
+
+/* --- Loader --- */
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 16px;
+}
+
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #eee;
+  border-bottom-color: #999999;
+  border-radius: 50%;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* View controls / Navigation */
+.newspaper-nav {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  gap: 10px;
+}
+
+.nav-link {
+  display: inline-block;
+  padding: 6px 12px;
+  background-color: #f3f3f3;
+  border: 1px solid #cccccc;
+  color: #333;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  text-align: center;
+  flex: 1;
+}
+
+.nav-link.active, .nav-link:hover {
+  background-color: #e2efda;
+  color: #000000;
+  border-color: #999999;
+}
+
+.toggle-container {
+  display: flex;
+  gap: 5px;
+}
+
+.toggle-btn {
+  background: #f3f3f3;
+  border: 1px solid #cccccc;
+  color: #333;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.toggle-btn.active {
+  background: #e2efda;
+  color: #000;
+  border-color: #999999;
+}
+
+.view-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #000;
+}
+
+/* 下部導線 */
+.adv-link-bar { text-align: center; margin: 15px 0 5px; width: 100%; }
+.adv-link {
+  display: inline-block; text-decoration: none; font-weight: bold; font-size: 12px;
+  color: #000; background: #e2efda; padding: 6px 12px; border-radius: 4px;
+  transition: background .15s ease;
+  border: 1px solid #999999;
+}
+.adv-link:hover { background: #c8dfbe; }

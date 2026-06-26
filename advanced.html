@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FiNANCiE TIMES | 高機能ダッシュボード</title>
+  <link rel="stylesheet" href="css/advanced.css">
+  <!-- Lucide Icons (アイコン用) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <!-- グリッド＆ブラーエフェクト -->
+  <div class="bg-grid"></div>
+  <div class="bg-blur"></div>
+
+  <div class="app-container">
+    <!-- アプリヘッダー -->
+    <header class="app-header">
+      <div class="logo-section">
+        <h1>FiNANCiE TIMES</h1>
+        <span class="logo-badge">ADVANCED</span>
+      </div>
+      <div class="header-nav">
+        <a href="index.html" class="btn-classic">← 新聞風（クラシック版）へ戻る</a>
+      </div>
+    </header>
+
+    <!-- ダッシュボードのメインエリア -->
+    <div class="dashboard-layout">
+      
+      <!-- サイドバー (検索 ＆ PJ一覧) -->
+      <aside class="sidebar">
+        <div class="sidebar-search-area">
+          <div class="search-input-wrapper">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" id="search-input" class="search-input" placeholder="プロジェクトを検索...">
+          </div>
+        </div>
+        <div class="project-list" id="project-list-container">
+          <!-- JSで動的にロード・描画されます -->
+          <div class="project-item skeleton" style="height: 60px;"></div>
+          <div class="project-item skeleton" style="height: 60px;"></div>
+          <div class="project-item skeleton" style="height: 60px;"></div>
+          <div class="project-item skeleton" style="height: 60px;"></div>
+          <div class="project-item skeleton" style="height: 60px;"></div>
+        </div>
+      </aside>
+
+      <!-- メインチャート表示エリア -->
+      <main class="main-chart-area" id="main-dashboard">
+        <!-- 初期ウェルカムビュー -->
+        <div class="welcome-view" id="welcome-view">
+          <i data-lucide="line-chart" style="width: 64px; height: 64px; color: var(--text-secondary); margin-bottom: 1.5rem;"></i>
+          <h2>FiNANCiE 市況分析</h2>
+          <p>左側のリストからプロジェクトを選択してください。2024年から2026年までの現在価格、取引量、メンバー数、在庫状況の長期推移がグラフで確認できます。</p>
+        </div>
+
+        <!-- 動的詳細ビュー (JSで非表示解除・更新) -->
+        <div id="detail-view" style="display: none; display: flex; flex-direction: column; gap: 1.5rem;">
+          
+          <!-- 詳細ヘッダー -->
+          <div class="detail-header">
+            <div class="detail-header-left">
+              <img id="detail-logo" class="detail-logo" src="" alt="logo">
+              <div class="detail-title">
+                <h2 id="detail-name">Project Name</h2>
+                <span id="detail-slug" class="slug-badge">slug</span>
+              </div>
+            </div>
+            <div class="period-selector">
+              <button class="period-btn active" data-days="30">30日</button>
+              <button class="period-btn" data-days="90">90日</button>
+              <button class="period-btn" data-days="365">1年</button>
+              <button class="period-btn" data-days="all">全期間</button>
+            </div>
+          </div>
+
+          <!-- 主要指標 -->
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <span class="metric-label">現在価格</span>
+              <div class="metric-value" id="metric-price">-</div>
+              <span class="metric-sub" id="metric-price-sub">-</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">24H出来高</span>
+              <div class="metric-value" id="metric-volume">-</div>
+              <span class="metric-sub" id="metric-volume-sub">24h volume</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">メンバー数</span>
+              <div class="metric-value" id="metric-members">-</div>
+              <span class="metric-sub" id="metric-members-sub">-</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">トークン在庫</span>
+              <div class="metric-value" id="metric-stock">-</div>
+              <span class="metric-sub" id="metric-marketcap-sub">時価総額: -</span>
+            </div>
+          </div>
+
+          <!-- グラフグリッド -->
+          <div class="charts-grid">
+            <!-- 価格推移 -->
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <h3 class="chart-card-title">現在価格の推移 (pt)</h3>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="priceChart"></canvas>
+              </div>
+            </div>
+
+            <!-- 24h出来高推移 -->
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <h3 class="chart-card-title">24H 取引量の推移 (pt)</h3>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="volumeChart"></canvas>
+              </div>
+            </div>
+
+            <!-- メンバー数推移 & 在庫推移 (全幅) -->
+            <div class="chart-card full-width">
+              <div class="chart-card-header">
+                <h3 class="chart-card-title">メンバー数 & トークン在庫の長期推移</h3>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="combinedChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <script src="js/advanced.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+# Google Sheets 認証鍵（ローカルファイル・秘密情報）
+writeinfo2spreadsheet-*.json
+credentials*.json
+service_account*.json
+
+# OS / Python 一時ファイル
+.DS_Store
+__pycache__/
+*.pyc
+
+# 実行ログ
+*.log

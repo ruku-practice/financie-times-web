@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FiNANCiE TIMES | 出来高市況版</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    
+    <!-- Loading State -->
+    <div id="loader-container" class="loader-container">
+      <div class="loader"></div>
+      <p style="color: #666; font-size: 14px; font-weight: bold;">スプレッドシートからデータを取得中...</p>
+    </div>
+
+    <!-- Main Dashboard (Initially Hidden) -->
+    <div id="dashboard-content" class="hidden">
+
+      <!-- Header Table (Borderless, Spreadsheet paper feel) -->
+      <table class="times-table header-table">
+        <colgroup>
+          <col style="width: 70%;">
+          <col style="width: 30%;">
+        </colgroup>
+        <tbody class="header-section">
+          <tr>
+            <td class="title-cell">
+              <div class="logo-title-container">
+                <img src="https://financie.jp/assets/img/ogp.png" alt="FiNANCiE" class="financie-logo" onerror="this.style.display='none'">
+                <h1 id="header-title">FiNANCiE TIMES -出来高(24h)順-</h1>
+              </div>
+            </td>
+            <td class="date-time-cell">
+              <div class="date-time-container">
+                <div class="date-label">データ取得日時</div>
+                <div class="date-value" id="header-date">--------</div>
+                <div class="time-value" id="header-time">--:--</div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Navigation links -->
+      <nav class="newspaper-nav">
+        <a href="index.html" class="nav-link active">24H 出来高順</a>
+        <a href="members.html" class="nav-link">メンバー数増順</a>
+        <a href="advanced.html" class="nav-link" style="border-color: #999999; color: #333; font-weight: bold;">高機能ダッシュボード →</a>
+      </nav>
+
+      <!-- Controls -->
+      <div class="view-controls">
+        <h2 class="section-title">24時間出来高ランキング (出来高順)</h2>
+        <div class="toggle-container">
+          <button id="toggle-30" class="toggle-btn active">30位まで</button>
+          <button id="toggle-all" class="toggle-btn">全PJ</button>
+        </div>
+      </div>
+
+      <!-- Main Times Table -->
+      <div class="paper-body">
+        <table class="times-table">
+          <colgroup>
+            <col style="width: 2%;">
+            <col style="width: 28%;">
+            <col style="width: 8%;">
+            <col style="width: 6%;">
+            <col style="width: 8%;">
+            <col style="width: 6%;">
+            <col style="width: 8%;">
+            <col style="width: 6%;">
+            <col style="width: 8%;">
+            <col style="width: 6%;">
+            <col style="width: 9%;">
+            <col style="width: 5%;">
+          </colgroup>
+          <thead>
+            <tr class="section-header-row">
+              <th rowspan="2" class="col-rank"></th>
+              <th rowspan="2" class="col-pj">PJ</th>
+              <th colspan="2" class="header-cell bg-green">[千円]</th>
+              <th colspan="4" class="header-cell bg-green">[円]</th>
+              <th colspan="2" class="header-cell bg-green">[人]</th>
+              <th colspan="2" class="header-cell bg-green">[個]</th>
+            </tr>
+            <tr class="section-header-row">
+              <th colspan="2" class="header-cell bg-green" style="border-left: none !important;">出来高（24h）</th>
+              <th colspan="2" class="header-cell bg-green">値幅制限基準価格</th>
+              <th colspan="2" class="header-cell bg-green">現在価格</th>
+              <th colspan="2" class="header-cell bg-green">メンバー数</th>
+              <th colspan="2" class="header-cell bg-green">トークン在庫</th>
+            </tr>
+          </thead>
+          <tbody id="ranking-tbody">
+            <!-- JSで動的に追加されます -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Bottom link to advanced version -->
+      <div class="adv-link-bar bottom">
+        <a href="advanced.html" class="adv-link">📊 グラフや過去データは高機能版で見られます →</a>
+      </div>
+
+      <!-- Footer -->
+      <footer style="text-align: center; font-size: 11px; color: #666; margin-top: 20px; padding: 10px; border-top: 1px solid #cccccc;">
+        <p>© 2026 FiNANCiE TIMES. 全データはGoogleスプレッドシートより定時取得・ビルドされています。</p>
+      </footer>
+
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    window.PAGE_TYPE = 'volume';
+  </script>
+</body>
+</html>

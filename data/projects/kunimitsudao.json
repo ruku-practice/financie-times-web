@@ -1,0 +1,7919 @@
+{
+  "folder": "kunimitsudao",
+  "slug": "hkunimitsu",
+  "name": "國光DAO",
+  "logo": "https://image-financie.storage.googleapis.com/production/user/image/189/user_icon_%E5%9B%BD%E5%85%89%E3%83%95%E3%82%9A%E3%83%AD%E3%83%95%E7%94%BB%E5%83%8F.png",
+  "history": [
+    {
+      "date": "20231224",
+      "price": 0.0,
+      "volume": 1985.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": ""
+    },
+    {
+      "date": "20240122",
+      "price": 0.0,
+      "volume": 510079.0,
+      "members": 5965,
+      "stock": 273177,
+      "marketCap": 93264591,
+      "active_ranking": "5"
+    },
+    {
+      "date": "20240123",
+      "price": 0.0,
+      "volume": 68305.1,
+      "members": 5981,
+      "stock": 274857,
+      "marketCap": 92128021,
+      "active_ranking": "5"
+    },
+    {
+      "date": "20240124",
+      "price": 0.0,
+      "volume": 55048.1,
+      "members": 5994,
+      "stock": 275813,
+      "marketCap": 91490807,
+      "active_ranking": "5"
+    },
+    {
+      "date": "20240125",
+      "price": 0.0,
+      "volume": 34554.7,
+      "members": 6007,
+      "stock": 276734,
+      "marketCap": 90882611,
+      "active_ranking": "5"
+    },
+    {
+      "date": "20240126",
+      "price": 0.0,
+      "volume": 11236.4,
+      "members": 6008,
+      "stock": 276662,
+      "marketCap": 90929731,
+      "active_ranking": "5"
+    },
+    {
+      "date": "20240127",
+      "price": 0.0,
+      "volume": 20584.2,
+      "members": 6029,
+      "stock": 276965,
+      "marketCap": 90731222,
+      "active_ranking": "5"
+    },
+    {
+      "date": "20240128",
+      "price": 0.0,
+      "volume": 65778.5,
+      "members": 6044,
+      "stock": 277677,
+      "marketCap": 90266232,
+      "active_ranking": "5"
+    },
+    {
+      "date": "20240129",
+      "price": 0.0,
+      "volume": 48180.0,
+      "members": 6070,
+      "stock": 276291,
+      "marketCap": 91174224,
+      "active_ranking": "5"
+    },
+    {
+      "date": "20240130",
+      "price": 0.0,
+      "volume": 40040.1,
+      "members": 6081,
+      "stock": 276033,
+      "marketCap": 91344663,
+      "active_ranking": "5"
+    },
+    {
+      "date": "20240131",
+      "price": 0.0,
+      "volume": 18150.0,
+      "members": 6091,
+      "stock": 275516,
+      "marketCap": 91688214,
+      "active_ranking": "5"
+    },
+    {
+      "date": "20240201",
+      "price": 0.0,
+      "volume": 15638.3,
+      "members": 6105,
+      "stock": 275477,
+      "marketCap": 91713946,
+      "active_ranking": "5"
+    },
+    {
+      "date": "20240202",
+      "price": 0.0,
+      "volume": 30961.2,
+      "members": 6131,
+      "stock": 276048,
+      "marketCap": 90973425,
+      "active_ranking": "5"
+    },
+    {
+      "date": "20240203",
+      "price": 0.0,
+      "volume": 80558.4,
+      "members": 6158,
+      "stock": 273937,
+      "marketCap": 92380283,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240204",
+      "price": 0.0,
+      "volume": 274299.0,
+      "members": 6201,
+      "stock": 274750,
+      "marketCap": 91834340,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240205",
+      "price": 0.0,
+      "volume": 143951.0,
+      "members": 6224,
+      "stock": 270833,
+      "marketCap": 94509794,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240206",
+      "price": 0.0,
+      "volume": 133017.0,
+      "members": 6451,
+      "stock": 267409,
+      "marketCap": 96945162,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240207",
+      "price": 0.0,
+      "volume": 179472.0,
+      "members": 6505,
+      "stock": 263285,
+      "marketCap": 100003821,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240208",
+      "price": 0.0,
+      "volume": 40250.8,
+      "members": 6569,
+      "stock": 262084,
+      "marketCap": 100909393,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240209",
+      "price": 0.0,
+      "volume": 225805.0,
+      "members": 6632,
+      "stock": 261929,
+      "marketCap": 101446837,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240210",
+      "price": 0.0,
+      "volume": 98998.4,
+      "members": 6666,
+      "stock": 260231,
+      "marketCap": 102775468,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240211",
+      "price": 0.0,
+      "volume": 76379.4,
+      "members": 7153,
+      "stock": 258524,
+      "marketCap": 104136450,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240212",
+      "price": 0.0,
+      "volume": 118393.0,
+      "members": 7358,
+      "stock": 256255,
+      "marketCap": 105988999,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240213",
+      "price": 0.0,
+      "volume": 110362.0,
+      "members": 7471,
+      "stock": 256695,
+      "marketCap": 105625973,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240214",
+      "price": 0.0,
+      "volume": 140836.0,
+      "members": 7751,
+      "stock": 253711,
+      "marketCap": 108125402,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240215",
+      "price": 0.0,
+      "volume": 307458.0,
+      "members": 8018,
+      "stock": 244679,
+      "marketCap": 116255517,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240216",
+      "price": 0.0,
+      "volume": 576558.0,
+      "members": 8144,
+      "stock": 238981,
+      "marketCap": 121865980,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240217",
+      "price": 0.0,
+      "volume": 2442500.0,
+      "members": 8347,
+      "stock": 197949,
+      "marketCap": 177623105,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240218",
+      "price": 0.0,
+      "volume": 6723580.0,
+      "members": 8561,
+      "stock": 183789,
+      "marketCap": 206045510,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240219",
+      "price": 0.0,
+      "volume": 970449.0,
+      "members": 8671,
+      "stock": 180744,
+      "marketCap": 213047204,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240220",
+      "price": 0.0,
+      "volume": 1077910.0,
+      "members": 8730,
+      "stock": 185364,
+      "marketCap": 202559559,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240221",
+      "price": 0.0,
+      "volume": 887099.0,
+      "members": 8760,
+      "stock": 194567,
+      "marketCap": 183851982,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240222",
+      "price": 0.0,
+      "volume": 370809.0,
+      "members": 8933,
+      "stock": 197867,
+      "marketCap": 177770208,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240223",
+      "price": 0.0,
+      "volume": 600399.0,
+      "members": 9006,
+      "stock": 205698,
+      "marketCap": 164491750,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240224",
+      "price": 0.0,
+      "volume": 293881.0,
+      "members": 9054,
+      "stock": 205832,
+      "marketCap": 164278033,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240225",
+      "price": 0.0,
+      "volume": 486402.0,
+      "members": 9077,
+      "stock": 207744,
+      "marketCap": 161268012,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240226",
+      "price": 0.0,
+      "volume": 199859.0,
+      "members": 9115,
+      "stock": 207449,
+      "marketCap": 161726777,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240227",
+      "price": 0.0,
+      "volume": 133950.0,
+      "members": 9152,
+      "stock": 207689,
+      "marketCap": 161353925,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240228",
+      "price": 0.0,
+      "volume": 97751.8,
+      "members": 9205,
+      "stock": 208127,
+      "marketCap": 160674816,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240229",
+      "price": 0.0,
+      "volume": 140399.0,
+      "members": 9232,
+      "stock": 207457,
+      "marketCap": 161714036,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240301",
+      "price": 0.0,
+      "volume": 95109.5,
+      "members": 9257,
+      "stock": 206912,
+      "marketCap": 162567742,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240302",
+      "price": 0.0,
+      "volume": 482360.0,
+      "members": 9286,
+      "stock": 208474,
+      "marketCap": 160140532,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240303",
+      "price": 0.0,
+      "volume": 357783.0,
+      "members": 9324,
+      "stock": 206803,
+      "marketCap": 162738878,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240304",
+      "price": 0.0,
+      "volume": 77942.9,
+      "members": 9335,
+      "stock": 206545,
+      "marketCap": 163145061,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240305",
+      "price": 0.0,
+      "volume": 105125.0,
+      "members": 9349,
+      "stock": 206669,
+      "marketCap": 162934216,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240306",
+      "price": 0.0,
+      "volume": 669519.0,
+      "members": 9366,
+      "stock": 215889,
+      "marketCap": 149329448,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240307",
+      "price": 0.0,
+      "volume": 115142.0,
+      "members": 9373,
+      "stock": 214759,
+      "marketCap": 150905157,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240308",
+      "price": 0.0,
+      "volume": 246991.0,
+      "members": 9399,
+      "stock": 213286,
+      "marketCap": 152996711,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240309",
+      "price": 0.0,
+      "volume": 59415.6,
+      "members": 9441,
+      "stock": 213088,
+      "marketCap": 153280773,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240310",
+      "price": 0.0,
+      "volume": 315750.0,
+      "members": 9470,
+      "stock": 215114,
+      "marketCap": 150406529,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240311",
+      "price": 0.0,
+      "volume": 325886.0,
+      "members": 9489,
+      "stock": 209876,
+      "marketCap": 158007704,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240312",
+      "price": 0.0,
+      "volume": 117622.0,
+      "members": 9494,
+      "stock": 209817,
+      "marketCap": 158096690,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240313",
+      "price": 0.0,
+      "volume": 178050.0,
+      "members": 9503,
+      "stock": 210889,
+      "marketCap": 156493816,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240314",
+      "price": 0.0,
+      "volume": 36608.2,
+      "members": 9519,
+      "stock": 211177,
+      "marketCap": 156059556,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240315",
+      "price": 0.0,
+      "volume": 211253.0,
+      "members": 9528,
+      "stock": 208379,
+      "marketCap": 160286715,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240316",
+      "price": 0.0,
+      "volume": 129778.0,
+      "members": 9539,
+      "stock": 210410,
+      "marketCap": 157207349,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240317",
+      "price": 0.0,
+      "volume": 510697.0,
+      "members": 9545,
+      "stock": 219722,
+      "marketCap": 144157522,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240318",
+      "price": 0.0,
+      "volume": 276071.0,
+      "members": 9549,
+      "stock": 216683,
+      "marketCap": 148236793,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240319",
+      "price": 0.0,
+      "volume": 4837.41,
+      "members": 9553,
+      "stock": 216696,
+      "marketCap": 148219313,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240320",
+      "price": 0.0,
+      "volume": 130341.0,
+      "members": 9551,
+      "stock": 218954,
+      "marketCap": 145178116,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240321",
+      "price": 0.0,
+      "volume": 95280.8,
+      "members": 9554,
+      "stock": 217631,
+      "marketCap": 146948105,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240322",
+      "price": 0.0,
+      "volume": 147012.0,
+      "members": 9676,
+      "stock": 218765,
+      "marketCap": 145428659,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240323",
+      "price": 0.0,
+      "volume": 19534.3,
+      "members": 9699,
+      "stock": 219035,
+      "marketCap": 145070011,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240324",
+      "price": 0.0,
+      "volume": 21336.7,
+      "members": 9709,
+      "stock": 218777,
+      "marketCap": 145412286,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240325",
+      "price": 0.0,
+      "volume": 24289.8,
+      "members": 9723,
+      "stock": 219148,
+      "marketCap": 144920478,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240326",
+      "price": 0.0,
+      "volume": 52396.0,
+      "members": 9724,
+      "stock": 220240,
+      "marketCap": 143487653,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240327",
+      "price": 0.0,
+      "volume": 107091.0,
+      "members": 9721,
+      "stock": 221093,
+      "marketCap": 142381856,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240328",
+      "price": 0.0,
+      "volume": 7088.65,
+      "members": 9721,
+      "stock": 221061,
+      "marketCap": 142423833,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240329",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 9719,
+      "stock": 221022,
+      "marketCap": 142473543,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240330",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 9720,
+      "stock": 221610,
+      "marketCap": 141718364,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240331",
+      "price": 0.0,
+      "volume": 57799.3,
+      "members": 9727,
+      "stock": 221747,
+      "marketCap": 141543022,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240401",
+      "price": 0.0,
+      "volume": 14867.5,
+      "members": 9729,
+      "stock": 221551,
+      "marketCap": 141793559,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240402",
+      "price": 0.0,
+      "volume": 143386.9,
+      "members": 9728,
+      "stock": 223682,
+      "marketCap": 139104728,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240403",
+      "price": 0.0,
+      "volume": 9786.2,
+      "members": 9730,
+      "stock": 223717,
+      "marketCap": 139061389,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240404",
+      "price": 0.0,
+      "volume": 64174.7,
+      "members": 9725,
+      "stock": 224997,
+      "marketCap": 137484199,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240405",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 9726,
+      "stock": 224071,
+      "marketCap": 138622039,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240406",
+      "price": 0.0,
+      "volume": 243741.4,
+      "members": 9730,
+      "stock": 220890,
+      "marketCap": 142644484,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240407",
+      "price": 0.0,
+      "volume": 20990.1,
+      "members": 9733,
+      "stock": 221140,
+      "marketCap": 142321855,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240408",
+      "price": 0.0,
+      "volume": 11088.6,
+      "members": 9731,
+      "stock": 221326,
+      "marketCap": 142082535,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240409",
+      "price": 0.0,
+      "volume": 21095.7,
+      "members": 9737,
+      "stock": 221265,
+      "marketCap": 142160615,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240410",
+      "price": 0.0,
+      "volume": 103765.7,
+      "members": 9745,
+      "stock": 219958,
+      "marketCap": 143855260,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240411",
+      "price": 0.0,
+      "volume": 24295.4,
+      "members": 9748,
+      "stock": 220207,
+      "marketCap": 143530324,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240412",
+      "price": 0.0,
+      "volume": 41483.9,
+      "members": 9754,
+      "stock": 219664,
+      "marketCap": 144240520,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240413",
+      "price": 0.0,
+      "volume": 31717.9,
+      "members": 9756,
+      "stock": 220051,
+      "marketCap": 143733742,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240414",
+      "price": 0.0,
+      "volume": 18177.0,
+      "members": 9757,
+      "stock": 219917,
+      "marketCap": 143908978,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240415",
+      "price": 0.0,
+      "volume": 7260.9,
+      "members": 9758,
+      "stock": 219873,
+      "marketCap": 143966883,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240416",
+      "price": 0.0,
+      "volume": 57482.5,
+      "members": 9756,
+      "stock": 220556,
+      "marketCap": 143076041,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240417",
+      "price": 0.0,
+      "volume": 56618.5,
+      "members": 9757,
+      "stock": 221055,
+      "marketCap": 142431668,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240418",
+      "price": 0.0,
+      "volume": 238021.9,
+      "members": 9756,
+      "stock": 225698,
+      "marketCap": 136630938,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240419",
+      "price": 0.0,
+      "volume": 15841.1,
+      "members": 9756,
+      "stock": 225571,
+      "marketCap": 136785395,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240420",
+      "price": 0.0,
+      "volume": 55774.1,
+      "members": 9755,
+      "stock": 225446,
+      "marketCap": 136953020,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240421",
+      "price": 0.0,
+      "volume": 330539.9,
+      "members": 9753,
+      "stock": 232123,
+      "marketCap": 129172773,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240422",
+      "price": 0.0,
+      "volume": 6548.9,
+      "members": 9757,
+      "stock": 231988,
+      "marketCap": 129322338,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240423",
+      "price": 0.0,
+      "volume": 17122.8,
+      "members": 9759,
+      "stock": 231691,
+      "marketCap": 129654619,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240424",
+      "price": 0.0,
+      "volume": 82856.6,
+      "members": 9759,
+      "stock": 231659,
+      "marketCap": 129689876,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240425",
+      "price": 0.0,
+      "volume": 19602.0,
+      "members": 9758,
+      "stock": 231810,
+      "marketCap": 129521161,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240426",
+      "price": 0.0,
+      "volume": 13472.1,
+      "members": 9756,
+      "stock": 231808,
+      "marketCap": 129523988,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240427",
+      "price": 0.0,
+      "volume": 19159.7,
+      "members": 9755,
+      "stock": 231520,
+      "marketCap": 129845924,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240428",
+      "price": 0.0,
+      "volume": 53198.0,
+      "members": 9755,
+      "stock": 232343,
+      "marketCap": 128927761,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240502",
+      "price": 0.0,
+      "volume": 8436.6,
+      "members": 9750,
+      "stock": 243697,
+      "marketCap": 117194039,
+      "active_ranking": "2"
+    },
+    {
+      "date": "20240503",
+      "price": 0.0,
+      "volume": 7912.7,
+      "members": 9746,
+      "stock": 243766,
+      "marketCap": 117127819,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240504",
+      "price": 0.0,
+      "volume": 17748.8,
+      "members": 9751,
+      "stock": 243379,
+      "marketCap": 117500869,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240505",
+      "price": 0.0,
+      "volume": 4781.0,
+      "members": 9752,
+      "stock": 243276,
+      "marketCap": 117599763,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240506",
+      "price": 0.0,
+      "volume": 8897.5,
+      "members": 9753,
+      "stock": 243428,
+      "marketCap": 117452912,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240507",
+      "price": 0.0,
+      "volume": 2476.0,
+      "members": 9755,
+      "stock": 243373,
+      "marketCap": 117506012,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240508",
+      "price": 0.0,
+      "volume": 11167.8,
+      "members": 9755,
+      "stock": 243152,
+      "marketCap": 117719929,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240509",
+      "price": 0.0,
+      "volume": 88170.2,
+      "members": 9756,
+      "stock": 245128,
+      "marketCap": 115850534,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240512",
+      "price": 0.0,
+      "volume": 342408.6,
+      "members": 9810,
+      "stock": 255593,
+      "marketCap": 106538834,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240513",
+      "price": 0.0,
+      "volume": 381659.5,
+      "members": 9814,
+      "stock": 257711,
+      "marketCap": 104795001,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240514",
+      "price": 0.0,
+      "volume": 338629.9,
+      "members": 9820,
+      "stock": 267071,
+      "marketCap": 97578178,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240515",
+      "price": 0.0,
+      "volume": 7985.7,
+      "members": 9818,
+      "stock": 266915,
+      "marketCap": 97692079,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240516",
+      "price": 0.0,
+      "volume": 43065.8,
+      "members": 9820,
+      "stock": 266836,
+      "marketCap": 97750087,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240517",
+      "price": 0.0,
+      "volume": 9824.3,
+      "members": 9818,
+      "stock": 266699,
+      "marketCap": 97850440,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240518",
+      "price": 0.0,
+      "volume": 8392.0,
+      "members": 9817,
+      "stock": 266937,
+      "marketCap": 97676277,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240519",
+      "price": 0.0,
+      "volume": 3640.0,
+      "members": 9814,
+      "stock": 266990,
+      "marketCap": 97637265,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240520",
+      "price": 0.0,
+      "volume": 141159.0,
+      "members": 9817,
+      "stock": 269980,
+      "marketCap": 95486814,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240521",
+      "price": 0.0,
+      "volume": 10463.9,
+      "members": 9818,
+      "stock": 269713,
+      "marketCap": 95675756,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240522",
+      "price": 0.0,
+      "volume": 28911.4,
+      "members": 9818,
+      "stock": 270574,
+      "marketCap": 95067974,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240523",
+      "price": 0.0,
+      "volume": 35344.0,
+      "members": 9822,
+      "stock": 270333,
+      "marketCap": 95237432,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240524",
+      "price": 0.0,
+      "volume": 6796.3,
+      "members": 9825,
+      "stock": 270526,
+      "marketCap": 95101750,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240525",
+      "price": 0.0,
+      "volume": 2992.9,
+      "members": 9823,
+      "stock": 270501,
+      "marketCap": 95119421,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240526",
+      "price": 0.0,
+      "volume": 12604.3,
+      "members": 9825,
+      "stock": 270419,
+      "marketCap": 95176886,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240527",
+      "price": 0.0,
+      "volume": 8060.7,
+      "members": 9824,
+      "stock": 270211,
+      "marketCap": 95323177,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240528",
+      "price": 0.0,
+      "volume": 4103.4,
+      "members": 9825,
+      "stock": 270261,
+      "marketCap": 95288528,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240529",
+      "price": 0.0,
+      "volume": 47314.0,
+      "members": 9826,
+      "stock": 269028,
+      "marketCap": 96163845,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240530",
+      "price": 0.0,
+      "volume": 15992.4,
+      "members": 9830,
+      "stock": 269145,
+      "marketCap": 96080438,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240531",
+      "price": 0.0,
+      "volume": 7126.8,
+      "members": 9832,
+      "stock": 269291,
+      "marketCap": 95976017,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240601",
+      "price": 0.0,
+      "volume": 52967.6,
+      "members": 9835,
+      "stock": 268639,
+      "marketCap": 96442122,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240602",
+      "price": 0.0,
+      "volume": 299.7,
+      "members": 9835,
+      "stock": 268637,
+      "marketCap": 96443854,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240603",
+      "price": 0.0,
+      "volume": 6671.9,
+      "members": 9834,
+      "stock": 268523,
+      "marketCap": 96525727,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240604",
+      "price": 0.0,
+      "volume": 770.0,
+      "members": 9833,
+      "stock": 268502,
+      "marketCap": 96540696,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240605",
+      "price": 0.0,
+      "volume": 28773.0,
+      "members": 9834,
+      "stock": 267727,
+      "marketCap": 97100884,
+      "active_ranking": "1"
+    },
+    {
+      "date": "20240606",
+      "price": 0.0,
+      "volume": 12828.0,
+      "members": 9835,
+      "stock": 268014,
+      "marketCap": 96892737,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240607",
+      "price": 0.0,
+      "volume": 5944.0,
+      "members": 9834,
+      "stock": 267854,
+      "marketCap": 97008539,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240608",
+      "price": 0.0,
+      "volume": 16162.9,
+      "members": 9831,
+      "stock": 268207,
+      "marketCap": 96753391,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240609",
+      "price": 0.0,
+      "volume": 4106.3,
+      "members": 9832,
+      "stock": 268309,
+      "marketCap": 96679848,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240610",
+      "price": 0.0,
+      "volume": 524.3,
+      "members": 9835,
+      "stock": 268297,
+      "marketCap": 96688680,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240611",
+      "price": 0.0,
+      "volume": 179700.2,
+      "members": 9832,
+      "stock": 273780,
+      "marketCap": 92854505,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240612",
+      "price": 0.0,
+      "volume": 3652.0,
+      "members": 9834,
+      "stock": 273683,
+      "marketCap": 92920281,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240613",
+      "price": 0.0,
+      "volume": 3531.2,
+      "members": 9869,
+      "stock": 273628,
+      "marketCap": 92957950,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240614",
+      "price": 0.0,
+      "volume": 658.0,
+      "members": 9870,
+      "stock": 273610,
+      "marketCap": 92969824,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240615",
+      "price": 0.0,
+      "volume": 89011.6,
+      "members": 9871,
+      "stock": 273262,
+      "marketCap": 93206500,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240616",
+      "price": 0.0,
+      "volume": 184813.1,
+      "members": 9874,
+      "stock": 275966,
+      "marketCap": 91389224,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240617",
+      "price": 0.0,
+      "volume": 47978.4,
+      "members": 9886,
+      "stock": 276667,
+      "marketCap": 90926366,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240618",
+      "price": 0.0,
+      "volume": 226165.2,
+      "members": 9896,
+      "stock": 271114,
+      "marketCap": 94689448,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240619",
+      "price": 0.0,
+      "volume": 153746.0,
+      "members": 9905,
+      "stock": 273198,
+      "marketCap": 93250493,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240620",
+      "price": 0.0,
+      "volume": 119700.9,
+      "members": 9911,
+      "stock": 273816,
+      "marketCap": 92829946,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240622",
+      "price": 0.0,
+      "volume": 28529.7,
+      "members": 9919,
+      "stock": 274382,
+      "marketCap": 92447183,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240623",
+      "price": 0.0,
+      "volume": 56386.1,
+      "members": 9920,
+      "stock": 272989,
+      "marketCap": 93393054,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240624",
+      "price": 0.0,
+      "volume": 11415.0,
+      "members": 9926,
+      "stock": 272671,
+      "marketCap": 93611454,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240625",
+      "price": 0.0,
+      "volume": 16777.5,
+      "members": 9929,
+      "stock": 273019,
+      "marketCap": 93372703,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240626",
+      "price": 0.0,
+      "volume": 1030105.4,
+      "members": 9931,
+      "stock": 306921,
+      "marketCap": 73884640,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240627",
+      "price": 0.0,
+      "volume": 23418.2,
+      "members": 9931,
+      "stock": 306099,
+      "marketCap": 74281619,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240628",
+      "price": 0.0,
+      "volume": 491944.8,
+      "members": 9933,
+      "stock": 289835,
+      "marketCap": 82852188,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240629",
+      "price": 0.0,
+      "volume": 2751.9,
+      "members": 9933,
+      "stock": 289815,
+      "marketCap": 82863731,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240630",
+      "price": 0.0,
+      "volume": 17582.5,
+      "members": 9935,
+      "stock": 290000,
+      "marketCap": 82757831,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240701",
+      "price": 0.0,
+      "volume": 27247.1,
+      "members": 9937,
+      "stock": 290888,
+      "marketCap": 82253412,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240702",
+      "price": 0.0,
+      "volume": 88488.7,
+      "members": 9944,
+      "stock": 288643,
+      "marketCap": 83538213,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240703",
+      "price": 0.0,
+      "volume": 125158.3,
+      "members": 9955,
+      "stock": 285465,
+      "marketCap": 85408204,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240704",
+      "price": 0.0,
+      "volume": 132765.6,
+      "members": 9959,
+      "stock": 283073,
+      "marketCap": 86857744,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240705",
+      "price": 0.0,
+      "volume": 44301.6,
+      "members": 9961,
+      "stock": 283523,
+      "marketCap": 86582239,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240706",
+      "price": 0.0,
+      "volume": 473443.4,
+      "members": 9958,
+      "stock": 299600,
+      "marketCap": 77539656,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240707",
+      "price": 0.0,
+      "volume": 50887.7,
+      "members": 9960,
+      "stock": 297931,
+      "marketCap": 78410810,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240708",
+      "price": 0.0,
+      "volume": 31100.9,
+      "members": 9971,
+      "stock": 296899,
+      "marketCap": 78956669,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240709",
+      "price": 0.0,
+      "volume": 2603.0,
+      "members": 10023,
+      "stock": 296810,
+      "marketCap": 79004200,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240710",
+      "price": 0.0,
+      "volume": 73875.4,
+      "members": 10057,
+      "stock": 296777,
+      "marketCap": 79021792,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240711",
+      "price": 0.0,
+      "volume": 1469.2,
+      "members": 10078,
+      "stock": 296730,
+      "marketCap": 79046625,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240712",
+      "price": 0.0,
+      "volume": 7135.5,
+      "members": 10087,
+      "stock": 296853,
+      "marketCap": 78981238,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240713",
+      "price": 0.0,
+      "volume": 32129.9,
+      "members": 10092,
+      "stock": 297569,
+      "marketCap": 78601560,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240714",
+      "price": 0.0,
+      "volume": 3838.8,
+      "members": 10093,
+      "stock": 297495,
+      "marketCap": 78640804,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240715",
+      "price": 0.0,
+      "volume": 44488.4,
+      "members": 10093,
+      "stock": 299012,
+      "marketCap": 77844713,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240716",
+      "price": 0.0,
+      "volume": 7526.2,
+      "members": 10094,
+      "stock": 298819,
+      "marketCap": 77945425,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240717",
+      "price": 0.0,
+      "volume": 19232.8,
+      "members": 10090,
+      "stock": 298307,
+      "marketCap": 78213000,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240718",
+      "price": 0.0,
+      "volume": 5728.6,
+      "members": 10092,
+      "stock": 298135,
+      "marketCap": 78303308,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240719",
+      "price": 0.0,
+      "volume": 370.0,
+      "members": 10091,
+      "stock": 298142,
+      "marketCap": 78299806,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240720",
+      "price": 0.0,
+      "volume": 3473.6,
+      "members": 10090,
+      "stock": 298263,
+      "marketCap": 78235939,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240721",
+      "price": 0.0,
+      "volume": 5200.0,
+      "members": 10092,
+      "stock": 298090,
+      "marketCap": 78326972,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240722",
+      "price": 0.0,
+      "volume": 289.0,
+      "members": 10091,
+      "stock": 298094,
+      "marketCap": 78325045,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240723",
+      "price": 0.0,
+      "volume": 154.0,
+      "members": 10091,
+      "stock": 298092,
+      "marketCap": 78325745,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240724",
+      "price": 0.0,
+      "volume": 27460.5,
+      "members": 10089,
+      "stock": 299097,
+      "marketCap": 77800463,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240725",
+      "price": 0.0,
+      "volume": 563.8,
+      "members": 10089,
+      "stock": 299080,
+      "marketCap": 77809315,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240726",
+      "price": 0.0,
+      "volume": 100.0,
+      "members": 10090,
+      "stock": 299077,
+      "marketCap": 77811060,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240727",
+      "price": 0.0,
+      "volume": 49686.7,
+      "members": 10091,
+      "stock": 299250,
+      "marketCap": 77721146,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240728",
+      "price": 0.0,
+      "volume": 100.0,
+      "members": 10090,
+      "stock": 299246,
+      "marketCap": 77722890,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240729",
+      "price": 0.0,
+      "volume": 100.0,
+      "members": 10089,
+      "stock": 299243,
+      "marketCap": 77724635,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240730",
+      "price": 0.0,
+      "volume": 82305.3,
+      "members": 10093,
+      "stock": 302183,
+      "marketCap": 76219598,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240731",
+      "price": 0.0,
+      "volume": 413.4,
+      "members": 10095,
+      "stock": 302178,
+      "marketCap": 76221947,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240801",
+      "price": 0.0,
+      "volume": 13409.9,
+      "members": 10094,
+      "stock": 301720,
+      "marketCap": 76453774,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240802",
+      "price": 0.0,
+      "volume": 50099.9,
+      "members": 10092,
+      "stock": 300019,
+      "marketCap": 77322995,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240803",
+      "price": 0.0,
+      "volume": 10914.1,
+      "members": 10096,
+      "stock": 299657,
+      "marketCap": 77510057,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240804",
+      "price": 0.0,
+      "volume": 311022.4,
+      "members": 10099,
+      "stock": 289575,
+      "marketCap": 83000902,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240805",
+      "price": 0.0,
+      "volume": 56447.9,
+      "members": 10100,
+      "stock": 289389,
+      "marketCap": 83107894,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240807",
+      "price": 0.0,
+      "volume": 452411.2,
+      "members": 10102,
+      "stock": 277139,
+      "marketCap": 90617105,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240808",
+      "price": 0.0,
+      "volume": 11147.4,
+      "members": 10102,
+      "stock": 277490,
+      "marketCap": 90387933,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240809",
+      "price": 0.0,
+      "volume": 5751.5,
+      "members": 10106,
+      "stock": 277353,
+      "marketCap": 90477583,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240810",
+      "price": 0.0,
+      "volume": 36280.3,
+      "members": 10106,
+      "stock": 278172,
+      "marketCap": 89945677,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240811",
+      "price": 0.0,
+      "volume": 12474.9,
+      "members": 10106,
+      "stock": 277816,
+      "marketCap": 90176186,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240812",
+      "price": 0.0,
+      "volume": 100719.8,
+      "members": 10107,
+      "stock": 274945,
+      "marketCap": 92069251,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240813",
+      "price": 0.0,
+      "volume": 10825.1,
+      "members": 10116,
+      "stock": 275009,
+      "marketCap": 92026178,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240814",
+      "price": 0.0,
+      "volume": 91294.0,
+      "members": 10125,
+      "stock": 273579,
+      "marketCap": 92991022,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240815",
+      "price": 0.0,
+      "volume": 134595.8,
+      "members": 10135,
+      "stock": 269854,
+      "marketCap": 95575538,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240816",
+      "price": 0.0,
+      "volume": 99131.1,
+      "members": 10148,
+      "stock": 269093,
+      "marketCap": 96116937,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240817",
+      "price": 0.0,
+      "volume": 46467.5,
+      "members": 10150,
+      "stock": 269168,
+      "marketCap": 96063744,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240818",
+      "price": 0.0,
+      "volume": 97932.5,
+      "members": 10154,
+      "stock": 269726,
+      "marketCap": 95666807,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240819",
+      "price": 0.0,
+      "volume": 6720.4,
+      "members": 10156,
+      "stock": 269571,
+      "marketCap": 95776658,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240820",
+      "price": 0.0,
+      "volume": 1100.0,
+      "members": 10156,
+      "stock": 269541,
+      "marketCap": 95797959,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240821",
+      "price": 0.0,
+      "volume": 256.0,
+      "members": 10160,
+      "stock": 269534,
+      "marketCap": 95802917,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240822",
+      "price": 0.0,
+      "volume": 55680.1,
+      "members": 10163,
+      "stock": 271224,
+      "marketCap": 94612575,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240823",
+      "price": 0.0,
+      "volume": 5200.0,
+      "members": 10169,
+      "stock": 271081,
+      "marketCap": 94712680,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240824",
+      "price": 0.0,
+      "volume": 23041.0,
+      "members": 10173,
+      "stock": 271721,
+      "marketCap": 94266896,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240825",
+      "price": 0.0,
+      "volume": 1200.0,
+      "members": 10176,
+      "stock": 271688,
+      "marketCap": 94289950,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240826",
+      "price": 0.0,
+      "volume": 395.0,
+      "members": 10177,
+      "stock": 271677,
+      "marketCap": 94297540,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240827",
+      "price": 0.0,
+      "volume": 13619.9,
+      "members": 10177,
+      "stock": 271301,
+      "marketCap": 94559414,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240828",
+      "price": 0.0,
+      "volume": 4649.1,
+      "members": 10176,
+      "stock": 271182,
+      "marketCap": 94642257,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240829",
+      "price": 0.0,
+      "volume": 19675.3,
+      "members": 10177,
+      "stock": 271644,
+      "marketCap": 94320318,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240830",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 10178,
+      "stock": 271006,
+      "marketCap": 94765157,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240831",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 10179,
+      "stock": 270940,
+      "marketCap": 94811273,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240901",
+      "price": 0.0,
+      "volume": 261360.7,
+      "members": 10177,
+      "stock": 279157,
+      "marketCap": 89311943,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240902",
+      "price": 0.0,
+      "volume": 74435.9,
+      "members": 10178,
+      "stock": 281093,
+      "marketCap": 88082163,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240903",
+      "price": 0.0,
+      "volume": 24438.9,
+      "members": 10179,
+      "stock": 280504,
+      "marketCap": 88456218,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240904",
+      "price": 30.0439,
+      "volume": 64357.7,
+      "members": 10178,
+      "stock": 282635,
+      "marketCap": 87127374,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240905",
+      "price": 30.2776,
+      "volume": 43028.8,
+      "members": 10180,
+      "stock": 281542,
+      "marketCap": 87805289,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20240906",
+      "price": 30.2529,
+      "volume": 13569.5,
+      "members": 10179,
+      "stock": 281657,
+      "marketCap": 87653742,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240907",
+      "price": 30.0772,
+      "volume": 36177.8,
+      "members": 10246,
+      "stock": 282478,
+      "marketCap": 87224111,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240908",
+      "price": 29.6816,
+      "volume": 59857.8,
+      "members": 10261,
+      "stock": 284354,
+      "marketCap": 86076904,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240909",
+      "price": 29.6743,
+      "volume": 9893.1,
+      "members": 10311,
+      "stock": 284389,
+      "marketCap": 86055660,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240910",
+      "price": 29.6497,
+      "volume": 3689.0,
+      "members": 10318,
+      "stock": 284507,
+      "marketCap": 85984313,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240911",
+      "price": 29.7559,
+      "volume": 21344.4,
+      "members": 10320,
+      "stock": 283999,
+      "marketCap": 86292290,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240914",
+      "price": 29.785,
+      "volume": 14739.3,
+      "members": 10341,
+      "stock": 283861,
+      "marketCap": 86376519,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240915",
+      "price": 29.4933,
+      "volume": 41494.5,
+      "members": 10345,
+      "stock": 285261,
+      "marketCap": 85530766,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240916",
+      "price": 29.6679,
+      "volume": 39469.9,
+      "members": 10353,
+      "stock": 284420,
+      "marketCap": 86037091,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240917",
+      "price": 30.053,
+      "volume": 60839.0,
+      "members": 10368,
+      "stock": 282592,
+      "marketCap": 87153821,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240918",
+      "price": 29.9497,
+      "volume": 27900.5,
+      "members": 10371,
+      "stock": 283079,
+      "marketCap": 86854414,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240919",
+      "price": 30.002,
+      "volume": 8846.7,
+      "members": 10382,
+      "stock": 282832,
+      "marketCap": 86999302,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240920",
+      "price": 30.0514,
+      "volume": 7753.9,
+      "members": 10383,
+      "stock": 282600,
+      "marketCap": 87149113,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240921",
+      "price": 30.232,
+      "volume": 28154.8,
+      "members": 10381,
+      "stock": 281754,
+      "marketCap": 87672876,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240922",
+      "price": 30.272,
+      "volume": 7665.0,
+      "members": 10382,
+      "stock": 281568,
+      "marketCap": 87788910,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240923",
+      "price": 30.2376,
+      "volume": 7422.1,
+      "members": 10385,
+      "stock": 281728,
+      "marketCap": 87689119,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240924",
+      "price": 30.2552,
+      "volume": 3905.6,
+      "members": 10385,
+      "stock": 281646,
+      "marketCap": 87740188,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240925",
+      "price": 29.887,
+      "volume": 69682.8,
+      "members": 10389,
+      "stock": 283376,
+      "marketCap": 86672353,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240926",
+      "price": 29.9981,
+      "volume": 20189.9,
+      "members": 10393,
+      "stock": 282850,
+      "marketCap": 86994725,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240927",
+      "price": 29.9511,
+      "volume": 14189.8,
+      "members": 10404,
+      "stock": 283072,
+      "marketCap": 86858326,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240928",
+      "price": 29.9715,
+      "volume": 3799.8,
+      "members": 10405,
+      "stock": 282976,
+      "marketCap": 86917472,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240929",
+      "price": 29.7708,
+      "volume": 35139.2,
+      "members": 10403,
+      "stock": 283928,
+      "marketCap": 86335460,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20240930",
+      "price": 29.6863,
+      "volume": 30753.0,
+      "members": 10411,
+      "stock": 284332,
+      "marketCap": 86090543,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20241001",
+      "price": 29.5097,
+      "volume": 44726.7,
+      "members": 10414,
+      "stock": 285182,
+      "marketCap": 85578146,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20241002",
+      "price": 29.63,
+      "volume": 37960.5,
+      "members": 10417,
+      "stock": 284602,
+      "marketCap": 85927272,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20241003",
+      "price": 29.5097,
+      "volume": 44726.7,
+      "members": 10414,
+      "stock": 285182,
+      "marketCap": 85578146,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20241004",
+      "price": 29.2135,
+      "volume": 67252.4,
+      "members": 10428,
+      "stock": 286624,
+      "marketCap": 84719286,
+      "active_ranking": "4"
+    },
+    {
+      "date": "20241005",
+      "price": 29.2422,
+      "volume": 55805.7,
+      "members": 10440,
+      "stock": 286483,
+      "marketCap": 84802623,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241006",
+      "price": 29.2554,
+      "volume": 700.0,
+      "members": 10449,
+      "stock": 286418,
+      "marketCap": 84840891,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241007",
+      "price": 29.3064,
+      "volume": 8300.0,
+      "members": 10450,
+      "stock": 286169,
+      "marketCap": 84988577,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241008",
+      "price": 29.2937,
+      "volume": 2192.4,
+      "members": 10450,
+      "stock": 286231,
+      "marketCap": 84951848,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241009",
+      "price": 29.3648,
+      "volume": 11624.9,
+      "members": 10451,
+      "stock": 285884,
+      "marketCap": 85156272,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241010",
+      "price": 27.97,
+      "volume": 410284.9,
+      "members": 10453,
+      "stock": 292925,
+      "marketCap": 79476820,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241011",
+      "price": 28.0013,
+      "volume": 11112.2,
+      "members": 10454,
+      "stock": 292762,
+      "marketCap": 81203872,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241012",
+      "price": 27.9823,
+      "volume": 15935.7,
+      "members": 10458,
+      "stock": 292861,
+      "marketCap": 81148890,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241013",
+      "price": 27.8017,
+      "volume": 91486.2,
+      "members": 10462,
+      "stock": 293811,
+      "marketCap": 80625172,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241014",
+      "price": 28.416,
+      "volume": 126650.7,
+      "members": 10464,
+      "stock": 290618,
+      "marketCap": 82406532,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241015",
+      "price": 28.8214,
+      "volume": 71666.0,
+      "members": 10467,
+      "stock": 288566,
+      "marketCap": 83582323,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241016",
+      "price": 28.83,
+      "volume": 20316.6,
+      "members": 10474,
+      "stock": 288524,
+      "marketCap": 83607072,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241017",
+      "price": 29.2061,
+      "volume": 73025.4,
+      "members": 10480,
+      "stock": 286660,
+      "marketCap": 84697699,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241018",
+      "price": 29.0457,
+      "volume": 77426.9,
+      "members": 10489,
+      "stock": 287450,
+      "marketCap": 84232761,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241019",
+      "price": 28.7238,
+      "volume": 192147.1,
+      "members": 10491,
+      "stock": 289056,
+      "marketCap": 83299226,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241020",
+      "price": 28.498,
+      "volume": 37882.5,
+      "members": 10492,
+      "stock": 290200,
+      "marketCap": 82644287,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241021",
+      "price": 28.4971,
+      "volume": 513.4,
+      "members": 10491,
+      "stock": 290204,
+      "marketCap": 82641619,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241022",
+      "price": 28.6602,
+      "volume": 38245.8,
+      "members": 10494,
+      "stock": 289377,
+      "marketCap": 83042564,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241023",
+      "price": 28.6604,
+      "volume": 4343.3,
+      "members": 10494,
+      "stock": 289376,
+      "marketCap": 83115438,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241024",
+      "price": 28.6121,
+      "volume": 7573.8,
+      "members": 10498,
+      "stock": 289620,
+      "marketCap": 82975119,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241025",
+      "price": 28.6853,
+      "volume": 13054.0,
+      "members": 10500,
+      "stock": 289250,
+      "marketCap": 83187625,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241026",
+      "price": 28.7128,
+      "volume": 4408.0,
+      "members": 10503,
+      "stock": 289112,
+      "marketCap": 83267194,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241027",
+      "price": 28.7677,
+      "volume": 9419.2,
+      "members": 10505,
+      "stock": 288836,
+      "marketCap": 83426386,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241028",
+      "price": 28.9417,
+      "volume": 36195.3,
+      "members": 10506,
+      "stock": 287966,
+      "marketCap": 83930987,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241029",
+      "price": 28.969,
+      "volume": 5349.0,
+      "members": 10508,
+      "stock": 287831,
+      "marketCap": 83973981,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241030",
+      "price": 29.0087,
+      "volume": 12946.1,
+      "members": 10508,
+      "stock": 287634,
+      "marketCap": 84125308,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241031",
+      "price": 28.6984,
+      "volume": 57773.7,
+      "members": 10508,
+      "stock": 289184,
+      "marketCap": 83223227,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241101",
+      "price": 28.8933,
+      "volume": 31876.1,
+      "members": 10509,
+      "stock": 288207,
+      "marketCap": 83790799,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241102",
+      "price": 28.5019,
+      "volume": 248122.0,
+      "members": 10511,
+      "stock": 290180,
+      "marketCap": 82655596,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241103",
+      "price": 27.8848,
+      "volume": 138951.5,
+      "members": 10523,
+      "stock": 293373,
+      "marketCap": 80865985,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241104",
+      "price": 28.0855,
+      "volume": 41667.6,
+      "members": 10534,
+      "stock": 292323,
+      "marketCap": 81448114,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241105",
+      "price": 27.8416,
+      "volume": 42382.5,
+      "members": 10545,
+      "stock": 293601,
+      "marketCap": 80740688,
+      "active_ranking": "6"
+    },
+    {
+      "date": "20241106",
+      "price": 27.7079,
+      "volume": 47500.0,
+      "members": 11250,
+      "stock": 294308,
+      "marketCap": 80353129,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241107",
+      "price": 27.717,
+      "volume": 8533.6,
+      "members": 11475,
+      "stock": 294260,
+      "marketCap": 80379461,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241108",
+      "price": 27.7675,
+      "volume": 28774.7,
+      "members": 11533,
+      "stock": 293992,
+      "marketCap": 80525971,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241109",
+      "price": 28.0797,
+      "volume": 110896.6,
+      "members": 11711,
+      "stock": 292353,
+      "marketCap": 81431387,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241110",
+      "price": 28.4154,
+      "volume": 133481.4,
+      "members": 11820,
+      "stock": 290621,
+      "marketCap": 82404882,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241111",
+      "price": 29.2607,
+      "volume": 168595.9,
+      "members": 11887,
+      "stock": 286392,
+      "marketCap": 84856282,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241112",
+      "price": 29.7388,
+      "volume": 82938.2,
+      "members": 11901,
+      "stock": 284081,
+      "marketCap": 86242684,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241113",
+      "price": 30.4391,
+      "volume": 124632.5,
+      "members": 11902,
+      "stock": 280794,
+      "marketCap": 88273623,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241114",
+      "price": 29.7914,
+      "volume": 101695.7,
+      "members": 11908,
+      "stock": 283830,
+      "marketCap": 86395066,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241115",
+      "price": 29.8928,
+      "volume": 16116.7,
+      "members": 11909,
+      "stock": 283348,
+      "marketCap": 86689402,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241116",
+      "price": 29.8967,
+      "volume": 2876.0,
+      "members": 11911,
+      "stock": 283330,
+      "marketCap": 86700536,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241117",
+      "price": 29.5132,
+      "volume": 201686.3,
+      "members": 11922,
+      "stock": 285164,
+      "marketCap": 85588529,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241118",
+      "price": 29.4153,
+      "volume": 40759.6,
+      "members": 11928,
+      "stock": 285639,
+      "marketCap": 85249820,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241119",
+      "price": 29.6367,
+      "volume": 80121.9,
+      "members": 11934,
+      "stock": 284570,
+      "marketCap": 85946634,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241120",
+      "price": 29.6912,
+      "volume": 43976.0,
+      "members": 11936,
+      "stock": 284309,
+      "marketCap": 86104538,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241121",
+      "price": 29.7395,
+      "volume": 22113.0,
+      "members": 11940,
+      "stock": 284078,
+      "marketCap": 86244618,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241122",
+      "price": 28.9238,
+      "volume": 126512.5,
+      "members": 11940,
+      "stock": 288055,
+      "marketCap": 83875554,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241123",
+      "price": 27.6271,
+      "volume": 287351.9,
+      "members": 11945,
+      "stock": 294738,
+      "marketCap": 80118599,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241124",
+      "price": 28.2008,
+      "volume": 140799.2,
+      "members": 11968,
+      "stock": 291725,
+      "marketCap": 81692915,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241125",
+      "price": 27.9711,
+      "volume": 171974.8,
+      "members": 11983,
+      "stock": 292920,
+      "marketCap": 81116903,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241126",
+      "price": 27.6736,
+      "volume": 130579.0,
+      "members": 11993,
+      "stock": 294490,
+      "marketCap": 80253709,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241127",
+      "price": 27.6694,
+      "volume": 3271.9,
+      "members": 11999,
+      "stock": 294513,
+      "marketCap": 80241283,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241128",
+      "price": 27.446,
+      "volume": 46052.9,
+      "members": 12003,
+      "stock": 295709,
+      "marketCap": 79591884,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241129",
+      "price": 27.4564,
+      "volume": 2443.9,
+      "members": 11998,
+      "stock": 295653,
+      "marketCap": 79623776,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241130",
+      "price": 27.4423,
+      "volume": 7989.4,
+      "members": 11997,
+      "stock": 295729,
+      "marketCap": 79582782,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241201",
+      "price": 27.6372,
+      "volume": 32367.4,
+      "members": 11997,
+      "stock": 294684,
+      "marketCap": 80147896,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241202",
+      "price": 27.7444,
+      "volume": 17655.3,
+      "members": 11994,
+      "stock": 294114,
+      "marketCap": 80458870,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241203",
+      "price": 27.8657,
+      "volume": 19910.5,
+      "members": 11994,
+      "stock": 293474,
+      "marketCap": 80810546,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241204",
+      "price": 27.6143,
+      "volume": 79465.2,
+      "members": 11997,
+      "stock": 294806,
+      "marketCap": 80081708,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241205",
+      "price": 27.608,
+      "volume": 7229.5,
+      "members": 12001,
+      "stock": 294840,
+      "marketCap": 80063205,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241206",
+      "price": 27.6072,
+      "volume": 5999.1,
+      "members": 11998,
+      "stock": 294844,
+      "marketCap": 80061058,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241207",
+      "price": 27.4493,
+      "volume": 27628.9,
+      "members": 12002,
+      "stock": 295691,
+      "marketCap": 79603248,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241208",
+      "price": 27.4722,
+      "volume": 8151.7,
+      "members": 12005,
+      "stock": 295568,
+      "marketCap": 79669435,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241209",
+      "price": 27.4974,
+      "volume": 7859.8,
+      "members": 12005,
+      "stock": 295432,
+      "marketCap": 79742648,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241210",
+      "price": 27.625,
+      "volume": 25868.7,
+      "members": 12004,
+      "stock": 294749,
+      "marketCap": 80112575,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241211",
+      "price": 27.6054,
+      "volume": 8169.0,
+      "members": 12008,
+      "stock": 294854,
+      "marketCap": 80046859,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241212",
+      "price": 27.574,
+      "volume": 7890.7,
+      "members": 12016,
+      "stock": 295022,
+      "marketCap": 79964608,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241213",
+      "price": 27.3917,
+      "volume": 37014.7,
+      "members": 11979,
+      "stock": 296002,
+      "marketCap": 79436140,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241214",
+      "price": 27.4263,
+      "volume": 17409.4,
+      "members": 11982,
+      "stock": 295815,
+      "marketCap": 79536466,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241215",
+      "price": 27.6521,
+      "volume": 56359.3,
+      "members": 11988,
+      "stock": 294604,
+      "marketCap": 80191379,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241216",
+      "price": 27.7264,
+      "volume": 14903.1,
+      "members": 11991,
+      "stock": 294209,
+      "marketCap": 80406840,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241217",
+      "price": 27.7143,
+      "volume": 5970.1,
+      "members": 11990,
+      "stock": 294274,
+      "marketCap": 80371554,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241218",
+      "price": 27.6814,
+      "volume": 28184.9,
+      "members": 11992,
+      "stock": 294449,
+      "marketCap": 80276083,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241219",
+      "price": 27.6439,
+      "volume": 42349.4,
+      "members": 11994,
+      "stock": 294649,
+      "marketCap": 80167316,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241220",
+      "price": 27.4933,
+      "volume": 24895.2,
+      "members": 11992,
+      "stock": 295455,
+      "marketCap": 79730601,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241221",
+      "price": 27.3362,
+      "volume": 25584.4,
+      "members": 11994,
+      "stock": 296302,
+      "marketCap": 79275225,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241222",
+      "price": 27.3654,
+      "volume": 7283.0,
+      "members": 11999,
+      "stock": 296144,
+      "marketCap": 79359815,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241223",
+      "price": 27.4209,
+      "volume": 55499.0,
+      "members": 12002,
+      "stock": 295844,
+      "marketCap": 79467136,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241224",
+      "price": 27.3422,
+      "volume": 16068.1,
+      "members": 12002,
+      "stock": 296270,
+      "marketCap": 79292440,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241225",
+      "price": 27.2938,
+      "volume": 18983.5,
+      "members": 12005,
+      "stock": 296532,
+      "marketCap": 79152226,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241226",
+      "price": 27.5515,
+      "volume": 51801.7,
+      "members": 12004,
+      "stock": 295142,
+      "marketCap": 79899537,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241227",
+      "price": 27.5315,
+      "volume": 11022.1,
+      "members": 12003,
+      "stock": 295249,
+      "marketCap": 79841632,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241228",
+      "price": 27.5507,
+      "volume": 6889.3,
+      "members": 12003,
+      "stock": 295146,
+      "marketCap": 79897201,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241229",
+      "price": 27.5821,
+      "volume": 5900.1,
+      "members": 12007,
+      "stock": 294978,
+      "marketCap": 79988205,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241230",
+      "price": 27.5136,
+      "volume": 174851.2,
+      "members": 12004,
+      "stock": 295346,
+      "marketCap": 79789449,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20241231",
+      "price": 27.5832,
+      "volume": 13452.7,
+      "members": 12004,
+      "stock": 294973,
+      "marketCap": 79991345,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20250101",
+      "price": 27.26,
+      "volume": 76361.8,
+      "members": 12003,
+      "stock": 296716,
+      "marketCap": 79018952,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20250102",
+      "price": 27.2616,
+      "volume": 2045.0,
+      "members": 12002,
+      "stock": 296707,
+      "marketCap": 79058725,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20250103",
+      "price": 27.3299,
+      "volume": 12923.7,
+      "members": 12004,
+      "stock": 296336,
+      "marketCap": 79256810,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20250104",
+      "price": 27.3939,
+      "volume": 13132.1,
+      "members": 12005,
+      "stock": 295990,
+      "marketCap": 79442421,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20250105",
+      "price": 27.4399,
+      "volume": 7613.4,
+      "members": 12006,
+      "stock": 295742,
+      "marketCap": 79575723,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20250106",
+      "price": 27.4097,
+      "volume": 4652.4,
+      "members": 12007,
+      "stock": 295905,
+      "marketCap": 79488230,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20250107",
+      "price": 27.422,
+      "volume": 7870.5,
+      "members": 12006,
+      "stock": 295838,
+      "marketCap": 79523897,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20250108",
+      "price": 27.4336,
+      "volume": 31908.0,
+      "members": 12006,
+      "stock": 295775,
+      "marketCap": 79557660,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20250109",
+      "price": 27.4821,
+      "volume": 16250.9,
+      "members": 12009,
+      "stock": 295514,
+      "marketCap": 79698254,
+      "active_ranking": "22"
+    },
+    {
+      "date": "20250110",
+      "price": 27.4884,
+      "volume": 56261.2,
+      "members": 12009,
+      "stock": 295481,
+      "marketCap": 79187383,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250111",
+      "price": 27.5689,
+      "volume": 13200.0,
+      "members": 12008,
+      "stock": 295049,
+      "marketCap": 79949844,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250112",
+      "price": 27.5716,
+      "volume": 4461.8,
+      "members": 12011,
+      "stock": 295035,
+      "marketCap": 79957749,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250113",
+      "price": 27.8372,
+      "volume": 104324.2,
+      "members": 12012,
+      "stock": 293624,
+      "marketCap": 80728005,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250114",
+      "price": 27.7994,
+      "volume": 7273.7,
+      "members": 12013,
+      "stock": 293823,
+      "marketCap": 80618291,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250115",
+      "price": 27.8154,
+      "volume": 3827.6,
+      "members": 12012,
+      "stock": 293739,
+      "marketCap": 80664714,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250116",
+      "price": 27.8175,
+      "volume": 413.8,
+      "members": 12026,
+      "stock": 293727,
+      "marketCap": 80671024,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250117",
+      "price": 27.8365,
+      "volume": 3100.0,
+      "members": 12033,
+      "stock": 293627,
+      "marketCap": 80726125,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250118",
+      "price": 27.9123,
+      "volume": 52158.4,
+      "members": 12037,
+      "stock": 293228,
+      "marketCap": 80943980,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250119",
+      "price": 27.9383,
+      "volume": 12196.6,
+      "members": 12042,
+      "stock": 293092,
+      "marketCap": 81021342,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250120",
+      "price": 27.2048,
+      "volume": 116155.7,
+      "members": 12047,
+      "stock": 297017,
+      "marketCap": 78894023,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250121",
+      "price": 26.5452,
+      "volume": 165649.7,
+      "members": 12050,
+      "stock": 300684,
+      "marketCap": 76894388,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250122",
+      "price": 26.7443,
+      "volume": 48173.9,
+      "members": 12057,
+      "stock": 299563,
+      "marketCap": 77549166,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250123",
+      "price": 26.9311,
+      "volume": 32621.6,
+      "members": 12062,
+      "stock": 298522,
+      "marketCap": 78100410,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250124",
+      "price": 27.811,
+      "volume": 145051.5,
+      "members": 12071,
+      "stock": 293762,
+      "marketCap": 80648982,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250125",
+      "price": 27.8586,
+      "volume": 7987.3,
+      "members": 12080,
+      "stock": 293511,
+      "marketCap": 80789993,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250126",
+      "price": 27.7803,
+      "volume": 52081.7,
+      "members": 12091,
+      "stock": 293924,
+      "marketCap": 80547117,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250127",
+      "price": 27.877,
+      "volume": 16300.4,
+      "members": 12093,
+      "stock": 293414,
+      "marketCap": 80843441,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250128",
+      "price": 27.8937,
+      "volume": 4779.6,
+      "members": 12098,
+      "stock": 293326,
+      "marketCap": 80891838,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250129",
+      "price": 28.1363,
+      "volume": 115198.6,
+      "members": 12108,
+      "stock": 292059,
+      "marketCap": 81595490,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250130",
+      "price": 28.1356,
+      "volume": 296.9,
+      "members": 12110,
+      "stock": 292062,
+      "marketCap": 81593366,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250131",
+      "price": 28.1063,
+      "volume": 18933.2,
+      "members": 12109,
+      "stock": 292215,
+      "marketCap": 81492026,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250201",
+      "price": 28.1071,
+      "volume": 4579.3,
+      "members": 12115,
+      "stock": 292210,
+      "marketCap": 81510805,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250202",
+      "price": 28.1121,
+      "volume": 800.0,
+      "members": 12119,
+      "stock": 292185,
+      "marketCap": 81525096,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250203",
+      "price": 28.0868,
+      "volume": 16189.2,
+      "members": 12127,
+      "stock": 292316,
+      "marketCap": 81451808,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250204",
+      "price": 28.0606,
+      "volume": 40308.4,
+      "members": 12130,
+      "stock": 292452,
+      "marketCap": 81375863,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250205",
+      "price": 28.0034,
+      "volume": 8749.9,
+      "members": 12135,
+      "stock": 292751,
+      "marketCap": 81209953,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250206",
+      "price": 28.0083,
+      "volume": 1088.0,
+      "members": 12134,
+      "stock": 292726,
+      "marketCap": 81224083,
+      "active_ranking": "32"
+    },
+    {
+      "date": "20250207",
+      "price": 28.0441,
+      "volume": 6720.6,
+      "members": 12140,
+      "stock": 292538,
+      "marketCap": 81328124,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250208",
+      "price": 28.0395,
+      "volume": 5811.8,
+      "members": 12143,
+      "stock": 292563,
+      "marketCap": 81312821,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250209",
+      "price": 28.0529,
+      "volume": 2780.3,
+      "members": 12148,
+      "stock": 292492,
+      "marketCap": 81353657,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250210",
+      "price": 27.6858,
+      "volume": 63939.1,
+      "members": 12152,
+      "stock": 294425,
+      "marketCap": 80288969,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250211",
+      "price": 27.7124,
+      "volume": 4638.4,
+      "members": 12155,
+      "stock": 294284,
+      "marketCap": 80366042,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250212",
+      "price": 27.7121,
+      "volume": 3587.2,
+      "members": 12156,
+      "stock": 294286,
+      "marketCap": 80365229,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250213",
+      "price": 27.7132,
+      "volume": 235.7,
+      "members": 0,
+      "stock": 294280,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20250214",
+      "price": 27.7754,
+      "volume": 10227.7,
+      "members": 12161,
+      "stock": 293950,
+      "marketCap": 80548856,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250215",
+      "price": 26.2926,
+      "volume": 230145.1,
+      "members": 12167,
+      "stock": 302125,
+      "marketCap": 76248636,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250216",
+      "price": 26.1416,
+      "volume": 26433.6,
+      "members": 12169,
+      "stock": 302996,
+      "marketCap": 75810897,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250217",
+      "price": 26.1401,
+      "volume": 6636.6,
+      "members": 12172,
+      "stock": 303005,
+      "marketCap": 75806424,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250218",
+      "price": 26.1796,
+      "volume": 12178.8,
+      "members": 12174,
+      "stock": 302776,
+      "marketCap": 75921033,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250219",
+      "price": 26.2012,
+      "volume": 5066.2,
+      "members": 12176,
+      "stock": 302652,
+      "marketCap": 75983594,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250220",
+      "price": 26.1875,
+      "volume": 8929.6,
+      "members": 12177,
+      "stock": 302731,
+      "marketCap": 75943918,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250221",
+      "price": 26.3968,
+      "volume": 35354.7,
+      "members": 12180,
+      "stock": 301528,
+      "marketCap": 76533621,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250222",
+      "price": 26.5118,
+      "volume": 19917.7,
+      "members": 12188,
+      "stock": 300873,
+      "marketCap": 76884492,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250223",
+      "price": 22.4287,
+      "volume": 675273.4,
+      "members": 12195,
+      "stock": 327116,
+      "marketCap": 65035525,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250224",
+      "price": 22.4676,
+      "volume": 15128.7,
+      "members": 12201,
+      "stock": 326832,
+      "marketCap": 65156324,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250225",
+      "price": 23.3509,
+      "volume": 159311.1,
+      "members": 12209,
+      "stock": 320591,
+      "marketCap": 67650634,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250226",
+      "price": 22.4816,
+      "volume": 227434.0,
+      "members": 12218,
+      "stock": 326731,
+      "marketCap": 65196720,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250227",
+      "price": 22.5766,
+      "volume": 17578.5,
+      "members": 12224,
+      "stock": 326042,
+      "marketCap": 65472394,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250228",
+      "price": 22.9998,
+      "volume": 76343.9,
+      "members": 12227,
+      "stock": 323029,
+      "marketCap": 66699588,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250301",
+      "price": 23.0009,
+      "volume": 8262.0,
+      "members": 12237,
+      "stock": 323021,
+      "marketCap": 66702848,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250302",
+      "price": 23.0027,
+      "volume": 7070.8,
+      "members": 12245,
+      "stock": 323009,
+      "marketCap": 66707861,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250303",
+      "price": 23.0099,
+      "volume": 1300.0,
+      "members": 12245,
+      "stock": 322958,
+      "marketCap": 66728871,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250304",
+      "price": 23.0091,
+      "volume": 391.1,
+      "members": 12250,
+      "stock": 322964,
+      "marketCap": 66726556,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250305",
+      "price": 23.0094,
+      "volume": 146.0,
+      "members": 12252,
+      "stock": 322962,
+      "marketCap": 66727346,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250306",
+      "price": 22.9813,
+      "volume": 5302.9,
+      "members": 12250,
+      "stock": 323159,
+      "marketCap": 66644340,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250307",
+      "price": 22.9231,
+      "volume": 9794.1,
+      "members": 12257,
+      "stock": 323569,
+      "marketCap": 66477100,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250308",
+      "price": 22.9263,
+      "volume": 622.9,
+      "members": 12259,
+      "stock": 323547,
+      "marketCap": 66486369,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250309",
+      "price": 22.9272,
+      "volume": 318.7,
+      "members": 12260,
+      "stock": 323540,
+      "marketCap": 66489169,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250310",
+      "price": 22.9656,
+      "volume": 7181.6,
+      "members": 12264,
+      "stock": 323270,
+      "marketCap": 66600396,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250311",
+      "price": 22.9706,
+      "volume": 2306.0,
+      "members": 12267,
+      "stock": 323234,
+      "marketCap": 66614929,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250312",
+      "price": 22.9085,
+      "volume": 11963.8,
+      "members": 12267,
+      "stock": 323672,
+      "marketCap": 66434881,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250313",
+      "price": 22.9041,
+      "volume": 1902.8,
+      "members": 12266,
+      "stock": 323704,
+      "marketCap": 66421893,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250314",
+      "price": 22.8809,
+      "volume": 3456.6,
+      "members": 12267,
+      "stock": 323868,
+      "marketCap": 66354641,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250315",
+      "price": 22.8854,
+      "volume": 908.7,
+      "members": 12277,
+      "stock": 323836,
+      "marketCap": 66367731,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250316",
+      "price": 22.8848,
+      "volume": 1632.8,
+      "members": 12280,
+      "stock": 323840,
+      "marketCap": 66366017,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250317",
+      "price": 22.7554,
+      "volume": 25024.4,
+      "members": 12283,
+      "stock": 324759,
+      "marketCap": 65990843,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250318",
+      "price": 22.6136,
+      "volume": 24957.4,
+      "members": 12282,
+      "stock": 325776,
+      "marketCap": 65579696,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250319",
+      "price": 22.6014,
+      "volume": 2941.7,
+      "members": 12284,
+      "stock": 325864,
+      "marketCap": 65544240,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250320",
+      "price": 22.602,
+      "volume": 5122.4,
+      "members": 12287,
+      "stock": 325859,
+      "marketCap": 65546066,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250321",
+      "price": 22.1667,
+      "volume": 72122.7,
+      "members": 12288,
+      "stock": 329043,
+      "marketCap": 64283708,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250322",
+      "price": 22.8693,
+      "volume": 127517.7,
+      "members": 12295,
+      "stock": 323950,
+      "marketCap": 66321019,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250323",
+      "price": 22.8877,
+      "volume": 9212.1,
+      "members": 12302,
+      "stock": 323819,
+      "marketCap": 66374591,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250324",
+      "price": 22.8542,
+      "volume": 24618.0,
+      "members": 12307,
+      "stock": 324056,
+      "marketCap": 66277403,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250325",
+      "price": 22.9732,
+      "volume": 45998.1,
+      "members": 12308,
+      "stock": 323217,
+      "marketCap": 66622281,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250326",
+      "price": 22.9725,
+      "volume": 2113.9,
+      "members": 12310,
+      "stock": 323221,
+      "marketCap": 66620290,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250327",
+      "price": 22.5867,
+      "volume": 68504.6,
+      "members": 12316,
+      "stock": 325970,
+      "marketCap": 65501623,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250328",
+      "price": 22.5775,
+      "volume": 2860.3,
+      "members": 12323,
+      "stock": 326036,
+      "marketCap": 65474902,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250329",
+      "price": 22.5431,
+      "volume": 7524.6,
+      "members": 12324,
+      "stock": 326285,
+      "marketCap": 65375017,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250330",
+      "price": 23.097,
+      "volume": 104831.8,
+      "members": 12326,
+      "stock": 322348,
+      "marketCap": 66943462,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250331",
+      "price": 23.0835,
+      "volume": 26841.9,
+      "members": 12328,
+      "stock": 322443,
+      "marketCap": 66940444,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250401",
+      "price": 23.0928,
+      "volume": 1833.0,
+      "members": 12332,
+      "stock": 322378,
+      "marketCap": 66967714,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250402",
+      "price": 23.1455,
+      "volume": 13288.3,
+      "members": 12336,
+      "stock": 322011,
+      "marketCap": 67122087,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250403",
+      "price": 23.1389,
+      "volume": 24367.5,
+      "members": 12337,
+      "stock": 322056,
+      "marketCap": 67103094,
+      "active_ranking": "16"
+    },
+    {
+      "date": "20250404",
+      "price": 23.0927,
+      "volume": 86165.3,
+      "members": 12338,
+      "stock": 322379,
+      "marketCap": 66969019,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250405",
+      "price": 23.0956,
+      "volume": 814.5,
+      "members": 12338,
+      "stock": 322358,
+      "marketCap": 66977472,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250406",
+      "price": 23.0761,
+      "volume": 13320.9,
+      "members": 12340,
+      "stock": 322495,
+      "marketCap": 66920873,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250407",
+      "price": 23.0867,
+      "volume": 36920.2,
+      "members": 12341,
+      "stock": 322421,
+      "marketCap": 66951606,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250408",
+      "price": 22.6637,
+      "volume": 69843.2,
+      "members": 12340,
+      "stock": 325416,
+      "marketCap": 65724806,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250409",
+      "price": 23.2058,
+      "volume": 102501.5,
+      "members": 12342,
+      "stock": 321592,
+      "marketCap": 67296989,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250410",
+      "price": 23.2429,
+      "volume": 11134.9,
+      "members": 12344,
+      "stock": 321335,
+      "marketCap": 67404612,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250411",
+      "price": 23.3185,
+      "volume": 14852.9,
+      "members": 12370,
+      "stock": 320814,
+      "marketCap": 67623678,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250412",
+      "price": 23.161,
+      "volume": 139252.3,
+      "members": 12371,
+      "stock": 321903,
+      "marketCap": 67166921,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250413",
+      "price": 23.2937,
+      "volume": 31561.5,
+      "members": 12380,
+      "stock": 320985,
+      "marketCap": 67552009,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250414",
+      "price": 23.3116,
+      "volume": 5406.7,
+      "members": 12395,
+      "stock": 320862,
+      "marketCap": 67603765,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250415",
+      "price": 23.1359,
+      "volume": 28240.0,
+      "members": 12395,
+      "stock": 322078,
+      "marketCap": 67094255,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250416",
+      "price": 23.0036,
+      "volume": 25351.6,
+      "members": 12398,
+      "stock": 323003,
+      "marketCap": 66710441,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250417",
+      "price": 23.011,
+      "volume": 1454.0,
+      "members": 12400,
+      "stock": 322951,
+      "marketCap": 66731999,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250418",
+      "price": 23.006,
+      "volume": 8629.5,
+      "members": 12404,
+      "stock": 322985,
+      "marketCap": 66717673,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250419",
+      "price": 22.8648,
+      "volume": 24740.9,
+      "members": 12404,
+      "stock": 323981,
+      "marketCap": 66308139,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250420",
+      "price": 22.285,
+      "volume": 111063.6,
+      "members": 12406,
+      "stock": 328169,
+      "marketCap": 64626716,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250421",
+      "price": 22.1673,
+      "volume": 21025.2,
+      "members": 12404,
+      "stock": 329039,
+      "marketCap": 64285459,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250422",
+      "price": 22.5183,
+      "volume": 80929.1,
+      "members": 12403,
+      "stock": 326465,
+      "marketCap": 65303228,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250423",
+      "price": 22.5704,
+      "volume": 9485.5,
+      "members": 12404,
+      "stock": 326088,
+      "marketCap": 65454221,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250424",
+      "price": 23.1089,
+      "volume": 104554.6,
+      "members": 12407,
+      "stock": 322266,
+      "marketCap": 67016018,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250425",
+      "price": 23.089,
+      "volume": 8044.5,
+      "members": 12407,
+      "stock": 322404,
+      "marketCap": 66958344,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250426",
+      "price": 23.0872,
+      "volume": 300.1,
+      "members": 12406,
+      "stock": 322417,
+      "marketCap": 66952945,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250427",
+      "price": 23.0844,
+      "volume": 630.9,
+      "members": 12406,
+      "stock": 322436,
+      "marketCap": 66945013,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250428",
+      "price": 23.3275,
+      "volume": 61623.9,
+      "members": 12403,
+      "stock": 320753,
+      "marketCap": 67649755,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250429",
+      "price": 23.28,
+      "volume": 7620.3,
+      "members": 12401,
+      "stock": 321080,
+      "marketCap": 67512031,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250430",
+      "price": 22.985,
+      "volume": 49028.7,
+      "members": 12400,
+      "stock": 323133,
+      "marketCap": 66656598,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250501",
+      "price": 22.979,
+      "volume": 965.2,
+      "members": 12400,
+      "stock": 323175,
+      "marketCap": 66639273,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250502",
+      "price": 22.9911,
+      "volume": 98732.1,
+      "members": 12402,
+      "stock": 323091,
+      "marketCap": 66674254,
+      "active_ranking": "31"
+    },
+    {
+      "date": "20250503",
+      "price": 22.9756,
+      "volume": 3089.8,
+      "members": 12404,
+      "stock": 323199,
+      "marketCap": 66629333,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250504",
+      "price": 22.9832,
+      "volume": 4654.9,
+      "members": 12406,
+      "stock": 323146,
+      "marketCap": 66651305,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250505",
+      "price": 22.9865,
+      "volume": 600.0,
+      "members": 12406,
+      "stock": 323123,
+      "marketCap": 66660998,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250506",
+      "price": 22.9419,
+      "volume": 10557.2,
+      "members": 12408,
+      "stock": 323437,
+      "marketCap": 66531585,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250507",
+      "price": 22.9372,
+      "volume": 2502.9,
+      "members": 12406,
+      "stock": 323470,
+      "marketCap": 66518047,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250508",
+      "price": 22.9368,
+      "volume": 260.5,
+      "members": 12409,
+      "stock": 323473,
+      "marketCap": 66516782,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250509",
+      "price": 22.7185,
+      "volume": 43035.7,
+      "members": 12412,
+      "stock": 325023,
+      "marketCap": 65883708,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250510",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 12415,
+      "stock": 0,
+      "marketCap": 65980662,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250511",
+      "price": 22.754,
+      "volume": 623.7,
+      "members": 12418,
+      "stock": 324769,
+      "marketCap": 65986828,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250512",
+      "price": 22.753,
+      "volume": 830.8,
+      "members": 12420,
+      "stock": 324776,
+      "marketCap": 65983968,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250513",
+      "price": 24.1883,
+      "volume": 255000.0,
+      "members": 12423,
+      "stock": 314993,
+      "marketCap": 70146101,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250514",
+      "price": 24.1901,
+      "volume": 472.5,
+      "members": 12423,
+      "stock": 314982,
+      "marketCap": 70148079,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250515",
+      "price": 24.1896,
+      "volume": 72.5,
+      "members": 12425,
+      "stock": 314985,
+      "marketCap": 70150057,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250516",
+      "price": 24.113,
+      "volume": 12075.7,
+      "members": 12425,
+      "stock": 315485,
+      "marketCap": 69927878,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250517",
+      "price": 24.0706,
+      "volume": 6697.5,
+      "members": 12425,
+      "stock": 315763,
+      "marketCap": 69926992,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250518",
+      "price": 24.0572,
+      "volume": 2739.3,
+      "members": 12425,
+      "stock": 315850,
+      "marketCap": 69766113,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250519",
+      "price": 24.0601,
+      "volume": 560.0,
+      "members": 12424,
+      "stock": 315831,
+      "marketCap": 69774530,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250520",
+      "price": 24.0595,
+      "volume": 96.2,
+      "members": 12424,
+      "stock": 315835,
+      "marketCap": 69772763,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250521",
+      "price": 24.033,
+      "volume": 4184.0,
+      "members": 12425,
+      "stock": 316009,
+      "marketCap": 69695948,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250522",
+      "price": 24.0391,
+      "volume": 1124.0,
+      "members": 12426,
+      "stock": 315969,
+      "marketCap": 69713678,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250523",
+      "price": 24.0391,
+      "volume": 0.0,
+      "members": 12426,
+      "stock": 315969,
+      "marketCap": 69713678,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250524",
+      "price": 24.0362,
+      "volume": 652.8,
+      "members": 12427,
+      "stock": 315988,
+      "marketCap": 69705182,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250525",
+      "price": 24.1719,
+      "volume": 24639.6,
+      "members": 12426,
+      "stock": 315100,
+      "marketCap": 70098519,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250526",
+      "price": 24.1646,
+      "volume": 1135.9,
+      "members": 12428,
+      "stock": 315147,
+      "marketCap": 70077612,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250527",
+      "price": 24.1923,
+      "volume": 15169.7,
+      "members": 12430,
+      "stock": 314967,
+      "marketCap": 70157918,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250528",
+      "price": 23.992,
+      "volume": 41820.1,
+      "members": 12434,
+      "stock": 316279,
+      "marketCap": 69576911,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250529",
+      "price": 24.0203,
+      "volume": 5220.0,
+      "members": 12433,
+      "stock": 316093,
+      "marketCap": 69658907,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250530",
+      "price": 23.9735,
+      "volume": 7391.0,
+      "members": 12433,
+      "stock": 316401,
+      "marketCap": 69523354,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250531",
+      "price": 23.9741,
+      "volume": 107.0,
+      "members": 12435,
+      "stock": 316397,
+      "marketCap": 69525120,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250601",
+      "price": 24.3014,
+      "volume": 57781.7,
+      "members": 12434,
+      "stock": 314260,
+      "marketCap": 70474114,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250602",
+      "price": 24.3039,
+      "volume": 2031.3,
+      "members": 12435,
+      "stock": 314243,
+      "marketCap": 70481438,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250603",
+      "price": 24.2227,
+      "volume": 12762.5,
+      "members": 12433,
+      "stock": 314769,
+      "marketCap": 70246077,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250604",
+      "price": 24.0999,
+      "volume": 19353.2,
+      "members": 12433,
+      "stock": 315570,
+      "marketCap": 69889925,
+      "active_ranking": "10"
+    },
+    {
+      "date": "20250605",
+      "price": 23.8684,
+      "volume": 37944.9,
+      "members": 12434,
+      "stock": 317097,
+      "marketCap": 69218587,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250606",
+      "price": 23.8364,
+      "volume": 5080.5,
+      "members": 12434,
+      "stock": 317310,
+      "marketCap": 69125690,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250607",
+      "price": 23.8392,
+      "volume": 500.0,
+      "members": 12435,
+      "stock": 317291,
+      "marketCap": 69133916,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250608",
+      "price": 23.8401,
+      "volume": 160.0,
+      "members": 12434,
+      "stock": 317285,
+      "marketCap": 69136548,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250609",
+      "price": 23.8334,
+      "volume": 1072.6,
+      "members": 12436,
+      "stock": 317330,
+      "marketCap": 69116941,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250610",
+      "price": 23.8332,
+      "volume": 23.8,
+      "members": 12437,
+      "stock": 317331,
+      "marketCap": 69116505,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250611",
+      "price": 23.8899,
+      "volume": 12199.2,
+      "members": 12436,
+      "stock": 316954,
+      "marketCap": 69149148,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250612",
+      "price": 23.5766,
+      "volume": 49815.2,
+      "members": 12435,
+      "stock": 319053,
+      "marketCap": 68372265,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250613",
+      "price": 23.5812,
+      "volume": 970.7,
+      "members": 12435,
+      "stock": 319022,
+      "marketCap": 68385704,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250614",
+      "price": 23.5811,
+      "volume": 23.5,
+      "members": 12433,
+      "stock": 319023,
+      "marketCap": 68385276,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250615",
+      "price": 23.5793,
+      "volume": 282.9,
+      "members": 12433,
+      "stock": 319035,
+      "marketCap": 68380131,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250616",
+      "price": 23.5285,
+      "volume": 8338.2,
+      "members": 12436,
+      "stock": 319379,
+      "marketCap": 68232700,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250617",
+      "price": 23.5263,
+      "volume": 352.9,
+      "members": 12437,
+      "stock": 319394,
+      "marketCap": 68226291,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250618",
+      "price": 23.5267,
+      "volume": 133.5,
+      "members": 12438,
+      "stock": 319391,
+      "marketCap": 68227662,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250619",
+      "price": 23.5279,
+      "volume": 200.0,
+      "members": 12439,
+      "stock": 319384,
+      "marketCap": 68230931,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250620",
+      "price": 23.4578,
+      "volume": 14989.1,
+      "members": 12437,
+      "stock": 319860,
+      "marketCap": 68027888,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250621",
+      "price": 23.2297,
+      "volume": 36778.2,
+      "members": 12434,
+      "stock": 321427,
+      "marketCap": 67366229,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250622",
+      "price": 23.2687,
+      "volume": 7056.5,
+      "members": 12433,
+      "stock": 321157,
+      "marketCap": 67474891,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250623",
+      "price": 23.2506,
+      "volume": 2907.4,
+      "members": 12433,
+      "stock": 321282,
+      "marketCap": 67426782,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250624",
+      "price": 23.0278,
+      "volume": 35865.5,
+      "members": 12432,
+      "stock": 322832,
+      "marketCap": 66780872,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250625",
+      "price": 23.0421,
+      "volume": 2646.0,
+      "members": 12432,
+      "stock": 322733,
+      "marketCap": 66822091,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250626",
+      "price": 23.0544,
+      "volume": 2263.0,
+      "members": 12432,
+      "stock": 322646,
+      "marketCap": 66857912,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250627",
+      "price": 23.0543,
+      "volume": 652.0,
+      "members": 12434,
+      "stock": 322647,
+      "marketCap": 66857497,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250628",
+      "price": 22.9652,
+      "volume": 14381.1,
+      "members": 12434,
+      "stock": 323272,
+      "marketCap": 66599230,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250629",
+      "price": 22.962,
+      "volume": 1074.7,
+      "members": 12435,
+      "stock": 323295,
+      "marketCap": 66589970,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250630",
+      "price": 22.9028,
+      "volume": 9940.4,
+      "members": 12433,
+      "stock": 323712,
+      "marketCap": 66418360,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250701",
+      "price": 22.8364,
+      "volume": 11079.0,
+      "members": 12431,
+      "stock": 324183,
+      "marketCap": 66225782,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250702",
+      "price": 22.7754,
+      "volume": 10088.9,
+      "members": 12430,
+      "stock": 324617,
+      "marketCap": 66048799,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250703",
+      "price": 22.975,
+      "volume": 40963.1,
+      "members": 12439,
+      "stock": 323204,
+      "marketCap": 66627546,
+      "active_ranking": "24"
+    },
+    {
+      "date": "20250704",
+      "price": 23.366,
+      "volume": 80820.8,
+      "members": 12471,
+      "stock": 320488,
+      "marketCap": 67712827,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250705",
+      "price": 23.65,
+      "volume": 61597.5,
+      "members": 12488,
+      "stock": 318557,
+      "marketCap": 68585287,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250706",
+      "price": 23.6953,
+      "volume": 8575.1,
+      "members": 12500,
+      "stock": 318253,
+      "marketCap": 68716434,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250707",
+      "price": 23.6439,
+      "volume": 15922.6,
+      "members": 12512,
+      "stock": 318599,
+      "marketCap": 68567547,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250708",
+      "price": 23.7384,
+      "volume": 22348.9,
+      "members": 12522,
+      "stock": 317964,
+      "marketCap": 68843962,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250709",
+      "price": 23.7622,
+      "volume": 4263.7,
+      "members": 12526,
+      "stock": 317805,
+      "marketCap": 68910556,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250710",
+      "price": 23.8504,
+      "volume": 16417.1,
+      "members": 12529,
+      "stock": 317216,
+      "marketCap": 69166432,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250711",
+      "price": 23.977,
+      "volume": 22527.2,
+      "members": 12528,
+      "stock": 316378,
+      "marketCap": 69533472,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250712",
+      "price": 23.9826,
+      "volume": 9182.4,
+      "members": 12534,
+      "stock": 316341,
+      "marketCap": 69549743,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250713",
+      "price": 23.9555,
+      "volume": 4290.4,
+      "members": 12535,
+      "stock": 316520,
+      "marketCap": 69471101,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250714",
+      "price": 23.8637,
+      "volume": 3873.8,
+      "members": 12539,
+      "stock": 317129,
+      "marketCap": 69204749,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250715",
+      "price": 23.865,
+      "volume": 2006.8,
+      "members": 12540,
+      "stock": 317120,
+      "marketCap": 69208585,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250716",
+      "price": 23.8824,
+      "volume": 14758.0,
+      "members": 12544,
+      "stock": 317004,
+      "marketCap": 69259164,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250717",
+      "price": 23.8824,
+      "volume": 4492.5,
+      "members": 12545,
+      "stock": 317004,
+      "marketCap": 69259164,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250718",
+      "price": 23.9528,
+      "volume": 12788.5,
+      "members": 12544,
+      "stock": 316538,
+      "marketCap": 69463239,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250719",
+      "price": 23.9572,
+      "volume": 823.9,
+      "members": 12545,
+      "stock": 316509,
+      "marketCap": 69475993,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250720",
+      "price": 23.9666,
+      "volume": 1662.0,
+      "members": 12548,
+      "stock": 316446,
+      "marketCap": 69503406,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250721",
+      "price": 23.9713,
+      "volume": 1167.7,
+      "members": 12551,
+      "stock": 316416,
+      "marketCap": 69516827,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250722",
+      "price": 23.973,
+      "volume": 300.0,
+      "members": 12552,
+      "stock": 316405,
+      "marketCap": 69520127,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250723",
+      "price": 23.9758,
+      "volume": 500.0,
+      "members": 12555,
+      "stock": 316386,
+      "marketCap": 69530025,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250724",
+      "price": 23.9706,
+      "volume": 9154.9,
+      "members": 12559,
+      "stock": 316420,
+      "marketCap": 69519255,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250725",
+      "price": 24.0251,
+      "volume": 24084.3,
+      "members": 12575,
+      "stock": 316061,
+      "marketCap": 69672891,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250726",
+      "price": 24.3516,
+      "volume": 65250.1,
+      "members": 12584,
+      "stock": 313935,
+      "marketCap": 70619740,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250727",
+      "price": 24.2924,
+      "volume": 15380.7,
+      "members": 12594,
+      "stock": 314318,
+      "marketCap": 70448013,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250728",
+      "price": 24.5703,
+      "volume": 56904.4,
+      "members": 12600,
+      "stock": 312535,
+      "marketCap": 71254028,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250729",
+      "price": 24.6816,
+      "volume": 29593.2,
+      "members": 12604,
+      "stock": 311829,
+      "marketCap": 71576830,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250730",
+      "price": 24.6827,
+      "volume": 17116.9,
+      "members": 12604,
+      "stock": 311822,
+      "marketCap": 71580049,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250731",
+      "price": 24.6788,
+      "volume": 26389.4,
+      "members": 12609,
+      "stock": 311847,
+      "marketCap": 71568805,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250801",
+      "price": 24.6893,
+      "volume": 14826.3,
+      "members": 12611,
+      "stock": 311781,
+      "marketCap": 71599015,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250802",
+      "price": 24.6957,
+      "volume": 1274.0,
+      "members": 12614,
+      "stock": 311740,
+      "marketCap": 71617730,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250803",
+      "price": 24.6814,
+      "volume": 423.4,
+      "members": 12614,
+      "stock": 311831,
+      "marketCap": 71576205,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250804",
+      "price": 24.7533,
+      "volume": 12442.9,
+      "members": 12616,
+      "stock": 311378,
+      "marketCap": 71784649,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250805",
+      "price": 24.7727,
+      "volume": 14071.1,
+      "members": 12617,
+      "stock": 311255,
+      "marketCap": 71841079,
+      "active_ranking": "34"
+    },
+    {
+      "date": "20250806",
+      "price": 24.8708,
+      "volume": 16933.9,
+      "members": 12622,
+      "stock": 310641,
+      "marketCap": 72125354,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250807",
+      "price": 24.6818,
+      "volume": 67292.5,
+      "members": 12627,
+      "stock": 311828,
+      "marketCap": 71577317,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250808",
+      "price": 24.8476,
+      "volume": 34394.6,
+      "members": 12638,
+      "stock": 310786,
+      "marketCap": 72058303,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250809",
+      "price": 25.2775,
+      "volume": 83920.5,
+      "members": 12650,
+      "stock": 308132,
+      "marketCap": 73304811,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250810",
+      "price": 25.4238,
+      "volume": 48558.4,
+      "members": 12659,
+      "stock": 307244,
+      "marketCap": 73729249,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250811",
+      "price": 25.7681,
+      "volume": 116359.1,
+      "members": 12666,
+      "stock": 305185,
+      "marketCap": 74727554,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250812",
+      "price": 25.989,
+      "volume": 37542.7,
+      "members": 12671,
+      "stock": 303885,
+      "marketCap": 75368256,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250813",
+      "price": 26.0422,
+      "volume": 8981.9,
+      "members": 12673,
+      "stock": 303574,
+      "marketCap": 75522623,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250814",
+      "price": 25.8285,
+      "volume": 44113.2,
+      "members": 12674,
+      "stock": 304828,
+      "marketCap": 74902705,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250815",
+      "price": 25.8161,
+      "volume": 22786.0,
+      "members": 12678,
+      "stock": 304901,
+      "marketCap": 74866823,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250816",
+      "price": 25.8161,
+      "volume": 210.2,
+      "members": 12679,
+      "stock": 304901,
+      "marketCap": 74866691,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250817",
+      "price": 26.0997,
+      "volume": 47967.8,
+      "members": 12680,
+      "stock": 303240,
+      "marketCap": 75689223,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250818",
+      "price": 26.0776,
+      "volume": 9785.2,
+      "members": 12681,
+      "stock": 303368,
+      "marketCap": 75625310,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250819",
+      "price": 26.1478,
+      "volume": 14127.1,
+      "members": 12685,
+      "stock": 302961,
+      "marketCap": 75828638,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250820",
+      "price": 26.233,
+      "volume": 26913.8,
+      "members": 12689,
+      "stock": 302468,
+      "marketCap": 76075812,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250821",
+      "price": 26.2506,
+      "volume": 3409.8,
+      "members": 12760,
+      "stock": 302367,
+      "marketCap": 76127022,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250822",
+      "price": 26.3614,
+      "volume": 18805.4,
+      "members": 12787,
+      "stock": 301731,
+      "marketCap": 76448169,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250823",
+      "price": 26.3641,
+      "volume": 11809.2,
+      "members": 12802,
+      "stock": 301715,
+      "marketCap": 76456043,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250824",
+      "price": 26.4216,
+      "volume": 9861.5,
+      "members": 12814,
+      "stock": 301387,
+      "marketCap": 76622893,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250825",
+      "price": 26.3873,
+      "volume": 17589.1,
+      "members": 12820,
+      "stock": 301583,
+      "marketCap": 76523271,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250826",
+      "price": 26.4554,
+      "volume": 17212.0,
+      "members": 12825,
+      "stock": 301194,
+      "marketCap": 76720754,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250827",
+      "price": 26.4399,
+      "volume": 4444.0,
+      "members": 12830,
+      "stock": 301282,
+      "marketCap": 76656605,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250828",
+      "price": 26.4396,
+      "volume": 617.2,
+      "members": 12832,
+      "stock": 301284,
+      "marketCap": 76674960,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250829",
+      "price": 26.4251,
+      "volume": 4102.9,
+      "members": 12834,
+      "stock": 301367,
+      "marketCap": 76632923,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250830",
+      "price": 26.4258,
+      "volume": 279.2,
+      "members": 12833,
+      "stock": 301363,
+      "marketCap": 76633129,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250831",
+      "price": 26.3409,
+      "volume": 21538.5,
+      "members": 12836,
+      "stock": 301848,
+      "marketCap": 76388742,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250901",
+      "price": 26.0629,
+      "volume": 61473.8,
+      "members": 12840,
+      "stock": 303454,
+      "marketCap": 75582638,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250902",
+      "price": 26.0631,
+      "volume": 10644.0,
+      "members": 12839,
+      "stock": 303452,
+      "marketCap": 75583179,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250903",
+      "price": 26.0651,
+      "volume": 712.4,
+      "members": 12844,
+      "stock": 303441,
+      "marketCap": 75588809,
+      "active_ranking": "7"
+    },
+    {
+      "date": "20250904",
+      "price": 26.0637,
+      "volume": 208.5,
+      "members": 12845,
+      "stock": 303449,
+      "marketCap": 75584823,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250905",
+      "price": 26.174,
+      "volume": 18638.1,
+      "members": 12845,
+      "stock": 302809,
+      "marketCap": 75904828,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250906",
+      "price": 26.2476,
+      "volume": 12650.2,
+      "members": 12846,
+      "stock": 302384,
+      "marketCap": 76118273,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250907",
+      "price": 26.1218,
+      "volume": 22848.7,
+      "members": 12847,
+      "stock": 303111,
+      "marketCap": 75753376,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250908",
+      "price": 26.0527,
+      "volume": 17266.9,
+      "members": 12850,
+      "stock": 303513,
+      "marketCap": 75552937,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250909",
+      "price": 25.9562,
+      "volume": 17907.8,
+      "members": 12852,
+      "stock": 304077,
+      "marketCap": 75273003,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250910",
+      "price": 25.7245,
+      "volume": 41428.6,
+      "members": 12855,
+      "stock": 305443,
+      "marketCap": 74601271,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250911",
+      "price": 25.675,
+      "volume": 16839.0,
+      "members": 12864,
+      "stock": 305737,
+      "marketCap": 74457671,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250912",
+      "price": 25.6146,
+      "volume": 37079.6,
+      "members": 12865,
+      "stock": 306098,
+      "marketCap": 74282399,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250913",
+      "price": 25.7619,
+      "volume": 25231.0,
+      "members": 12870,
+      "stock": 305221,
+      "marketCap": 74709574,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250914",
+      "price": 25.5922,
+      "volume": 25933.8,
+      "members": 12870,
+      "stock": 306231,
+      "marketCap": 74217580,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250915",
+      "price": 25.6652,
+      "volume": 12392.3,
+      "members": 12872,
+      "stock": 305796,
+      "marketCap": 74429201,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250916",
+      "price": 25.5054,
+      "volume": 27919.3,
+      "members": 12873,
+      "stock": 306752,
+      "marketCap": 73965761,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250917",
+      "price": 25.5139,
+      "volume": 1562.0,
+      "members": 12874,
+      "stock": 306701,
+      "marketCap": 73990511,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250918",
+      "price": 25.5722,
+      "volume": 12862.5,
+      "members": 12874,
+      "stock": 306351,
+      "marketCap": 74159622,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250919",
+      "price": 25.5192,
+      "volume": 28850.1,
+      "members": 12875,
+      "stock": 306669,
+      "marketCap": 74005967,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250920",
+      "price": 25.5095,
+      "volume": 6369.5,
+      "members": 12878,
+      "stock": 306727,
+      "marketCap": 73977819,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250921",
+      "price": 23.7157,
+      "volume": 282029.0,
+      "members": 12879,
+      "stock": 318116,
+      "marketCap": 68775628,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250922",
+      "price": 23.6994,
+      "volume": 9236.4,
+      "members": 12880,
+      "stock": 318225,
+      "marketCap": 68728479,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250923",
+      "price": 23.6817,
+      "volume": 7071.6,
+      "members": 12879,
+      "stock": 318344,
+      "marketCap": 68677171,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250924",
+      "price": 23.6115,
+      "volume": 11425.2,
+      "members": 12880,
+      "stock": 318818,
+      "marketCap": 68473387,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250925",
+      "price": 23.6114,
+      "volume": 779.8,
+      "members": 12882,
+      "stock": 318818,
+      "marketCap": 68473096,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250926",
+      "price": 23.6075,
+      "volume": 26166.1,
+      "members": 12883,
+      "stock": 318845,
+      "marketCap": 68461770,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250927",
+      "price": 23.6281,
+      "volume": 3660.0,
+      "members": 12883,
+      "stock": 318705,
+      "marketCap": 68521703,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250928",
+      "price": 23.6277,
+      "volume": 70.8,
+      "members": 12882,
+      "stock": 318708,
+      "marketCap": 68520413,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250929",
+      "price": 23.5974,
+      "volume": 13536.8,
+      "members": 12882,
+      "stock": 318913,
+      "marketCap": 68432559,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20250930",
+      "price": 23.5376,
+      "volume": 9544.8,
+      "members": 12882,
+      "stock": 319318,
+      "marketCap": 68259080,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20251001",
+      "price": 24.5722,
+      "volume": 183260.3,
+      "members": 12888,
+      "stock": 312523,
+      "marketCap": 71259459,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20251002",
+      "price": 24.6386,
+      "volume": 11635.2,
+      "members": 12890,
+      "stock": 312101,
+      "marketCap": 71452193,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20251003",
+      "price": 24.6578,
+      "volume": 9722.6,
+      "members": 12892,
+      "stock": 311980,
+      "marketCap": 71507738,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20251004",
+      "price": 24.6917,
+      "volume": 8209.4,
+      "members": 12893,
+      "stock": 311766,
+      "marketCap": 71605942,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20251005",
+      "price": 24.5956,
+      "volume": 16742.1,
+      "members": 12897,
+      "stock": 312374,
+      "marketCap": 71327304,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20251006",
+      "price": 24.5908,
+      "volume": 737.8,
+      "members": 12898,
+      "stock": 312404,
+      "marketCap": 71313605,
+      "active_ranking": "3"
+    },
+    {
+      "date": "20251007",
+      "price": 24.5905,
+      "volume": 49.1,
+      "members": 12896,
+      "stock": 312406,
+      "marketCap": 71312692,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251008",
+      "price": 24.5858,
+      "volume": 1719.8,
+      "members": 12896,
+      "stock": 312436,
+      "marketCap": 71298930,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251009",
+      "price": 24.5212,
+      "volume": 10091.5,
+      "members": 12898,
+      "stock": 312847,
+      "marketCap": 71111717,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251010",
+      "price": 24.5612,
+      "volume": 7297.6,
+      "members": 12900,
+      "stock": 312593,
+      "marketCap": 71227481,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251011",
+      "price": 24.22,
+      "volume": 59443.9,
+      "members": 12901,
+      "stock": 314787,
+      "marketCap": 70188318,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251012",
+      "price": 24.2003,
+      "volume": 3098.9,
+      "members": 12900,
+      "stock": 314915,
+      "marketCap": 70180971,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251013",
+      "price": 24.2076,
+      "volume": 4548.5,
+      "members": 12904,
+      "stock": 314868,
+      "marketCap": 70202180,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251014",
+      "price": 24.2034,
+      "volume": 850.3,
+      "members": 12903,
+      "stock": 314895,
+      "marketCap": 70190016,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251015",
+      "price": 24.2018,
+      "volume": 850.4,
+      "members": 12902,
+      "stock": 314905,
+      "marketCap": 70185480,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251016",
+      "price": 24.2069,
+      "volume": 1096.8,
+      "members": 12901,
+      "stock": 314872,
+      "marketCap": 70200274,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251017",
+      "price": 24.2448,
+      "volume": 7341.3,
+      "members": 12899,
+      "stock": 314626,
+      "marketCap": 70310145,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251018",
+      "price": 21.9732,
+      "volume": 405469.7,
+      "members": 12904,
+      "stock": 330489,
+      "marketCap": 63722299,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251019",
+      "price": 21.9917,
+      "volume": 3399.0,
+      "members": 12907,
+      "stock": 330350,
+      "marketCap": 63775997,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251020",
+      "price": 21.9647,
+      "volume": 6747.1,
+      "members": 12908,
+      "stock": 330553,
+      "marketCap": 63697891,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251021",
+      "price": 22.0391,
+      "volume": 14019.0,
+      "members": 12909,
+      "stock": 329995,
+      "marketCap": 63913588,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251022",
+      "price": 22.0243,
+      "volume": 2633.6,
+      "members": 12910,
+      "stock": 330105,
+      "marketCap": 63870645,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251023",
+      "price": 22.0247,
+      "volume": 404.1,
+      "members": 12910,
+      "stock": 330102,
+      "marketCap": 63871890,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251024",
+      "price": 22.0253,
+      "volume": 100.0,
+      "members": 12910,
+      "stock": 330098,
+      "marketCap": 63873471,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251025",
+      "price": 22.0467,
+      "volume": 4028.0,
+      "members": 12913,
+      "stock": 329937,
+      "marketCap": 63935712,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251026",
+      "price": 22.0316,
+      "volume": 2802.6,
+      "members": 12913,
+      "stock": 330051,
+      "marketCap": 63891729,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251027",
+      "price": 22.0327,
+      "volume": 200.0,
+      "members": 12915,
+      "stock": 330043,
+      "marketCap": 63894893,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251028",
+      "price": 21.8239,
+      "volume": 36880.7,
+      "members": 12915,
+      "stock": 331618,
+      "marketCap": 63289317,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251029",
+      "price": 21.6354,
+      "volume": 41763.7,
+      "members": 12914,
+      "stock": 333059,
+      "marketCap": 62742696,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251030",
+      "price": 21.6451,
+      "volume": 2071.8,
+      "members": 12914,
+      "stock": 332985,
+      "marketCap": 62770874,
+      "active_ranking": "9"
+    },
+    {
+      "date": "20251031",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251101",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251102",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251103",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251104",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251105",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251106",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251107",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251108",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251109",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251110",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251111",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251112",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251113",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251114",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251115",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251116",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251117",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251118",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251119",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251120",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251121",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251122",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251123",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251124",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251125",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251126",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251127",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251128",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251129",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251130",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251201",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251202",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251203",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251204",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251205",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251206",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251207",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251208",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251209",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251210",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251211",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251212",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251213",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251214",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251215",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251216",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251217",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251218",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251219",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251220",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251221",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251222",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251223",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251224",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251225",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251226",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251227",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251228",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251229",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251230",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20251231",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260101",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260102",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260103",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260104",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260105",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260106",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260107",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260108",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260109",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260110",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260111",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260112",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260113",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260114",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260115",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260116",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260117",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260118",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260119",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260120",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260121",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260122",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260123",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260124",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260125",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260126",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260127",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260128",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260129",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260130",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260131",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260201",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260202",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260203",
+      "price": 0.0,
+      "volume": 0.0,
+      "members": 0,
+      "stock": 0,
+      "marketCap": 0,
+      "active_ranking": "0"
+    },
+    {
+      "date": "20260204",
+      "price": 18.1207,
+      "volume": 17103.2,
+      "members": 12913,
+      "stock": 363928,
+      "marketCap": 52550295,
+      "active_ranking": "20"
+    },
+    {
+      "date": "20260205",
+      "price": 18.1214,
+      "volume": 8161.9,
+      "members": 12913,
+      "stock": 363922,
+      "marketCap": 52552160,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260206",
+      "price": 18.1201,
+      "volume": 235.5,
+      "members": 12912,
+      "stock": 363935,
+      "marketCap": 52548405,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260207",
+      "price": 18.1201,
+      "volume": 0.0,
+      "members": 12913,
+      "stock": 363935,
+      "marketCap": 52548405,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260208",
+      "price": 17.8958,
+      "volume": 40949.4,
+      "members": 12912,
+      "stock": 366209,
+      "marketCap": 51897827,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260209",
+      "price": 17.8131,
+      "volume": 15158.4,
+      "members": 12912,
+      "stock": 367058,
+      "marketCap": 51658028,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260210",
+      "price": 17.7756,
+      "volume": 6886.4,
+      "members": 12912,
+      "stock": 367445,
+      "marketCap": 51549271,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260211",
+      "price": 17.5279,
+      "volume": 45664.1,
+      "members": 12912,
+      "stock": 370032,
+      "marketCap": 50831000,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260212",
+      "price": 17.5269,
+      "volume": 175.2,
+      "members": 12912,
+      "stock": 370042,
+      "marketCap": 50828253,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260213",
+      "price": 17.5558,
+      "volume": 5930.9,
+      "members": 12912,
+      "stock": 369738,
+      "marketCap": 50911953,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260214",
+      "price": 17.5563,
+      "volume": 280.7,
+      "members": 12912,
+      "stock": 369733,
+      "marketCap": 50913301,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260215",
+      "price": 17.5568,
+      "volume": 111.0,
+      "members": 12913,
+      "stock": 369727,
+      "marketCap": 50914868,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260216",
+      "price": 17.5573,
+      "volume": 100.0,
+      "members": 12915,
+      "stock": 369722,
+      "marketCap": 50916280,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260217",
+      "price": 17.3689,
+      "volume": 34925.8,
+      "members": 12915,
+      "stock": 371722,
+      "marketCap": 50369859,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260218",
+      "price": 17.3674,
+      "volume": 277.8,
+      "members": 12914,
+      "stock": 371738,
+      "marketCap": 50365523,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260219",
+      "price": 17.3581,
+      "volume": 1718.9,
+      "members": 12912,
+      "stock": 371837,
+      "marketCap": 50338707,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260220",
+      "price": 17.3601,
+      "volume": 2592.5,
+      "members": 12912,
+      "stock": 371816,
+      "marketCap": 50344473,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260221",
+      "price": 17.3507,
+      "volume": 2026.4,
+      "members": 12912,
+      "stock": 371916,
+      "marketCap": 50317184,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260222",
+      "price": 17.3054,
+      "volume": 8438.7,
+      "members": 12911,
+      "stock": 372403,
+      "marketCap": 50185668,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260223",
+      "price": 17.3057,
+      "volume": 117.3,
+      "members": 12911,
+      "stock": 372399,
+      "marketCap": 50186800,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260224",
+      "price": 17.2131,
+      "volume": 17276.7,
+      "members": 12911,
+      "stock": 373400,
+      "marketCap": 49918083,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260225",
+      "price": 17.1971,
+      "volume": 2976.5,
+      "members": 12910,
+      "stock": 373573,
+      "marketCap": 49871860,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260226",
+      "price": 17.2068,
+      "volume": 2000.0,
+      "members": 12910,
+      "stock": 373469,
+      "marketCap": 49899810,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260227",
+      "price": 17.2064,
+      "volume": 68.8,
+      "members": 12909,
+      "stock": 373473,
+      "marketCap": 49898741,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260228",
+      "price": 17.1968,
+      "volume": 1788.9,
+      "members": 12910,
+      "stock": 373577,
+      "marketCap": 49870963,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260301",
+      "price": 17.1931,
+      "volume": 704.9,
+      "members": 12910,
+      "stock": 373618,
+      "marketCap": 49860018,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260302",
+      "price": 16.9511,
+      "volume": 47257.9,
+      "members": 12911,
+      "stock": 376274,
+      "marketCap": 49158376,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260303",
+      "price": 16.9511,
+      "volume": 0.0,
+      "members": 12911,
+      "stock": 376274,
+      "marketCap": 49158376,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260304",
+      "price": 16.9342,
+      "volume": 3185.2,
+      "members": 12910,
+      "stock": 376462,
+      "marketCap": 49109290,
+      "active_ranking": "27"
+    },
+    {
+      "date": "20260305",
+      "price": 16.7427,
+      "volume": 36151.7,
+      "members": 12910,
+      "stock": 378609,
+      "marketCap": 48553897,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260306",
+      "price": 16.7303,
+      "volume": 2343.1,
+      "members": 12909,
+      "stock": 378749,
+      "marketCap": 48518009,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260307",
+      "price": 16.7303,
+      "volume": 0.0,
+      "members": 12910,
+      "stock": 378749,
+      "marketCap": 48518009,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260308",
+      "price": 16.7309,
+      "volume": 234.1,
+      "members": 12910,
+      "stock": 378743,
+      "marketCap": 48519777,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260309",
+      "price": 16.7304,
+      "volume": 100.3,
+      "members": 12910,
+      "stock": 378749,
+      "marketCap": 48518240,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260310",
+      "price": 16.7131,
+      "volume": 3277.4,
+      "members": 12907,
+      "stock": 378945,
+      "marketCap": 48468063,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260311",
+      "price": 16.7138,
+      "volume": 151.0,
+      "members": 12906,
+      "stock": 378936,
+      "marketCap": 48470143,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260312",
+      "price": 16.7111,
+      "volume": 518.0,
+      "members": 12906,
+      "stock": 378967,
+      "marketCap": 48462214,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260313",
+      "price": 16.7111,
+      "volume": 0.0,
+      "members": 12905,
+      "stock": 378967,
+      "marketCap": 48462214,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260314",
+      "price": 16.7111,
+      "volume": 0.0,
+      "members": 12905,
+      "stock": 378967,
+      "marketCap": 48462214,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260315",
+      "price": 16.711,
+      "volume": 0.0,
+      "members": 12905,
+      "stock": 378968,
+      "marketCap": 48461958,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260316",
+      "price": 16.7121,
+      "volume": 240.0,
+      "members": 12906,
+      "stock": 378955,
+      "marketCap": 48465264,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260317",
+      "price": 16.7164,
+      "volume": 1283.8,
+      "members": 12904,
+      "stock": 378907,
+      "marketCap": 48476226,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260318",
+      "price": 16.7163,
+      "volume": 16.7,
+      "members": 12904,
+      "stock": 378908,
+      "marketCap": 48477347,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260319",
+      "price": 16.6283,
+      "volume": 16688.9,
+      "members": 12901,
+      "stock": 379909,
+      "marketCap": 48222224,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260320",
+      "price": 16.628,
+      "volume": 66.5,
+      "members": 12901,
+      "stock": 379913,
+      "marketCap": 48221209,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260321",
+      "price": 16.5962,
+      "volume": 6409.7,
+      "members": 12903,
+      "stock": 380277,
+      "marketCap": 48129112,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260322",
+      "price": 16.5959,
+      "volume": 49.7,
+      "members": 12903,
+      "stock": 380280,
+      "marketCap": 48128353,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260323",
+      "price": 15.9587,
+      "volume": 122630.9,
+      "members": 12903,
+      "stock": 387798,
+      "marketCap": 46280380,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260324",
+      "price": 15.9587,
+      "volume": 0.0,
+      "members": 12902,
+      "stock": 387798,
+      "marketCap": 46280380,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260325",
+      "price": 15.949,
+      "volume": 1882.5,
+      "members": 12898,
+      "stock": 387916,
+      "marketCap": 46252229,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260326",
+      "price": 15.9355,
+      "volume": 2817.1,
+      "members": 12897,
+      "stock": 388079,
+      "marketCap": 46213155,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260327",
+      "price": 15.9195,
+      "volume": 3105.8,
+      "members": 12897,
+      "stock": 388274,
+      "marketCap": 46166749,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260328",
+      "price": 15.907,
+      "volume": 2498.4,
+      "members": 12897,
+      "stock": 388427,
+      "marketCap": 46130386,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260329",
+      "price": 15.8096,
+      "volume": 18934.8,
+      "members": 12897,
+      "stock": 389621,
+      "marketCap": 45848086,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260330",
+      "price": 15.8039,
+      "volume": 19627.6,
+      "members": 12897,
+      "stock": 389692,
+      "marketCap": 45831381,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260331",
+      "price": 15.7928,
+      "volume": 2148.5,
+      "members": 12897,
+      "stock": 389828,
+      "marketCap": 45799408,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260401",
+      "price": 15.7571,
+      "volume": 9121.1,
+      "members": 12895,
+      "stock": 390270,
+      "marketCap": 45695727,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260402",
+      "price": 15.605,
+      "volume": 29746.7,
+      "members": 12895,
+      "stock": 392167,
+      "marketCap": 45254717,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260403",
+      "price": 15.0626,
+      "volume": 107677.0,
+      "members": 12895,
+      "stock": 399166,
+      "marketCap": 43681755,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260404",
+      "price": 15.0626,
+      "volume": 0.0,
+      "members": 12895,
+      "stock": 399166,
+      "marketCap": 43681755,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260405",
+      "price": 15.0232,
+      "volume": 7867.4,
+      "members": 12895,
+      "stock": 399689,
+      "marketCap": 43567513,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260406",
+      "price": 15.0229,
+      "volume": 75.1,
+      "members": 12894,
+      "stock": 399694,
+      "marketCap": 43566423,
+      "active_ranking": "26"
+    },
+    {
+      "date": "20260407",
+      "price": 14.8954,
+      "volume": 25520.2,
+      "members": 12894,
+      "stock": 401400,
+      "marketCap": 43196886,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260408",
+      "price": 14.7913,
+      "volume": 20929.1,
+      "members": 12894,
+      "stock": 402810,
+      "marketCap": 42895002,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260409",
+      "price": 14.7913,
+      "volume": 203.5,
+      "members": 12894,
+      "stock": 402811,
+      "marketCap": 42894807,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260410",
+      "price": 14.723,
+      "volume": 13768.4,
+      "members": 12894,
+      "stock": 403744,
+      "marketCap": 42696788,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260411",
+      "price": 14.7209,
+      "volume": 412.2,
+      "members": 12892,
+      "stock": 403772,
+      "marketCap": 42690867,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260412",
+      "price": 14.54,
+      "volume": 36634.2,
+      "members": 12892,
+      "stock": 406276,
+      "marketCap": 42166256,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260413",
+      "price": 14.5318,
+      "volume": 1671.6,
+      "members": 12892,
+      "stock": 406391,
+      "marketCap": 42142396,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260414",
+      "price": 14.5318,
+      "volume": 0.0,
+      "members": 12892,
+      "stock": 406391,
+      "marketCap": 42142396,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260415",
+      "price": 14.5323,
+      "volume": 100.0,
+      "members": 12892,
+      "stock": 406385,
+      "marketCap": 42143680,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260416",
+      "price": 14.5294,
+      "volume": 947.5,
+      "members": 12891,
+      "stock": 406425,
+      "marketCap": 42135363,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260417",
+      "price": 14.5294,
+      "volume": 0.0,
+      "members": 12891,
+      "stock": 406425,
+      "marketCap": 42135363,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260418",
+      "price": 14.5294,
+      "volume": 0.0,
+      "members": 12891,
+      "stock": 406425,
+      "marketCap": 42135363,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260419",
+      "price": 14.5234,
+      "volume": 1220.2,
+      "members": 12891,
+      "stock": 406509,
+      "marketCap": 42117951,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260420",
+      "price": 14.5225,
+      "volume": 188.7,
+      "members": 12891,
+      "stock": 406522,
+      "marketCap": 42115258,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260421",
+      "price": 14.5225,
+      "volume": 0.0,
+      "members": 12891,
+      "stock": 406522,
+      "marketCap": 42115258,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260422",
+      "price": 14.5227,
+      "volume": 143.5,
+      "members": 12891,
+      "stock": 406519,
+      "marketCap": 42115920,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260423",
+      "price": 14.5225,
+      "volume": 43.5,
+      "members": 12890,
+      "stock": 406522,
+      "marketCap": 42115298,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260424",
+      "price": 14.523,
+      "volume": 113.0,
+      "members": 12890,
+      "stock": 406515,
+      "marketCap": 42116749,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260425",
+      "price": 14.5239,
+      "volume": 213.0,
+      "members": 12890,
+      "stock": 406501,
+      "marketCap": 42119484,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260426",
+      "price": 14.5239,
+      "volume": 0.0,
+      "members": 12890,
+      "stock": 406501,
+      "marketCap": 42119484,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260427",
+      "price": 14.5239,
+      "volume": 0.0,
+      "members": 12890,
+      "stock": 406501,
+      "marketCap": 42119484,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260428",
+      "price": 14.5243,
+      "volume": 127.5,
+      "members": 12890,
+      "stock": 406495,
+      "marketCap": 42120728,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260429",
+      "price": 14.4742,
+      "volume": 10394.6,
+      "members": 12889,
+      "stock": 407199,
+      "marketCap": 41975251,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260430",
+      "price": 14.4677,
+      "volume": 1934.2,
+      "members": 12887,
+      "stock": 407290,
+      "marketCap": 41956580,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260501",
+      "price": 14.4586,
+      "volume": 1865.7,
+      "members": 12885,
+      "stock": 407419,
+      "marketCap": 41930015,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260502",
+      "price": 14.4585,
+      "volume": 421.4,
+      "members": 12885,
+      "stock": 407419,
+      "marketCap": 41929939,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260503",
+      "price": 14.4481,
+      "volume": 2124.6,
+      "members": 12882,
+      "stock": 407566,
+      "marketCap": 41899698,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260504",
+      "price": 14.4481,
+      "volume": 14.4,
+      "members": 12882,
+      "stock": 407567,
+      "marketCap": 41899493,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260505",
+      "price": 14.4481,
+      "volume": 0.0,
+      "members": 12882,
+      "stock": 407567,
+      "marketCap": 41899493,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260506",
+      "price": 14.4486,
+      "volume": 113.0,
+      "members": 12882,
+      "stock": 407560,
+      "marketCap": 41900940,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260507",
+      "price": 14.4493,
+      "volume": 161.0,
+      "members": 12881,
+      "stock": 407550,
+      "marketCap": 41903002,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260508",
+      "price": 14.4492,
+      "volume": 14.4,
+      "members": 12879,
+      "stock": 407551,
+      "marketCap": 41902796,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260509",
+      "price": 14.3187,
+      "volume": 26653.3,
+      "members": 12877,
+      "stock": 409404,
+      "marketCap": 41524344,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260510",
+      "price": 14.3097,
+      "volume": 1846.5,
+      "members": 12877,
+      "stock": 409533,
+      "marketCap": 41498189,
+      "active_ranking": "23"
+    },
+    {
+      "date": "20260511",
+      "price": 14.3101,
+      "volume": 100.0,
+      "members": 12876,
+      "stock": 409527,
+      "marketCap": 41499463,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260512",
+      "price": 14.1027,
+      "volume": 42732.4,
+      "members": 12875,
+      "stock": 412528,
+      "marketCap": 40897872,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260513",
+      "price": 13.9275,
+      "volume": 36426.1,
+      "members": 12875,
+      "stock": 415113,
+      "marketCap": 40389993,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260514",
+      "price": 13.9275,
+      "volume": 0.0,
+      "members": 12875,
+      "stock": 415113,
+      "marketCap": 40389993,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260515",
+      "price": 13.9277,
+      "volume": 917.8,
+      "members": 12875,
+      "stock": 415111,
+      "marketCap": 40390442,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260516",
+      "price": 13.8603,
+      "volume": 14188.3,
+      "members": 12874,
+      "stock": 416119,
+      "marketCap": 40195093,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260517",
+      "price": 13.788,
+      "volume": 15360.2,
+      "members": 12874,
+      "stock": 417208,
+      "marketCap": 39985350,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260518",
+      "price": 13.7741,
+      "volume": 2907.8,
+      "members": 12874,
+      "stock": 417419,
+      "marketCap": 39944936,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260519",
+      "price": 13.7737,
+      "volume": 68.8,
+      "members": 12874,
+      "stock": 417424,
+      "marketCap": 39943979,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260520",
+      "price": 13.6294,
+      "volume": 30211.6,
+      "members": 12875,
+      "stock": 419629,
+      "marketCap": 39525301,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260521",
+      "price": 13.6295,
+      "volume": 349.9,
+      "members": 12876,
+      "stock": 419627,
+      "marketCap": 39525717,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260522",
+      "price": 13.622,
+      "volume": 1580.5,
+      "members": 12875,
+      "stock": 419743,
+      "marketCap": 39503873,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260523",
+      "price": 13.622,
+      "volume": 0.0,
+      "members": 12875,
+      "stock": 419743,
+      "marketCap": 39503873,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260524",
+      "price": 13.6221,
+      "volume": 174.1,
+      "members": 12874,
+      "stock": 419741,
+      "marketCap": 39504250,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260525",
+      "price": 13.622,
+      "volume": 13.6,
+      "members": 12874,
+      "stock": 419742,
+      "marketCap": 39504062,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260526",
+      "price": 13.6224,
+      "volume": 220.1,
+      "members": 12872,
+      "stock": 419737,
+      "marketCap": 39505011,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260527",
+      "price": 13.6223,
+      "volume": 13.6,
+      "members": 12872,
+      "stock": 419738,
+      "marketCap": 39504823,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260528",
+      "price": 13.6165,
+      "volume": 1500.2,
+      "members": 12873,
+      "stock": 419827,
+      "marketCap": 39488084,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260529",
+      "price": 13.6069,
+      "volume": 2302.6,
+      "members": 12871,
+      "stock": 419975,
+      "marketCap": 39460268,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260530",
+      "price": 13.5774,
+      "volume": 6498.4,
+      "members": 12870,
+      "stock": 420432,
+      "marketCap": 39374532,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260531",
+      "price": 13.5749,
+      "volume": 529.4,
+      "members": 12870,
+      "stock": 420471,
+      "marketCap": 39367228,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260601",
+      "price": 13.5005,
+      "volume": 15649.6,
+      "members": 12870,
+      "stock": 421627,
+      "marketCap": 39151653,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260602",
+      "price": 13.4308,
+      "volume": 16622.6,
+      "members": 12869,
+      "stock": 422720,
+      "marketCap": 38949388,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260603",
+      "price": 13.4307,
+      "volume": 13.4,
+      "members": 12870,
+      "stock": 422721,
+      "marketCap": 38949204,
+      "active_ranking": "19"
+    },
+    {
+      "date": "20260604",
+      "price": 13.3305,
+      "volume": 21221.6,
+      "members": 12870,
+      "stock": 424307,
+      "marketCap": 38658575,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260605",
+      "price": 13.2783,
+      "volume": 11082.6,
+      "members": 12869,
+      "stock": 425140,
+      "marketCap": 38507233,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260606",
+      "price": 13.2783,
+      "volume": 0.0,
+      "members": 12868,
+      "stock": 425140,
+      "marketCap": 38507233,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260607",
+      "price": 13.2775,
+      "volume": 172.6,
+      "members": 12868,
+      "stock": 425153,
+      "marketCap": 38504878,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260608",
+      "price": 13.2775,
+      "volume": 0.0,
+      "members": 12868,
+      "stock": 425153,
+      "marketCap": 38504878,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260609",
+      "price": 13.273,
+      "volume": 955.8,
+      "members": 12865,
+      "stock": 425225,
+      "marketCap": 38491840,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260610",
+      "price": 13.224,
+      "volume": 16787.0,
+      "members": 12864,
+      "stock": 426013,
+      "marketCap": 38349714,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260611",
+      "price": 13.157,
+      "volume": 14285.3,
+      "members": 12865,
+      "stock": 427096,
+      "marketCap": 38155472,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260612",
+      "price": 13.1609,
+      "volume": 1078.9,
+      "members": 12865,
+      "stock": 427033,
+      "marketCap": 38166622,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260613",
+      "price": 13.1609,
+      "volume": 0.0,
+      "members": 12865,
+      "stock": 427033,
+      "marketCap": 38166622,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260614",
+      "price": 13.1608,
+      "volume": 13.1,
+      "members": 12865,
+      "stock": 427034,
+      "marketCap": 38166444,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260615",
+      "price": 13.2275,
+      "volume": 21880.9,
+      "members": 12865,
+      "stock": 425957,
+      "marketCap": 38359811,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260616",
+      "price": 13.227,
+      "volume": 92.5,
+      "members": 12865,
+      "stock": 425964,
+      "marketCap": 38358551,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260617",
+      "price": 13.1755,
+      "volume": 10996.6,
+      "members": 12865,
+      "stock": 426797,
+      "marketCap": 38208964,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260618",
+      "price": 13.1751,
+      "volume": 65.8,
+      "members": 12865,
+      "stock": 426802,
+      "marketCap": 38208069,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260619",
+      "price": 13.1711,
+      "volume": 869.4,
+      "members": 12865,
+      "stock": 426868,
+      "marketCap": 38196255,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260620",
+      "price": 13.1407,
+      "volume": 6485.8,
+      "members": 12865,
+      "stock": 427361,
+      "marketCap": 38108180,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260621",
+      "price": 13.1256,
+      "volume": 13099.6,
+      "members": 12865,
+      "stock": 427606,
+      "marketCap": 38064497,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260622",
+      "price": 13.121,
+      "volume": 997.3,
+      "members": 12865,
+      "stock": 427682,
+      "marketCap": 38050970,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260623",
+      "price": 13.1208,
+      "volume": 39.3,
+      "members": 12865,
+      "stock": 427685,
+      "marketCap": 38050436,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260624",
+      "price": 13.1208,
+      "volume": 0.0,
+      "members": 12641,
+      "stock": 427685,
+      "marketCap": 38050436,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260625",
+      "price": 13.1249,
+      "volume": 1049.3,
+      "members": 12639,
+      "stock": 427618,
+      "marketCap": 38062230,
+      "active_ranking": "21"
+    },
+    {
+      "date": "20260626",
+      "price": 13.1249,
+      "volume": 1023.1,
+      "members": 12639,
+      "stock": 427618,
+      "marketCap": 38062230,
+      "active_ranking": "21"
+    }
+  ]
+}
