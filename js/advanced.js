@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+
   let projectsList = [];
   let currentProjectFolder = null;
   let currentProjectData = null;
@@ -309,8 +309,8 @@ document.addEventListener("DOMContentLoaded", () => {
       })
       .then(data => {
         currentProjectData = data;
-        welcomeView.style.display = "none";
-        detailView.style.display = "flex";
+        welcomeView.classList.add("hidden-element");
+        detailView.classList.remove("hidden-element");
         
         // ヘッダー情報セット
         const defaultLogo = 'https://financie.jp/assets/img/ogp.png';
@@ -1044,35 +1044,35 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    welcomeView.style.display = "none";
-    detailView.style.display = "none";
-    compareView.style.display = "none";
-    dailyTravelView.style.display = "none";
-    monthlyRankingsView.style.display = "none";
+    welcomeView.classList.add("hidden-element");
+    detailView.classList.add("hidden-element");
+    compareView.classList.add("hidden-element");
+    dailyTravelView.classList.add("hidden-element");
+    monthlyRankingsView.classList.add("hidden-element");
 
     if (tabId === "single-tab") {
       dashboardLayout.classList.remove("no-sidebar");
       compareNotice.classList.add("hidden-element");
       if (currentProjectData) {
-        detailView.style.display = "flex";
+        detailView.classList.remove("hidden-element");
       } else {
-        welcomeView.style.display = "flex";
+        welcomeView.classList.remove("hidden-element");
       }
     } else if (tabId === "compare-tab") {
       dashboardLayout.classList.remove("no-sidebar");
       compareNotice.classList.remove("hidden-element");
-      compareView.style.display = "flex";
+      compareView.classList.remove("hidden-element");
       updateCompareBadges();
       updateCompareCharts();
     } else if (tabId === "daily-tab") {
       dashboardLayout.classList.add("no-sidebar");
-      dailyTravelView.style.display = "flex";
+      dailyTravelView.classList.remove("hidden-element");
       if (dailyData.length === 0) {
         initDailyTravel();
       }
     } else if (tabId === "monthly-tab") {
       dashboardLayout.classList.add("no-sidebar");
-      monthlyRankingsView.style.display = "flex";
+      monthlyRankingsView.classList.remove("hidden-element");
       if (monthlyData.length === 0) {
         initMonthlyRankings();
       }
@@ -1151,5 +1151,5 @@ document.addEventListener("DOMContentLoaded", () => {
     showAllMonthly = true;
     renderMonthlyTable();
   });
-});
+
 
