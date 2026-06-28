@@ -106,14 +106,6 @@ jobs:
           done
           echo "❌ 3回とも失敗しました"
           exit 1
-
-      - name: Tweet FiNANCiE Report
-        if: steps.check.outputs.run == 'true'
-        env:
-          GOOGLE_CREDENTIALS_PATH: ${{ github.workspace }}/service_account.json
-          X_COOKIES_JSON: ${{ secrets.X_COOKIES_JSON }}
-        run: python scripts/py2tweet_free.py --sheet 08_FiNANCiE
-
       - name: Commit and push changes
         if: steps.check.outputs.run == 'true'
         run: |
