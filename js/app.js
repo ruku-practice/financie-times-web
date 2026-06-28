@@ -4,6 +4,26 @@ document.addEventListener("DOMContentLoaded", () => {
   let projectMap = {};
   let showAll = false;
 
+  // Terminated or renamed project slugs to exclude from classic view
+  const EXCLUDED_SLUGS = [
+    "golfdao",
+    "nagoyaoceans",
+    "dv7soccer_jp",
+    "yamadaisana",
+    "nobuharu",
+    "bananagamelab",
+    "xd-fes",
+    "red_tokyo_premium",
+    "red_hopes",
+    "yoakefilm",
+    "lifull_altrhythm",
+    "nlb",
+    "yz-racing",
+    "tenkaichi",
+    "yappe",
+    "patisserielevert"
+  ];
+
   // DOM Elements
   const loader = document.getElementById("loader-container");
   const dashboard = document.getElementById("dashboard-content");
@@ -120,8 +140,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Skip first 4 rows (Row 2, Row 3 title metadata, Row 5, Row 6 header labels) and get data rows
     const dataRows = htmlData.slice(4);
-    const limit = showAll ? dataRows.length : Math.min(30, dataRows.length);
-    const visibleRows = dataRows.slice(0, limit);
+
+    // Filter out ended/renamed/invalid projects from classic table view
+    const filteredRows = dataRows.filter(row => {
+      const rawName = row[2] || "";
+      const norm = normalizeProjectName(rawName);
+      const projInfo = projectMap[norm];
+      if (!projInfo) {
+        return false; // Exclude if not in summary
+      }
+      const slugRaw = projInfo.slug || projInfo.folder || "";
+      const cleanSlug = slugRaw.replace(/^\d+_/, "").toLowerCase();
+      if (EXCLUDED_SLUGS.includes(cleanSlug)) {
+        return false; // Exclude explicitly ended/changed projects
+      }
+      return true;
+    });
+
+    const limit = showAll ? filteredRows.length : Math.min(30, filteredRows.length);
+    const visibleRows = filteredRows.slice(0, limit);
 
     visibleRows.forEach(row => {
       // Row formatting matching HTML1 / HTML2 arrays (19 elements)
