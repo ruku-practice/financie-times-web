@@ -38,6 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const norm = normalizeProjectName(proj.name);
       projectMap[norm] = {
         folder: proj.folder,
+        slug: proj.slug,
         logo: proj.logo,
         name: proj.name
       };
@@ -157,11 +158,18 @@ document.addEventListener("DOMContentLoaded", () => {
       
       const link = document.createElement("a");
       link.className = "pj-name-txt";
-      if (projInfo && projInfo.folder) {
-        // PJのリンクを押すと FiNANCiE のそれぞれのPJに行くようにする
-        link.href = `https://financie.jp/communities/${projInfo.folder}`;
-        link.target = "_blank";
-        link.rel = "noopener";
+      if (projInfo) {
+        const slugRaw = projInfo.slug || projInfo.folder || "";
+        const cleanSlug = slugRaw.replace(/^\d+_/, "");
+        if (cleanSlug) {
+          // PJのリンクを押すと FiNANCiE のそれぞれのPJプロフィール画面に飛ぶようにする
+          link.href = `https://financie.jp/users/${cleanSlug}`;
+          link.target = "_blank";
+          link.rel = "noopener";
+        } else {
+          link.href = "#";
+          link.style.pointerEvents = "none";
+        }
       } else {
         link.href = "#";
         link.style.pointerEvents = "none";
