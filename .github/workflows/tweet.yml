@@ -4,8 +4,8 @@ on:
   repository_dispatch:
     types: [run-daily-tweet]
   schedule:
-    # フォールバック専用: 朝 6:00 JST = 21:00 UTC
-    - cron: "0 21 * * *"
+    # フォールバック専用: 朝 5:10 JST = 20:10 UTC (通常の目標は 4:10 JST)
+    - cron: "10 20 * * *"
   workflow_dispatch:
 
 permissions:
