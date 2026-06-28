@@ -1,9 +1,15 @@
 name: Daily Update
 
 on:
+  repository_dispatch:
+    types: [run-daily-update]
   schedule:
-    # 毎日 JST 0:00 (UTC 15:00) に実行
-    - cron: "0 15 * * *"
+    # フォールバック専用: 01:00 JST = 16:00 UTC。
+    # 通常の 0:00 実行は Google Cloud（Cloud Scheduler 0:00 JST → Cloud Run Job "financie-daily" などのトリガー）で行う。
+    # GitHubのスケジュールcronはベストエフォートで混雑時は数十分〜数時間遅延するため、
+    # この schedule は「Google Cloud からの発火が失敗/未実行だった日」の保険として残す。
+    # ガード(check)で本日分が既に更新済みならスキップするので二重更新は起きない。
+    - cron: "0 16 * * *"
   workflow_dispatch:
     inputs:
       force:
