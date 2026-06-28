@@ -143,10 +143,25 @@ document.addEventListener("DOMContentLoaded", () => {
       const norm = normalizeProjectName(rawName);
       const projInfo = projectMap[norm];
 
+      // PJのアイコン画像を表示
+      if (projInfo && projInfo.logo) {
+        const logoImg = document.createElement("img");
+        logoImg.src = projInfo.logo;
+        logoImg.alt = rawName;
+        logoImg.className = "pj-img";
+        logoImg.onerror = () => {
+          logoImg.style.display = "none";
+        };
+        container.appendChild(logoImg);
+      }
+      
       const link = document.createElement("a");
       link.className = "pj-name-txt";
       if (projInfo && projInfo.folder) {
-        link.href = `advanced.html?project=${projInfo.folder}`;
+        // PJのリンクを押すと FiNANCiE のそれぞれのPJに行くようにする
+        link.href = `https://financie.jp/communities/${projInfo.folder}`;
+        link.target = "_blank";
+        link.rel = "noopener";
       } else {
         link.href = "#";
         link.style.pointerEvents = "none";
