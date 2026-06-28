@@ -149,6 +149,14 @@ def fetch_user_info(slug: str, timeout: int = 20) -> tuple[str, str]:
     return image_url, name or slug
 
 
+def try_fetch_user_info(slug: str) -> tuple[str, str] | None:
+    try:
+        return fetch_user_info(slug)
+    except Exception as exc:
+        print(f"  Failed to fetch user info for {slug}: {type(exc).__name__}: {exc}")
+        return None
+
+
 async def maybe_login(page) -> None:
     email = os.environ.get("FINANCIE_EMAIL")
     password = os.environ.get("FINANCIE_PASSWORD")
@@ -391,7 +399,11 @@ async def main() -> int:
     next_row = next_empty_slug_row(rows)
     for slug in new_slugs:
         print(f"Adding new slug: {slug}")
-        image_url, name = fetch_user_info(slug)
+        info = try_fetch_user_info(slug)
+        if not info:
+            print(f"  Skip new slug because profile metadata was unavailable: {slug}")
+            continue
+        image_url, name = info
         folder = f"{next_row - 1}_{slug}"
         if not args.test:
             folder = append_list_row(list_ws, next_row, slug, image_url, name)
@@ -409,7 +421,11 @@ async def main() -> int:
             slug = record["slug"]
             marker = " status=NG" if record["status"].upper() == "NG" else ""
             print(f"Checking image URL for {slug} (row {record['row']}{marker})")
-            image_url, name = fetch_user_info(slug)
+            info = try_fetch_user_info(slug)
+            if not info:
+                time.sleep(args.sleep)
+                continue
+            image_url, name = info
             if image_url and image_url != record["image"]:
                 print(f"  Image changed: {record['image']} -> {image_url}")
                 if not args.test:

@@ -11,6 +11,16 @@ on:
         required: false
         default: false
         type: boolean
+      pages:
+        description: "Number of FiNANCiE list pages to scan"
+        required: false
+        default: "15"
+        type: string
+      skip_image_check:
+        description: "Skip existing image URL checks"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -54,10 +64,18 @@ jobs:
           FINANCIE_PASSWORD: ${{ secrets.FINANCIE_PASSWORD }}
           PYTHONUNBUFFERED: "1"
           TEST_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.test_mode == true }}
+          PAGES: ${{ github.event_name == 'workflow_dispatch' && inputs.pages || '15' }}
+          SKIP_IMAGE_CHECK: ${{ github.event_name == 'workflow_dispatch' && inputs.skip_image_check == true }}
         run: |
           ARGS=""
           if [ "$TEST_MODE" = "true" ]; then
             ARGS="--test"
+          fi
+          if [ -n "$PAGES" ]; then
+            ARGS="$ARGS --pages $PAGES"
+          fi
+          if [ "$SKIP_IMAGE_CHECK" = "true" ]; then
+            ARGS="$ARGS --skip-image-check"
           fi
           python scripts/update_metadata.py $ARGS
 
