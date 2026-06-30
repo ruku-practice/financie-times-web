@@ -374,6 +374,30 @@ def build_site_data():
         print(f"Error fetching HTML1/HTML2 sheets: {e}")
         return
 
+    # --- データ健全性ガード ---
+    # スクレイプがFiNANCiEの認証/エラーページにリダイレクトされた日は、HTML1/HTML2に
+    # エラーページのタイトルや終了PJのゴミが入る（例: 2026-06-29 03:18の更新でランキングが
+    # GOLF DAO等の終了PJ＋'FinancieWebAuth'に化けた）。その場合 ranking_daily.json を
+    # 上書きせず、前回の正常版を保持する（projects_summary は別経路で計算され信頼できるので更新する）。
+    ERROR_TITLES = {"FinancieWebAuth", "FiNANCiE - ドリーム・シェアリング・サービス"}
+
+    def looks_broken(html_data):
+        rows = html_data[4:] if len(html_data) > 4 else []
+        if len(rows) < 5:
+            return True  # 行が極端に少ない＝取得失敗
+        names = [r[2] for r in rows if len(r) > 2]
+        return any(n in ERROR_TITLES for n in names)  # エラーページ混入
+
+    if looks_broken(html1_data) or looks_broken(html2_data):
+        print("⚠ HTML1/HTML2 に異常（エラーページ/行数不足）を検出。"
+              "ranking_daily.json は前回の正常版を保持します。")
+        try:
+            prev = json.load(open("data/ranking_daily.json", encoding="utf-8"))
+            html1_data = prev.get("html1", html1_data)
+            html2_data = prev.get("html2", html2_data)
+        except Exception as e:
+            print(f"  前回 ranking_daily.json の読込に失敗（保持できず）: {e}")
+
     # 2. history.json から個別PJの時系列詳細をビルド
     history_path = "data/history.json"
     if not os.path.exists(history_path):

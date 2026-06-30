@@ -43,6 +43,9 @@ document.addEventListener("DOMContentLoaded", () => {
                .replace(/&gt;/g, ">")
                .replace(/&quot;/g, '"')
                .replace(/&#39;/g, "'")
+               // 末尾の "| FiNANCiE"（og:title由来でmetadata取得時に付く）を除去。
+               // ランキング側の名前にはこの接尾辞が無く、付けると突合できず現役PJが全消えするため。
+               .replace(/\s*[|｜]\s*FiNANCiE\s*$/i, "")
                .replace(/\s+/g, "")
                .toLowerCase();
   };
@@ -60,7 +63,8 @@ document.addEventListener("DOMContentLoaded", () => {
         folder: proj.folder,
         slug: proj.slug,
         logo: proj.logo,
-        name: proj.name
+        name: proj.name,
+        activeRanking: proj.active_ranking
       };
     });
 
@@ -149,10 +153,17 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!projInfo) {
         return false; // Exclude if not in summary
       }
+      // 終了PJのデータ駆動除外：FiNANCiE側でデータ停止すると active_ranking が "0"
+      // （出来高・メンバー数も0で latest_date が更新されない）。これを終了とみなして除外する。
+      // 手動リスト(EXCLUDED_SLUGS)では取りこぼしが出て、終了PJのロゴ画像/リンクが
+      // FiNANCiE側で404になりコンソールがエラーだらけになっていた。今後の終了PJも自動で除外される。
+      if (String(projInfo.activeRanking).trim() === "0") {
+        return false;
+      }
       const slugRaw = projInfo.slug || projInfo.folder || "";
       const cleanSlug = slugRaw.replace(/^\d+_/, "").toLowerCase();
       if (EXCLUDED_SLUGS.includes(cleanSlug)) {
-        return false; // Exclude explicitly ended/changed projects
+        return false; // 改名等でrank!=0だが除外したいPJの手動オーバーライド（保険）
       }
       return true;
     });

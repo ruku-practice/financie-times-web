@@ -146,6 +146,10 @@ def fetch_user_info(slug: str, timeout: int = 20) -> tuple[str, str]:
         title_tag = soup.find("meta", property="og:title")
         name = title_tag.get("content", "").strip() if title_tag else slug
 
+    # og:title は "プロジェクト名 | FiNANCiE" 形式。この接尾辞が付くとランキング側
+    # （接尾辞なし）と名前で突合できず、クラシック版で現役PJが全消えする。源流で除去する。
+    name = re.sub(r"\s*[|｜]\s*FiNANCiE\s*$", "", name, flags=re.IGNORECASE).strip()
+
     return image_url, name or slug
 
 
