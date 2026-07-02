@@ -67,6 +67,22 @@ def save_history_meta(date_key):
         json.dump(meta, f, ensure_ascii=False, indent=2)
 
 
+def save_daily_collected(date_key):
+    """各日の取得日時を data/daily_collected.json に追記する。
+    タイムトラベル画面が「取得日時」表示に利用する（前日結果の明記用）。"""
+    path = "data/daily_collected.json"
+    m = {}
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                m = json.load(f)
+        except Exception:
+            m = {}
+    m[date_key] = now_jst().isoformat()
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(m, f, ensure_ascii=False, indent=2)
+
+
 def already_collected_today():
     today_key = now_jst().strftime("%Y%m%d")
     meta_path = "data/history_meta.json"
@@ -724,6 +740,7 @@ async def main_async():
     with open(history_path, 'w', encoding='utf-8') as f:
         json.dump(history, f, ensure_ascii=False, indent=2)
     save_history_meta(today_str)
+    save_daily_collected(today_str)
 
     # 5. Web表示用JSONを再ビルド
     build_site_data()

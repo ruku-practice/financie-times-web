@@ -14,6 +14,8 @@
   let travelSort = "volume"; // "volume" or "members"
   let dailyData = []; // 現在ロードされている日の全データ
   let showAllDaily = false;
+  let dailyCollectedMap = {}; // { "YYYYMMDD": "ISO日時" } 各日の取得日時
+  let latestCollectedMeta = null; // history_meta.json の latest_collected（最新日の取得日時フォールバック）
 
   // 月次ランキング用の状態
   let monthlyPeriod = "all_time"; // YYYYMM or "all_time"
@@ -57,6 +59,7 @@
   const sortTabButtons = document.querySelectorAll(".sort-tab-btn");
   const historicRankingTbody = document.getElementById("historic-ranking-tbody");
   const btnLoadMoreDaily = document.getElementById("btn-load-more-daily");
+  const travelInfo = document.getElementById("travel-info");
 
   // 月次用 DOM
   const monthlySelect = document.getElementById("monthly-select");
@@ -161,6 +164,18 @@
       console.error("Error loading project summary:", error);
       projectListContainer.innerHTML = `<div style="padding: 1rem; color: var(--accent-danger);">データの読み込みに失敗しました。</div>`;
     });
+
+  // 各日の取得日時マップ（新パイプラインが出力。無ければ空でフォールバック）
+  fetch('data/daily_collected.json')
+    .then(r => r.ok ? r.json() : {})
+    .then(m => { dailyCollectedMap = m || {}; updateTravelInfo(travelDate ? travelDate.replace(/-/g, "") : null); })
+    .catch(() => { dailyCollectedMap = {}; });
+
+  // 最新日の取得日時フォールバック（history_meta.json）
+  fetch('data/history_meta.json')
+    .then(r => r.ok ? r.json() : null)
+    .then(meta => { latestCollectedMeta = meta && meta.latest_collected ? meta.latest_collected : null; updateTravelInfo(travelDate ? travelDate.replace(/-/g, "") : null); })
+    .catch(() => { latestCollectedMeta = null; });
 
   // 検索イベント
   searchInput.addEventListener("input", (e) => {
@@ -816,9 +831,59 @@
     }
   }
 
+  const WEEKDAYS_JP = ["日", "月", "火", "水", "木", "金", "土"];
+
+  // "YYYYMMDD" → "YYYY/MM/DD(曜)"
+  function fmtDateKeyJp(dateKey) {
+    if (!dateKey || dateKey.length !== 8) return dateKey || "";
+    const y = dateKey.slice(0, 4), m = dateKey.slice(4, 6), d = dateKey.slice(6, 8);
+    const w = new Date(`${y}-${m}-${d}T00:00:00+09:00`).getDay();
+    return `${y}/${m}/${d}(${WEEKDAYS_JP[w]})`;
+  }
+
+  // "YYYYMMDD" の前日を "YYYYMMDD" で返す
+  function prevDateKey(dateKey) {
+    if (!dateKey || dateKey.length !== 8) return dateKey || "";
+    const y = +dateKey.slice(0, 4), m = +dateKey.slice(4, 6), d = +dateKey.slice(6, 8);
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    dt.setUTCDate(dt.getUTCDate() - 1);
+    const p = (n) => String(n).padStart(2, "0");
+    return `${dt.getUTCFullYear()}${p(dt.getUTCMonth() + 1)}${p(dt.getUTCDate())}`;
+  }
+
+  // 指定日(取得日)の取得日時を "YYYY/MM/DD(曜) HH:MM" で返す。時刻不明なら日付のみ。
+  function collectedLabel(dateKey) {
+    // ISO文字列(+09:00付き)から日付・時刻をそのまま切り出す（既にJST）
+    const isoToLabel = (iso) => {
+      if (!iso || iso.length < 10) return "";
+      const key = iso.slice(0, 10).replace(/-/g, "");
+      const hhmm = iso.length >= 16 ? iso.slice(11, 16) : "";
+      return `${fmtDateKeyJp(key)}${hhmm ? " " + hhmm : ""}`;
+    };
+    if (dailyCollectedMap && dailyCollectedMap[dateKey]) return isoToLabel(dailyCollectedMap[dateKey]);
+    if (latestCollectedMeta && latestCollectedMeta.date_key === dateKey && latestCollectedMeta.updated_at) {
+      return isoToLabel(latestCollectedMeta.updated_at);
+    }
+    return fmtDateKeyJp(dateKey); // 過去日で時刻未記録 → 取得日(=選択日)のみ
+  }
+
+  // タイムトラベルの取得日時・対象日の注記を更新する。
+  // FiNANCiE は「選択した日付＝取得日、内容はその前日の結果」。
+  function updateTravelInfo(dateKey) {
+    if (!travelInfo || !dateKey) return;
+    const resultDay = fmtDateKeyJp(prevDateKey(dateKey));
+    const collected = collectedLabel(dateKey);
+    travelInfo.innerHTML =
+      `<span class="travel-info-result">📊 内容は <b>${resultDay}</b> の結果です</span>` +
+      `<span class="travel-info-sep">／</span>` +
+      `<span class="travel-info-collected">🕐 取得日時: <b>${collected}</b></span>` +
+      `<span class="travel-info-note">※ 24時間出来高・各差分は取得時点の前日集計値です</span>`;
+  }
+
   function loadDailyData(dateStr) {
     historicRankingTbody.innerHTML = `<tr><td colspan="12" style="text-align: center; padding: 3rem; color: var(--text-secondary);">データ（${dateStr}）を読み込んでいます...</td></tr>`;
-    
+    updateTravelInfo(dateStr);
+
     fetch(`data/daily/${dateStr}.json`)
       .then(response => {
         if (!response.ok) throw new Error("No data for this date");
@@ -827,10 +892,11 @@
       .then(data => {
         dailyData = data;
         renderDailyTable();
+        updateTravelInfo(dateStr);
       })
       .catch(error => {
         console.error("Error loading daily data:", error);
-        historicRankingTbody.innerHTML = `<tr><td colspan="12" style="text-align: center; padding: 3rem; color: var(--accent-danger);">指定された日付（${dateStr}）のデータが見見つかりません。</td></tr>`;
+        historicRankingTbody.innerHTML = `<tr><td colspan="12" style="text-align: center; padding: 3rem; color: var(--accent-danger);">指定された日付（${dateStr}）のデータが見つかりません。</td></tr>`;
       });
   }
 
@@ -890,7 +956,7 @@
       tr.innerHTML = `
         <td class="text-center bold-text">${rank}</td>
         <td class="text-left">
-          <a href="advanced.html?project=${item.folder}" class="table-pj-link" data-folder="${item.folder}">
+          <a href="?project=${item.folder}" class="table-pj-link" data-folder="${item.folder}">
             <img class="table-pj-img" src="${logo}" alt="${item.name}" onerror="this.src='${defaultLogo}'">
             <span>${item.name}</span>
           </a>
@@ -1011,7 +1077,7 @@
       tr.innerHTML = `
         <td class="text-center bold-text" style="font-size: 14px;">${rank}</td>
         <td class="text-left">
-          <a href="advanced.html?project=${item.folder}" class="table-pj-link" data-folder="${item.folder}">
+          <a href="?project=${item.folder}" class="table-pj-link" data-folder="${item.folder}">
             <img class="table-pj-img" src="${logo}" alt="${item.name}" onerror="this.src='${defaultLogo}'">
             <span>${item.name}</span>
           </a>

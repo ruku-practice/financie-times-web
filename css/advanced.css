@@ -973,3 +973,28 @@ body {
     justify-content: center;
   }
 }
+
+/* タイムトラベル: 取得日時・対象日の注記バナー */
+.travel-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  margin: 4px 0 14px;
+  padding: 10px 14px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-left: 3px solid var(--accent-color);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+.travel-info:empty { display: none; }
+.travel-info b { color: var(--text-primary); font-weight: 700; }
+.travel-info-result b { color: #93c5fd; }
+.travel-info-sep { color: var(--text-secondary); }
+.travel-info-note {
+  flex-basis: 100%;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+}
