@@ -311,48 +311,322 @@ async def scrape_all_projects(projects, thread_count=4):
     
     return results_dict
 
-# スプレッドシートへ最新データを追記
-def write_to_spreadsheet(sheet_name, data):
-    global workbook
-    if not workbook:
-        return
-        
-    try:
-        ws = workbook.worksheet(sheet_name)
-    except gspread.exceptions.WorksheetNotFound:
-        print(f"Worksheet '{sheet_name}' not found. Creating new...")
-        ws = workbook.add_worksheet(title=sheet_name, rows=1, cols=1)
+# シート名を A1 記法用にクォート（' は '' にエスケープ）
+def quote_sheet_name(sheet_name):
+    return "'" + str(sheet_name).replace("'", "''") + "'"
 
-    max_column = ws.col_count + 1
 
-    now = now_jst()
+def col_letter(col):
+    """1始まりの列番号を A1 の列文字に変換（例: 1→A, 27→AA）"""
+    return re.sub(r"\d+$", "", gspread.utils.rowcol_to_a1(1, col))
+
+
+def sheet_a1_range(sheet_name, a1):
+    """'シート名'!A1 形式のレンジ文字列を作る"""
+    return f"{quote_sheet_name(sheet_name)}!{a1}"
+
+
+def normalize_date_cell(val):
+    """行2の日付セルを YYYYMMDD 文字列に正規化（空なら ""）"""
+    if val is None:
+        return ""
+    # 数値として保存された日付が桁区切り付きで返ることがあるためカンマを落とす
+    s = str(val).strip().replace(",", "")
+    if re.match(r"^\d{8}(\.0+)?$", s):
+        return s.split(".")[0]
+    return s
+
+
+def build_datalist(col_number, data, now=None):
+    """1列19行の datalist（意味・並びは現行と同一）"""
+    if now is None:
+        now = now_jst()
     formatted_date = now.strftime("%Y%m%d")
     today_as_number = int(formatted_date)
-    current_time = now.strftime('%H:%M')
-
-    # get_daily_stats.py の書き出しフォーマット
-    datalist = [
-        max_column, formatted_date, today_as_number, current_time, data["sheet_name"],
+    current_time = now.strftime("%H:%M")
+    return [
+        col_number, formatted_date, today_as_number, current_time, data["sheet_name"],
         0, 0, 0, 0, 0, 0,  # dateTime, dateTime_f, max_price, min_price, avg_price, amount
         data["volume"], data["close_price"], data["stock"],
         data["marketCap"], data["volume_data"], data["num_member"],
         data["active_ranking"], data["current_price"]
     ]
 
-    datalist_2d = convert_1d_to_2d(datalist, 1)
 
-    max_retries = 3
-    for attempt in range(max_retries):
+def _retry_sheets_api(func, *args, label="", delays=(2, 5, 15), **kwargs):
+    """バッチ API 用の指数バックオフ（最大3回）。成功時は戻り値、3回失敗時は例外を再送出。"""
+    last_err = None
+    for attempt in range(3):
         try:
-            ws.add_cols(1)
-            cell_range = gspread.utils.rowcol_to_a1(1, max_column) + ':' + gspread.utils.rowcol_to_a1(19, max_column)
-            ws.update(cell_range, datalist_2d)
-            print(f"Spreadsheet updated successfully for: {data['sheet_name']}")
-            time.sleep(1) # API制限用スリープ
-            break
+            return func(*args, **kwargs)
         except Exception as e:
-            print(f"Spreadsheet write error ({data['sheet_name']}, attempt {attempt+1}/{max_retries}): {e}")
-            time.sleep(5)
+            last_err = e
+            print(f"Sheets API error ({label}, attempt {attempt + 1}/3): {e}")
+            if attempt < 2:
+                time.sleep(delays[attempt])
+    raise last_err
+
+
+# スプレッドシートへ最新データをバッチ追記（読み取り・列追加・書き込みを束ねる）
+def write_all_to_spreadsheet(results, force=False):
+    """全プロジェクト分をまとめてスプレッドシートに書き込む。
+
+    - force=False: 最終列の行2が今日ならスキップ（途中再開用）
+    - force=True: 最終列の行2が今日ならその列を上書き（列は増やさない）
+    - 最終列が今日でない / シート未作成: 右に1列追加して書く（新規は現行同様2列目）
+    """
+    global workbook
+    if not workbook:
+        return
+    if not results:
+        print("Spreadsheet write: no results to write.")
+        return
+
+    now = now_jst()
+    today_str = now.strftime("%Y%m%d")
+    print(f"\n--- Spreadsheet batch write (force={force}, today={today_str}) ---")
+
+    # 1. メタデータ一括取得
+    meta = _retry_sheets_api(
+        workbook.fetch_sheet_metadata,
+        label="fetch_sheet_metadata",
+    )
+    sheet_meta = {}  # title -> {sheetId, columnCount, rowCount}
+    used_sheet_ids = set()
+    for s in meta.get("sheets", []):
+        props = s.get("properties", {})
+        title = props.get("title")
+        if title is None:
+            continue
+        grid = props.get("gridProperties", {}) or {}
+        sid = props.get("sheetId")
+        if sid is not None:
+            used_sheet_ids.add(sid)
+        sheet_meta[title] = {
+            "sheetId": sid,
+            "columnCount": int(grid.get("columnCount") or 1),
+            "rowCount": int(grid.get("rowCount") or 1),
+        }
+
+    # results をシート名単位に（同一シートが複数来ても最後を採用）
+    by_sheet = {}
+    for slug, data in results.items():
+        sheet_name = data.get("sheet_name")
+        if not sheet_name:
+            continue
+        by_sheet[sheet_name] = data
+
+    # 2. 既存シートの最終列・行2をチャンク読み取り
+    existing_names = [n for n in by_sheet if n in sheet_meta]
+    last_date_by_sheet = {}  # sheet_name -> YYYYMMDD or ""
+    read_chunk = 100
+    for i in range(0, len(existing_names), read_chunk):
+        chunk_names = existing_names[i:i + read_chunk]
+        ranges = []
+        for name in chunk_names:
+            col = sheet_meta[name]["columnCount"]
+            a1 = f"{col_letter(col)}2"
+            ranges.append(sheet_a1_range(name, a1))
+        print(f"Reading last-column dates: batch {i // read_chunk + 1} ({len(ranges)} ranges)...")
+        # UNFORMATTED_VALUE を明示する。既定の FORMATTED_VALUE だと、日付が数値として
+        # 保存されているシートで "20,260,727" のように桁区切りが付いて突き合わせに失敗する。
+        res = _retry_sheets_api(
+            workbook.values_batch_get,
+            ranges,
+            params={"valueRenderOption": "UNFORMATTED_VALUE"},
+            label=f"values_batch_get dates {i // read_chunk + 1}",
+        )
+        value_ranges = res.get("valueRanges", [])
+        for idx, name in enumerate(chunk_names):
+            date_val = ""
+            if idx < len(value_ranges):
+                vals = value_ranges[idx].get("values") or []
+                if vals and vals[0]:
+                    date_val = normalize_date_cell(vals[0][0])
+            last_date_by_sheet[name] = date_val
+
+    # 3. スキップ / force上書き / 列追加 / 新規 に振り分け
+    to_skip = []
+    to_overwrite = []   # (sheet_name, data, write_col)
+    to_append = []      # (sheet_name, data, write_col)  既存シートに列追加
+    to_create = []      # (sheet_name, data, write_col)  新規シート
+
+    for sheet_name, data in by_sheet.items():
+        if sheet_name not in sheet_meta:
+            # 新規: rows=1,cols=1 のあと列を1本足し、2列目に書く（現行と同じ）
+            to_create.append((sheet_name, data, 2))
+            continue
+        last_date = last_date_by_sheet.get(sheet_name, "")
+        col_count = sheet_meta[sheet_name]["columnCount"]
+        if last_date == today_str:
+            if force:
+                to_overwrite.append((sheet_name, data, col_count))
+            else:
+                to_skip.append(sheet_name)
+        else:
+            to_append.append((sheet_name, data, col_count + 1))
+
+    print(
+        f"Plan: append={len(to_append)}, overwrite={len(to_overwrite)}, "
+        f"create={len(to_create)}, skip={len(to_skip)}"
+    )
+
+    # 4. 構造変更（addSheet / appendDimension）をまとめて1回
+    structure_requests = []
+    next_sheet_id = (max(used_sheet_ids) + 1) if used_sheet_ids else 1
+
+    for sheet_name, data, write_col in to_create:
+        while next_sheet_id in used_sheet_ids:
+            next_sheet_id += 1
+        sid = next_sheet_id
+        used_sheet_ids.add(sid)
+        next_sheet_id += 1
+        sheet_meta[sheet_name] = {
+            "sheetId": sid,
+            "columnCount": 1,
+            "rowCount": 1,
+        }
+        structure_requests.append({
+            "addSheet": {
+                "properties": {
+                    "sheetId": sid,
+                    "title": sheet_name,
+                    "gridProperties": {"rowCount": 1, "columnCount": 1},
+                }
+            }
+        })
+        # 列を1本足して2列目に書く
+        structure_requests.append({
+            "appendDimension": {
+                "sheetId": sid,
+                "dimension": "COLUMNS",
+                "length": 1,
+            }
+        })
+        # 19行分の領域を確保
+        structure_requests.append({
+            "appendDimension": {
+                "sheetId": sid,
+                "dimension": "ROWS",
+                "length": 18,
+            }
+        })
+        sheet_meta[sheet_name]["columnCount"] = 2
+        sheet_meta[sheet_name]["rowCount"] = 19
+
+    for sheet_name, data, write_col in to_append:
+        meta_s = sheet_meta[sheet_name]
+        sid = meta_s["sheetId"]
+        structure_requests.append({
+            "appendDimension": {
+                "sheetId": sid,
+                "dimension": "COLUMNS",
+                "length": 1,
+            }
+        })
+        meta_s["columnCount"] = meta_s["columnCount"] + 1
+        if meta_s["rowCount"] < 19:
+            structure_requests.append({
+                "appendDimension": {
+                    "sheetId": sid,
+                    "dimension": "ROWS",
+                    "length": 19 - meta_s["rowCount"],
+                }
+            })
+            meta_s["rowCount"] = 19
+
+    for sheet_name, data, write_col in to_overwrite:
+        meta_s = sheet_meta[sheet_name]
+        if meta_s["rowCount"] < 19:
+            structure_requests.append({
+                "appendDimension": {
+                    "sheetId": meta_s["sheetId"],
+                    "dimension": "ROWS",
+                    "length": 19 - meta_s["rowCount"],
+                }
+            })
+            meta_s["rowCount"] = 19
+
+    # 514シート分だと1リクエストが巨大になりタイムアウトしやすいので分割する。
+    # ここが落ちると列位置が不定になるため、リトライ後も失敗したら例外を上げて中断する。
+    structure_chunk = 200
+    if structure_requests:
+        print(f"Applying {len(structure_requests)} structure requests (addSheet/appendDimension)...")
+        for i in range(0, len(structure_requests), structure_chunk):
+            reqs = structure_requests[i:i + structure_chunk]
+            _retry_sheets_api(
+                workbook.batch_update,
+                {"requests": reqs},
+                label=f"batch_update structure {i // structure_chunk + 1}",
+            )
+
+    # 5. 値書き込み（50件ずつ）。valueInputOption は gspread Worksheet.update のデフォルト RAW に合わせる
+    write_jobs = []  # (sheet_name, data, write_col, kind)
+    for item in to_append:
+        write_jobs.append((*item, "append"))
+    for item in to_overwrite:
+        write_jobs.append((*item, "overwrite"))
+    for item in to_create:
+        write_jobs.append((*item, "create"))
+
+    written = 0
+    overwritten = 0
+    created = 0
+    failed = 0
+    write_chunk = 50
+
+    for i in range(0, len(write_jobs), write_chunk):
+        batch = write_jobs[i:i + write_chunk]
+        data_items = []
+        for sheet_name, data, write_col, kind in batch:
+            datalist = build_datalist(write_col, data, now=now)
+            datalist_2d = convert_1d_to_2d(datalist, 1)
+            a1 = f"{col_letter(write_col)}1:{col_letter(write_col)}19"
+            data_items.append({
+                "range": sheet_a1_range(sheet_name, a1),
+                "majorDimension": "ROWS",
+                "values": datalist_2d,
+            })
+        body = {
+            "valueInputOption": "RAW",
+            "data": data_items,
+        }
+        batch_no = i // write_chunk + 1
+        print(f"Writing values batch {batch_no} ({len(batch)} sheets)...")
+        try:
+            _retry_sheets_api(
+                workbook.values_batch_update,
+                body,
+                label=f"values_batch_update {batch_no}",
+            )
+            for _sheet_name, _data, _col, kind in batch:
+                if kind == "overwrite":
+                    overwritten += 1
+                elif kind == "create":
+                    created += 1
+                    written += 1
+                else:
+                    written += 1
+        except Exception as e:
+            print(f"Values batch {batch_no} failed after retries: {e}")
+            failed += len(batch)
+            for sheet_name, _data, _col, kind in batch:
+                print(f"  failed: {sheet_name} ({kind})")
+
+    # 新規作成分は「新規書き込み」に含め、サマリは指定フォーマット
+    # 新規書き込み = append + create / force上書き = overwrite / スキップ / 失敗
+    new_writes = written  # append + create（上で create も written に加算済み）
+    print(
+        f"Spreadsheet batch write done: "
+        f"新規書き込み {new_writes}件 / スキップ {len(to_skip)}件 / "
+        f"force上書き {overwritten}件 / 失敗 {failed}件"
+    )
+    if to_skip and len(to_skip) <= 20:
+        print(f"  skipped: {', '.join(to_skip)}")
+    elif to_skip:
+        print(f"  skipped (sample): {', '.join(to_skip[:10])} ...")
+
+    return failed
 
 # Web表示用JSONを再ビルド
 def build_site_data():
@@ -704,15 +978,15 @@ async def main_async():
 
     today_str = now_jst().strftime("%Y%m%d")
 
+    # A. スプレッドシート書き込みは全件まとめて1回（テストモード以外）
+    write_failed = 0
+    if not args.test:
+        write_failed = write_all_to_spreadsheet(results, force=args.force) or 0
+    else:
+        print(f"[TEST MODE] Skipping Spreadsheet write for {len(results)} projects")
+
     for slug, data in results.items():
         folder = data["sheet_name"]
-        
-        # A. スプレッドシート書き込み (テストモード以外)
-        if not args.test:
-            print(f"Writing to Google Sheets for {folder}...")
-            write_to_spreadsheet(folder, data)
-        else:
-            print(f"[TEST MODE] Skipping Spreadsheet write for {folder}")
 
         # B. history.json に追記
         if folder not in history:
@@ -739,6 +1013,15 @@ async def main_async():
     print("Saving updated history.json...")
     with open(history_path, 'w', encoding='utf-8') as f:
         json.dump(history, f, ensure_ascii=False, indent=2)
+
+    # シート書き込みに失敗が残っている場合は「本日完了」の印を残さず、異常終了する。
+    # こうしないとワークフローの3回リトライが働かないまま成功扱いになり、
+    # 翌日まで欠けたシートが埋まらない。リトライ側は当日列スキップがあるので、
+    # 書けなかったシートだけを書き直すことになる。
+    if write_failed:
+        print(f"❌ {write_failed}件のシート書き込みが失敗したままです。history_meta は更新せず異常終了します。")
+        sys.exit(1)
+
     save_history_meta(today_str)
     save_daily_collected(today_str)
 

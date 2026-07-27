@@ -4,8 +4,15 @@ on:
   repository_dispatch:
     types: [run-metadata-update]
   schedule:
-    # フォールバック専用: 23:30 JST = 14:30 UTC。Checks new slugs and changed image URLs.
-    - cron: "30 14 * * *"
+    # 新規Slugの検出と画像URL変更の検出。cron指定は 14:30 UTC = 23:30 JST。
+    # これが唯一の実行経路（元はローカルcron→2026-07に移植。Cloud Run にも Scheduler にも対応物はない）。
+    # 「フォールバック専用」と書かれていた時代の主（Cloud Run）はもう存在しない。
+    # 2026-07-27: 3時間前倒し（14:30 UTC → 11:30 UTC ＝ 23:30 JST → 20:30 JST・ルク決定）。
+    # 旧設定では実測の起動が 00:32〜01:09 JST（62〜99分遅れ）となり、daily（0:13 JST起動）と
+    # ほぼ同時に走っていた。「前夜にSlugを確認して翌0時の本処理に備える」という設計意図と
+    # 順序が逆転し、新規Slugの取り込みが1日遅れていた。
+    # 前倒し後は実測の76分遅延を見込んでも 21:30〜22:00 JST に走り、翌0:13 の daily より確実に先になる。
+    - cron: "30 11 * * *"
   workflow_dispatch:
     inputs:
       force:
