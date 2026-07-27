@@ -94,11 +94,18 @@ jobs:
           GOOGLE_CREDENTIALS_PATH: ${{ github.workspace }}/service_account.json
           PYTHONUNBUFFERED: "1"
           TEST_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.test_mode == true }}
+          FORCE_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.force == true }}
         run: |
           set -o pipefail
           ARGS=""
           if [ "$TEST_MODE" = "true" ]; then
             ARGS="--test"
+          fi
+          # force 入力は check ステップのガードを外すだけで、スクリプト側の
+          # already_collected_today() には届いていなかった（2026-07-27に発覚。
+          # force=true で流しても "Today's data is already collected." で0秒終了していた）。
+          if [ "$FORCE_RUN" = "true" ]; then
+            ARGS="$ARGS --force"
           fi
           for attempt in 1 2 3; do
             echo "===== 試行 $attempt/3 ====="
