@@ -12,6 +12,10 @@ on:
     # ほぼ同時に走っていた。「前夜にSlugを確認して翌0時の本処理に備える」という設計意図と
     # 順序が逆転し、新規Slugの取り込みが1日遅れていた。
     # 前倒し後は実測の76分遅延を見込んでも 21:30〜22:00 JST に走り、翌0:13 の daily より確実に先になる。
+    # 2026-08-20: 🔴ガードの判定素材を daily の鮮度マーカー（projects_summary.json の latest_date）から
+    # metadata 専用マーカー（data/metadata_last_run.txt）へ変更。旧判定は「朝に daily が押した当日印」を
+    # 夜に見て常に『本日更新済み』と誤判定し、7/28〜8/19 の23日間、新規Slug検出が毎日スキップされていた
+    # （success 表示のまま実質停止）。マーカーは本処理完走時のみ更新するので、同日二重起動だけを防ぐ。
     - cron: "30 11 * * *"
   workflow_dispatch:
     inputs:
@@ -57,8 +61,8 @@ jobs:
           FORCE_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.force == true }}
         run: |
           TODAY=$(TZ=Asia/Tokyo date +%Y%m%d)
-          LAST=$(python -c "import json; print(json.load(open('data/projects_summary.json'))[0].get('latest_date',''))" 2>/dev/null || echo "")
-          echo "today(JST)=$TODAY / latest_date=$LAST"
+          LAST=$(cat data/metadata_last_run.txt 2>/dev/null || echo "")
+          echo "today(JST)=$TODAY / metadata_last_run=$LAST"
           if [ "$FORCE_RUN" = "true" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
             echo "▶ force=true のため強制実行します。"
@@ -116,6 +120,10 @@ jobs:
             ARGS="$ARGS --skip-image-check"
           fi
           python scripts/update_metadata.py $ARGS
+
+      - name: Record run marker
+        if: ${{ steps.check.outputs.run == 'true' && !(github.event_name == 'workflow_dispatch' && inputs.test_mode == true) }}
+        run: TZ=Asia/Tokyo date +%Y%m%d > data/metadata_last_run.txt
 
       - name: Commit and push changes
         if: ${{ steps.check.outputs.run == 'true' && !(github.event_name == 'workflow_dispatch' && inputs.test_mode == true) }}
