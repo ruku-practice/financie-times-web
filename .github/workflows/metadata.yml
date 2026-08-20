@@ -125,6 +125,11 @@ jobs:
         if: ${{ steps.check.outputs.run == 'true' && !(github.event_name == 'workflow_dispatch' && inputs.test_mode == true) }}
         run: TZ=Asia/Tokyo date +%Y%m%d > data/metadata_last_run.txt
 
+      # 成功したので、過去に出した metadata のエラー告知を消す（期限切れ告知の掃除も兼ねる）
+      - name: Clear site error notice
+        if: ${{ steps.check.outputs.run == 'true' && !(github.event_name == 'workflow_dispatch' && inputs.test_mode == true) }}
+        run: python3 scripts/site_notice.py clear-error --source metadata
+
       - name: Commit and push changes
         if: ${{ steps.check.outputs.run == 'true' && !(github.event_name == 'workflow_dispatch' && inputs.test_mode == true) }}
         run: |
@@ -139,3 +144,18 @@ jobs:
             git pull --rebase --autostash origin main
             git push
           fi
+
+      # 失敗時：日付別ランキング上部にエラー告知を出す（次回成功時に自動で消える）
+      - name: Report failure to site
+        if: ${{ failure() && steps.check.outputs.run == 'true' }}
+        run: |
+          rm -f service_account.json
+          python3 scripts/site_notice.py add-error --source metadata \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/site_notices.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: site error notice (metadata failure)"
+          git pull --rebase --autostash origin main
+          git push

@@ -18,6 +18,7 @@ from pathlib import Path
 
 import gspread
 import requests
+import site_notice
 from bs4 import BeautifulSoup
 from google.oauth2.service_account import Credentials
 from playwright.async_api import TimeoutError as PlaywrightTimeoutError
@@ -401,6 +402,7 @@ async def main() -> int:
     changed = False
 
     next_row = next_empty_slug_row(rows)
+    added_projects = []
     for slug in new_slugs:
         print(f"Adding new slug: {slug}")
         info = try_fetch_user_info(slug)
@@ -413,9 +415,14 @@ async def main() -> int:
             folder = append_list_row(list_ws, next_row, slug, image_url, name)
             create_initial_project_sheet(workbook, folder, slug)
         upsert_history_project(history, folder, slug, name, image_url)
+        added_projects.append({"slug": slug, "name": name})
         changed = True
         next_row += 1
         time.sleep(args.sleep)
+
+    # 新規発見をサイトの日付別ランキング上部へ告知（7日で自動的に消える）
+    if added_projects and not args.test:
+        site_notice.add_new_projects(added_projects, days=7)
 
     if args.skip_image_check:
         print("Skipping existing image URL checks.")

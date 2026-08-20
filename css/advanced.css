@@ -998,3 +998,43 @@ body {
   font-size: 11.5px;
   color: var(--text-secondary);
 }
+
+/* ============================================================
+   運用からのお知らせ（日付別ランキング上部のバナー）
+   ============================================================ */
+.site-notices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.site-notice {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.site-notice.notice-error {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+}
+
+.site-notice.notice-new {
+  background: rgba(16, 185, 129, 0.10);
+  border-color: rgba(16, 185, 129, 0.40);
+  color: var(--text-primary);
+}
+
+.site-notice a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.site-notice .notice-project-link {
+  font-weight: 700;
+  color: var(--accent-color);
+}

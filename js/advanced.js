@@ -177,6 +177,12 @@
     .then(meta => { latestCollectedMeta = meta && meta.latest_collected ? meta.latest_collected : null; updateTravelInfo(travelDate ? travelDate.replace(/-/g, "") : null); })
     .catch(() => { latestCollectedMeta = null; });
 
+  // 運用からのお知らせ（新プロジェクト発見・更新エラー）→ 日付別ランキング上部
+  fetch('data/site_notices.json')
+    .then(r => r.ok ? r.json() : null)
+    .then(d => renderSiteNotices(d && Array.isArray(d.notices) ? d.notices : []))
+    .catch(() => {});
+
   // 検索イベント
   searchInput.addEventListener("input", (e) => {
     const query = e.target.value.toLowerCase().trim();
@@ -809,6 +815,36 @@
         }
       }
     };
+  }
+
+  /* -------------------------------------------------------------
+   * 運用からのお知らせ（日付別ランキング上部のバナー）
+   * ------------------------------------------------------------- */
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  function renderSiteNotices(notices) {
+    const box = document.getElementById("site-notices");
+    if (!box) return;
+    // JSTの今日 (YYYY-MM-DD)。期限当日までは表示する
+    const today = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);
+    const active = (notices || []).filter(n => {
+      if (n.type === "error") return true; // エラーは成功時に消えるまで出し続ける
+      return n.expires && n.expires >= today;
+    });
+    if (!active.length) { box.classList.add("hidden-element"); return; }
+    box.innerHTML = active.map(n => {
+      if (n.type === "error") {
+        const link = n.run_url ? ` <a href="${escapeHtml(n.run_url)}" target="_blank" rel="noopener">実行ログ ↗</a>` : "";
+        return `<div class="site-notice notice-error">⚠ データ更新エラー（${escapeHtml(n.date || "")}）: ${escapeHtml(n.message || "")}${link}</div>`;
+      }
+      const links = (n.projects || []).map(p =>
+        `<a class="notice-project-link" href="https://financie.jp/users/${encodeURIComponent(p.slug)}" target="_blank" rel="noopener">${escapeHtml(p.name || p.slug)}</a>`
+      ).join("・");
+      return `<div class="site-notice notice-new">🎉 新しいプロジェクトを見つけました（${escapeHtml(n.date || "")}）: ${links}</div>`;
+    }).join("");
+    box.classList.remove("hidden-element");
   }
 
   /* -------------------------------------------------------------
