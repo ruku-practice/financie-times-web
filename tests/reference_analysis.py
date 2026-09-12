@@ -47,7 +47,7 @@ def main():
     summary = json.load(open(os.path.join(DATA_DIR, "projects_summary.json"), encoding="utf-8"))
     # 名寄せ（仕様メモ §3・後継優先）と メンバー0落ちの前値埋め（§4）＝ window_compare.py と同じ
     MERGES = [("214_red_tokyo_premium", "404_TEAMRED"), ("226_yamamotosyoten", "373_yamamotoshoten"),
-              ("383_Otoyume_Panda", "408_g3b5137c8ead142f995528051be2fa72a"), ("345_PatisserieLeVert", "380_kagoshima_times")]
+              ("383_Otoyume_Panda", "408_g3b5137c8ead142f995528051be2fa72a")]  # 確定3組のみ（07:02 ルク決裁）
     for a, b in MERGES:
         if a in history and b in history:
             for d, v in history[a]["data"].items():

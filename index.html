@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="css/advanced.css?v=3.0.0">
   <link rel="stylesheet" href="css/overview.css?v=3.0.0">
   <link rel="stylesheet" href="css/analysis.css?v=0.1.0">
+  <link rel="stylesheet" href="css/layout.css?v=0.1.0">
+  <script>/* 箱の並び：記憶があれば最初の描画から反映 */try{document.documentElement.setAttribute("data-layout",localStorage.getItem("ft_layout")==="h"?"h":"v");}catch(e){document.documentElement.setAttribute("data-layout","v");}</script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Chart.js -->
@@ -36,6 +38,7 @@
         <a href="https://financie.jp" class="btn-external" target="_blank" rel="noopener">FiNANCiE公式 ↗</a>
         <a href="https://ruku-practice.github.io/cnp-times/advanced.html" class="btn-external">CNP TIMES →</a>
         <a href="https://ruku-practice.github.io/invest_and_crypto_mkt/" class="btn-external">マーケット情報 →</a>
+        <button type="button" class="btn-external layout-toggle" id="layout-toggle" aria-pressed="false" title="箱を横2列に並べる">⇔ 横2列</button>
         <button type="button" class="btn-external theme-toggle" id="theme-toggle" aria-pressed="false" title="背景を白にする">☀️ ライト</button>
       </div>
     </header>
@@ -613,5 +616,6 @@
   <script src="js/advanced.js?v=3.0.0"></script>
   <script src="js/overview.js?v=3.0.0"></script>
   <script src="js/analysis.js?v=0.1.0"></script>
+  <script src="js/layout.js?v=0.1.0"></script>
 </body>
 </html>

@@ -73,15 +73,21 @@ SHORT_NAMES = {
     "308_tokenplus": "FiNANCiE公式",
 }
 
-# 名寄せ表（前身 folder → 後継 folder）＝分析タブ仕様メモ §3（2026-09-13 06:45・分析レポート担当）。
-#   確定3件＋候補（強）1件（パティスリー・ル・ヴェール → KX：鹿児島タイムズ＝ルク確認待ちだが v2 レポートと揃えて結合）。
+# 名寄せ表（前身 folder → 後継 folder）＝分析タブ仕様メモ §3（2026-09-13）。
+#   🔴確定3組だけを適用（2026-09-13 07:02 ルク決裁）。候補（強）はここには入れず、
+#   APPLY_CANDIDATE_ALIASES を True にしたときだけ結合する（既定 False）。
 #   同じ日付が両方にあれば後継を優先（仕様メモ §2-2）。
 ALIASES = {
     "214_red_tokyo_premium": "404_TEAMRED",          # RED° TOKYO PREMIUM → TEAM RED（3/31 メンバー 3,842 が完全一致）
     "226_yamamotosyoten": "373_yamamotoshoten",      # 山本商店（slug の綴り違い・870 が一致）
     "383_Otoyume_Panda": "408_g3b5137c8ead142f995528051be2fa72a",  # 音夢パンダ（名前同一）
-    "345_PatisserieLeVert": "380_kagoshima_times",   # 候補（強）＝ルク確認待ち
 }
+CANDIDATE_ALIASES = {
+    "345_PatisserieLeVert": "380_kagoshima_times",   # 候補（強）＝ルク決裁 07:02「結合しない」
+}
+APPLY_CANDIDATE_ALIASES = False
+if APPLY_CANDIDATE_ALIASES:
+    ALIASES.update(CANDIDATE_ALIASES)
 
 OFFICIAL_FOLDER = "308_tokenplus"
 

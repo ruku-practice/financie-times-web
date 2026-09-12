@@ -124,6 +124,26 @@ async function run() {
   const results = [];
   const record = (id, ok, detail) => { results.push({ id, ok, detail }); console.log(`${ok ? "PASS" : "FAIL"} ${id}: ${detail}`); };
 
+  // B0 名寄せ＝仕様メモの参照実装（docs/analysis_code/window_compare.py の MERGES）とキー集合が完全一致（断の提案1）
+  {
+    const wc = fs.readFileSync(path.join(ROOT, "..", "..", "..", "docs", "analysis_code", "window_compare.py"), "utf-8");
+    const m = wc.match(/MERGES\s*=\s*\[([^\]]*)\]/);
+    const wcPairs = m ? [...m[1].matchAll(/\('([^']+)','([^']+)'\)/g)].map((x) => `${x[1]}>${x[2]}`).sort() : [];
+    const py = fs.readFileSync(path.join(ROOT, "scripts", "build_analysis.py"), "utf-8");
+    const block = py.slice(py.indexOf("ALIASES = {"), py.indexOf("}", py.indexOf("ALIASES = {")));
+    const myPairs = [...block.matchAll(/"([^"]+)":\s*"([^"]+)"/g)].map((x) => `${x[1]}>${x[2]}`).sort();
+    const refPy = fs.readFileSync(path.join(ROOT, "tests", "reference_analysis.py"), "utf-8");
+    const rb = refPy.slice(refPy.indexOf("MERGES = ["), refPy.indexOf("]", refPy.indexOf("MERGES = [")));
+    const refPairs = [...rb.matchAll(/\("([^"]+)",\s*"([^"]+)"\)/g)].map((x) => `${x[1]}>${x[2]}`).sort();
+    record("B0-aliases-match-spec", wcPairs.length === 3 && JSON.stringify(wcPairs) === JSON.stringify(myPairs) && JSON.stringify(wcPairs) === JSON.stringify(refPairs), `spec=${JSON.stringify(wcPairs)} build=${JSON.stringify(myPairs)} ref=${JSON.stringify(refPairs)}`);
+    // 候補（パティスリー→鹿児島タイムズ）が結合されていない＝両方が別PJとして残り、鹿児島側に 2025-10-01 以前の値が無い（断の提案2）
+    const v24 = JSON.parse(fs.readFileSync(path.join(ROOT, "data", "analysis", "v24.json"), "utf-8"));
+    const fi = {}; v24.projects.forEach((p, i) => { fi[p.folder] = i; });
+    const cut = v24.days.findIndex((d) => d >= "2025-10-01");
+    const kagoBefore = fi["380_kagoshima_times"] !== undefined ? v24.rows[fi["380_kagoshima_times"]].slice(0, cut).filter((v) => v !== null).length : -1;
+    record("B0-candidate-not-merged", fi["345_PatisserieLeVert"] !== undefined && fi["380_kagoshima_times"] !== undefined && kagoBefore === 0 && v24.projects.length === 406, `patisserie=${fi["345_PatisserieLeVert"] !== undefined} kagoshima=${fi["380_kagoshima_times"] !== undefined} kagoBefore=${kagoBefore} projects=${v24.projects.length}`);
+  }
+
   setupServeDir();
   const server = startServer();
   await waitServer();
@@ -288,6 +308,47 @@ async function run() {
       // B12 横はみ出しなし
       const ov = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, iw: window.innerWidth }));
       record("B12-no-hscroll-1280", ov.sw <= ov.iw + 1, JSON.stringify(ov));
+
+      // B21 スクロールはページ全体で動く（内側スクロール容器が無い・ルク 07:08 の指摘）
+      const scroll = await page.evaluate(async () => {
+        const mca = document.querySelector(".main-chart-area");
+        const dl = document.querySelector(".dashboard-layout");
+        window.scrollTo(0, 0);
+        window.scrollTo(0, 2500);
+        await new Promise((r) => setTimeout(r, 100));
+        return { innerOverflow: mca ? getComputedStyle(mca).overflowY : null, dlHeight: dl ? getComputedStyle(dl).height : null, dlScroll: dl ? dl.scrollHeight > dl.clientHeight + 4 && getComputedStyle(dl).overflowY !== "visible" : null, docScrollable: document.documentElement.scrollHeight > window.innerHeight + 100, scrollY: window.scrollY };
+      });
+      record("B21-page-scroll", scroll.innerOverflow === "visible" && scroll.docScrollable && scroll.scrollY >= 2000, JSON.stringify(scroll));
+      await page.evaluate(() => window.scrollTo(0, 0));
+
+      // B22 箱の並び：既定＝縦1列（全体市況・分析とも）→ 押すと横2列 → 再読み込みで記憶
+      const cols = () => page.evaluate(() => {
+        const g = (sel) => { const el = document.querySelector(sel); return el ? getComputedStyle(el).gridTemplateColumns.split(" ").length : null; };
+        return { mode: document.documentElement.getAttribute("data-layout"), an: g("#analysis-view .charts-grid"), btn: document.getElementById("layout-toggle").textContent };
+      });
+      let c = await cols();
+      record("B22-layout-default-v", c.mode === "v" && c.an === 1, JSON.stringify(c));
+      await page.click("#layout-toggle");
+      await page.waitForTimeout(400);
+      c = await cols();
+      const st2 = await chartsStatus(page);
+      record("B22-layout-h", c.mode === "h" && c.an === 2 && st2.every((x) => x.ok), JSON.stringify(c));
+      await page.reload({ waitUntil: "domcontentloaded" });
+      await waitReady(page);
+      c = await cols();
+      record("B22-layout-remembered", c.mode === "h" && c.an === 2, JSON.stringify(c));
+      // 全体市況タブでも1列／2列が効く
+      await page.click('.tab-nav-btn[data-tab="overview-tab"]');
+      await page.waitForFunction(() => window.FinancieOverview && window.FinancieOverview._debug.state.initialized, { timeout: 20000 });
+      await page.waitForTimeout(500);
+      const ovH = await page.evaluate(() => getComputedStyle(document.querySelector("#overview-view .charts-grid")).gridTemplateColumns.split(" ").length);
+      await page.click("#layout-toggle");
+      await page.waitForTimeout(400);
+      const ovV = await page.evaluate(() => getComputedStyle(document.querySelector("#overview-view .charts-grid")).gridTemplateColumns.split(" ").length);
+      record("B22-layout-overview", ovH === 2 && ovV === 1, `overview h=${ovH} v=${ovV}`);
+      await page.evaluate(() => { try { localStorage.removeItem("ft_layout"); } catch (e) { /* none */ } });
+      await page.goto(BASE_ROOT, { waitUntil: "domcontentloaded" });
+      await waitReady(page);
 
       // B13 コンソールエラー 0
       record("B13-console", consoleErrors.length === 0, JSON.stringify(consoleErrors.slice(0, 3)));

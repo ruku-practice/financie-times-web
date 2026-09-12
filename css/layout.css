@@ -1,0 +1,53 @@
+/* ============================================================
+   ページの並び v0.1.0（2026-09-13・ルク指示 07:08／07:13）
+   1) スクロールはページ全体で動く（図の外側のスクロールバーで確実に動く）
+      原因＝advanced.css の .dashboard-layout{height:calc(100vh - 200px)} と
+      .main-chart-area{overflow-y:auto;height:100%} が「内側スクロール」を作っていた。
+      ここで高さの縛りを外し、ブラウザのスクロールバー1本にする。
+      サイドバー（個別分析）は追従（sticky）で高さだけ画面に収める。
+   2) 箱の並び＝「縦1列（既定）／横2列」を html[data-layout] で切替（js/layout.js・記憶）。
+      全体市況・分析の両タブの .charts-grid に効く。
+   合体時：advanced.css 本体へ寄せる（ここは上書きだけ）。
+   ============================================================ */
+
+.dashboard-layout {
+  height: auto;
+  min-height: 0;
+  align-items: start;
+}
+
+.main-chart-area {
+  overflow: visible;
+  height: auto;
+}
+
+.sidebar {
+  position: sticky;
+  top: 1rem;
+  height: auto;
+  max-height: calc(100vh - 2rem);
+}
+
+/* 箱の並び：縦1列（既定） */
+html[data-layout="v"] #overview-view .charts-grid,
+html[data-layout="v"] #analysis-view .charts-grid {
+  grid-template-columns: 1fr;
+}
+
+html[data-layout="v"] #overview-view .chart-card.full-width,
+html[data-layout="v"] #analysis-view .chart-card.full-width {
+  grid-column: auto;
+}
+
+/* 横2列は advanced.css の既定（repeat(2, 1fr)）のまま。768px 以下は常に1列 */
+@media (max-width: 768px) {
+  html[data-layout="h"] #overview-view .charts-grid,
+  html[data-layout="h"] #analysis-view .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ヘッダーの切替釦（テーマ釦と同じ見た目） */
+.layout-toggle {
+  min-height: 44px;
+}
