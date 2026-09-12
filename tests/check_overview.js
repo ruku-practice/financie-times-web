@@ -392,6 +392,9 @@ async function run() {
     });
     const darkContrast = await contrastCheck();
     record("A32-contrast-dark", darkContrast.n > 30 && darkContrast.bad.length === 0, JSON.stringify(darkContrast));
+    // トグルはヘッダーの右端（ルク要望1「ヘッダー右」）＝右端がヘッダー内側の右端から 40px 以内
+    const togglePos = await page.evaluate(() => { const t = document.getElementById("theme-toggle").getBoundingClientRect(); const h = document.querySelector(".app-header").getBoundingClientRect(); return { gap: Math.round(h.right - t.right) }; });
+    record("A32-toggle-right", togglePos.gap >= 0 && togglePos.gap <= 40, JSON.stringify(togglePos));
     await page.click("#theme-toggle");
     await page.waitForTimeout(500);
     const lightState = await page.evaluate(() => ({ theme: document.documentElement.getAttribute("data-theme"), stored: localStorage.getItem("ft_theme"), tick: window.FinancieOverview._debug.charts.volume.options.scales.y.ticks.color, bg: getComputedStyle(document.body).backgroundColor }));

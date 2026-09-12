@@ -290,7 +290,11 @@
   flex-wrap: wrap;
 }
 
-/* ヘッダー右端のテーマ切替 */
+/* ヘッダー右端のテーマ切替（.header-nav を行いっぱいに広げて margin-left:auto を効かせる） */
+.app-header .header-nav {
+  flex: 1 1 auto;
+}
+
 .theme-toggle {
   cursor: pointer;
   font-family: inherit;
