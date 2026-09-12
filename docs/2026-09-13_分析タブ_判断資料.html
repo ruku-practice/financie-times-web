@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>「分析」タブ v0.1.0｜判断資料（2026-09-13）</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --paper: #f5f5f5; --paper2: #ececec; --ink: #2d3142; --muted: #4f5d75; --soft: #7a8399; --rule: rgba(45,49,66,0.12); --accent: #eb6c36; --accent-tint: rgba(235,108,54,0.08); --link: #2e5aa8; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: 'Geist', 'Hiragino Sans', sans-serif; line-height: 1.6; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 32px 24px 64px; }
+  .eyebrow { font-family: 'Geist Mono', 'Hiragino Sans', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--soft); }
+  h1 { font-family: 'Instrument Serif', 'Hiragino Mincho ProN', serif; font-weight: 400; font-size: 34px; margin: 4px 0 8px; }
+  h2 { font-size: 18px; margin: 36px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); }
+  p { margin: 6px 0; font-size: 14px; }
+  .lead { font-size: 15px; }
+  .cta { display: inline-block; background: var(--accent); color: #fff; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 15px; }
+  .cta.sub { background: #fff; color: var(--link); border: 1px solid var(--link); margin-left: 8px; }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+  .card { background: #fff; border: 1px solid var(--rule); border-radius: 8px; padding: 14px 16px; }
+  .card.rec { border-color: var(--accent); background: var(--accent-tint); }
+  .card h3 { margin: 0 0 6px; font-size: 15px; }
+  .card .tag { font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--accent); letter-spacing: 0.08em; }
+  .card p { font-size: 13px; color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; }
+  th, td { border: 1px solid var(--rule); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #2d3142; color: #f5f5f5; font-weight: 600; }
+  td.rec { background: var(--accent-tint); font-weight: 600; }
+  .mark { background: #fff3a8; padding: 0 3px; }
+  .ok { color: #0a7a3a; font-weight: 700; }
+  .ng { color: #b3261e; font-weight: 700; }
+  figure { margin: 12px 0; }
+  figure img { max-width: 100%; border: 1px solid var(--rule); border-radius: 6px; background: #fff; }
+  figcaption { font-size: 12px; color: var(--soft); margin-top: 4px; }
+  .small { font-size: 12px; color: var(--soft); }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 800px) { .cards, .two { grid-template-columns: 1fr; } }
+  code { font-family: 'Geist Mono', monospace; font-size: 12px; background: var(--paper2); padding: 1px 4px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">FiNANCiE TIMES Web · 分析タブ v0.1.0 · 2026-09-13 · 社長室27室目</div>
+  <h1>分析レポートの図10枚を、期間切替つきの「分析」タブにしました</h1>
+  <p class="lead">ステージングで見られます。全体市況 v3.1 とは<span class="mark">別タブ・別ファイル</span>で作ったので、本番は触っていません。</p>
+  <p>
+    <a class="cta" href="https://financie-times-analysis-staging.ruku-practice.workers.dev/financie/?tab=analysis" target="_blank" rel="noopener">ステージングを開く（分析タブ）</a>
+    <a class="cta sub" href="https://financie-times-analysis-staging.ruku-practice.workers.dev/financie/?tab=analysis&amp;an_p=all" target="_blank" rel="noopener">全期間で開く</a>
+  </p>
+  <p class="small">URL＝https://financie-times-analysis-staging.ruku-practice.workers.dev/financie/?tab=analysis（noindex・v3.1 のステージングとは別 Worker）</p>
+
+  <h2>ルクに決めてほしいこと（3つ・急がない）</h2>
+  <div class="cards">
+    <div class="card rec">
+      <div class="tag">RECOMMENDED</div>
+      <h3>① この版をこのまま「分析」タブとして本番に出すか</h3>
+      <p>おすすめ＝<strong>出す</strong>（別タブなので全体市況に影響なし）。出すなら毎晩の処理に <code>build_analysis.py</code> を足す発注が1つ要る。</p>
+    </div>
+    <div class="card">
+      <div class="tag">DECISION</div>
+      <h3>② 出来高の欠測の扱いをどちらに揃えるか</h3>
+      <p>分析＝生の記録値（レポートと同じ数字）／全体市況＝24h＝30日の日を欠測扱い。差は 1〜3%。<strong>おすすめ＝当面は両方の脚注で明記、合体時に決める</strong>。</p>
+    </div>
+    <div class="card">
+      <div class="tag">DECISION</div>
+      <h3>③ 合体（ガッチャンコ）の形</h3>
+      <p>A 全体市況の下に足す／<strong>B タブは2つのまま操作帯だけ共有（おすすめ）</strong>／C 区画ごとに差し込む。詳細は下の表。</p>
+    </div>
+  </div>
+
+  <h2>何ができるか（図で）</h2>
+  <figure>
+    <img src="diagrams/analysis_tab_screen.png" alt="分析タブの画面イメージ（PC 1280）">
+    <figcaption>画面イメージ。上に結論（KPI 5枚＋自動文3行）、下に図と表。期間ボタン（30日／90日／1年／全期間／自由）で全部が描き直る。</figcaption>
+  </figure>
+  <div class="two">
+    <figure>
+      <img src="screenshots/2026-09-13_analysis_1280_dark.png" alt="ステージングの実画面（ダーク・PC 1280・全ページ）">
+      <figcaption>実画面（ダーク・PC 1280・全ページ）</figcaption>
+    </figure>
+    <figure>
+      <img src="screenshots/2026-09-13_analysis_1280_light.png" alt="ステージングの実画面（ライト・PC 1280・全ページ）">
+      <figcaption>実画面（ライト・PC 1280・全ページ）</figcaption>
+    </figure>
+  </div>
+
+  <h2>期間で変わるもの・変わらないもの</h2>
+  <table>
+    <tr><th style="width:36%">区画</th><th>期間ボタンで</th><th>定義（1行）</th></tr>
+    <tr><td>結論（KPI 5枚＋自動文3行）</td><td>変わる</td><td>期間合計・前期間比（同じ長さの直前）・出来高が立ったPJ数・メンバー純増（期末直近30日）・機運 n/5。文はテンプレ固定＝解釈は入れない</td></tr>
+    <tr><td>1 日次出来高＋7日平均</td><td>変わる</td><td>各日の24h出来高の全PJ合算（生の記録値）</td></tr>
+    <tr><td>2 週次出来高・出来高が立ったPJ数</td><td>変わる</td><td>期末を末尾にした7日区切り。2軸にせず2枚</td></tr>
+    <tr><td>3 上位8の今期間 vs 前期間・上位2の価格指数</td><td>変わる</td><td>前期間＝同じ長さの直前。指数の基準＝最初に0より大きい日</td></tr>
+    <tr><td>4 月次出来高（束＋単独PJ＋その他）</td><td>変わる</td><td>翌月1日の30日出来高。期間内の完了月が3未満なら直近6か月</td></tr>
+    <tr><td>5 シェア（2つの円）・6 上位30の表</td><td>変わる</td><td>期間合計で割る。名前＝個別ページ・↗＝本家</td></tr>
+    <tr><td>7 価格上位10の指数・8 メンバー（2枚）</td><td>変わる</td><td>上位10＝期末時点の価格。メンバーは公式PJと全PJ合計</td></tr>
+    <tr><td class="rec">9 機運の5指標</td><td class="rec">変わらない（期末基準）</td><td>閾値は30日窓で決めた値なので、窓を期間に連動させない。期末（自由期間の終了日）だけが効く</td></tr>
+  </table>
+
+  <h2>合体（ガッチャンコ）の選択肢</h2>
+  <table>
+    <tr><th style="width:8%">案</th><th style="width:34%">中身</th><th>良い点</th><th>弱い点</th></tr>
+    <tr><td>A</td><td>「分析」を全体市況タブの下に足す（タブ1つ）</td><td>1画面で市況→分析まで読める</td><td>縦に長い（5区画＋9区画）</td></tr>
+    <tr><td class="rec">B</td><td class="rec">タブは2つのまま、期間の操作帯・テーマ・凡例を共有</td><td>各タブが短い・作りが単純・検査を壊しにくい</td><td>期間を2か所で選ぶ（URL で同期は可能）</td></tr>
+    <tr><td>C</td><td>全体市況の各区画に分析の図を差し込む</td><td>図ごとに比較できる</td><td>欠測の扱い・週の切り方を先に統一する必要</td></tr>
+  </table>
+  <p class="small">どの案でも先に決めること＝欠測の扱い（②）・週の切り方（分析＝期末末尾の7日／全体市況＝ISO週）・<code>data/overview</code> と <code>data/analysis</code> の共通化（v24・price が重複）。</p>
+
+  <h2>データの流れ（本家には触らない）</h2>
+  <figure>
+    <img src="diagrams/analysis_tab_dataflow.png" alt="データの流れ：夜間バッチ→静的JSON→ブラウザで期間切替">
+    <figcaption>夜間バッチが history.json から分析用 JSON 5本（約3.5MB）を作り、ブラウザが読んで期間ごとに計算する。本家 financie.jp へはバッチだけが触る（v3.0.0 と同じ線引き）。</figcaption>
+  </figure>
+
+  <h2>検収の結果</h2>
+  <table>
+    <tr><th style="width:24%">段</th><th>結果</th></tr>
+    <tr><td>機械の検査（38項目）</td><td><span class="ok">ALL PASS</span>（06:53）。独立計算と一致・レポートの数字（14.97M／11.15M・162.5／163.0・+1,494／−268・3/10・2/5「兆しあり」）を再現・両テーマ AA・スマホ横はみ出しなし</td></tr>
+    <tr><td>断（1回目・作り手の目）</td><td id="dan-result">口寄せ中（結果は完了報告に追記）</td></tr>
+    <tr><td>エマ（2回目・初見の目・PC 1280 主）</td><td id="emma-result">断の後</td></tr>
+  </table>
+
+  <h2>やっていないこと（意図して）</h2>
+  <p>本番反映・push・移設・本家への巡回・全体市況との合体・名寄せ（分析レポート担当の名寄せ表が届いたら <code>build_analysis.py</code> の <code>ALIASES</code> に足すだけ）。</p>
+  <p class="small">作業場所＝<code>.claude/worktrees/analysis-tab</code>（ブランチ <code>feature/analysis-tab</code>・起点 6528da66）。設計書＝<code>docs/2026-09-13_分析タブ_設計.md</code>。完了報告＝<code>company/logs/2026-09-13_FiNANCiE-TIMES-Web_分析タブ_完了報告.md</code>。</p>
+</div>
+</body>
+</html>
