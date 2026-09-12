@@ -5,30 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FiNANCiE TIMES | 市況ダッシュボード</title>
   <link rel="canonical" href="https://ruku-practice.github.io/financie-times-web/">
-  <link rel="stylesheet" href="css/advanced.css">
+  <link rel="stylesheet" href="css/advanced.css?v=2.0.0">
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <!-- Background effects -->
-  <div class="bg-grid"></div>
-  <div class="bg-blur"></div>
-
   <div class="app-container">
     <!-- Header -->
     <header class="app-header">
       <div class="logo-section">
         <h1>FiNANCiE TIMES</h1>
-        <span class="logo-badge">ADVANCED</span>
       </div>
-      
+
       <!-- Tab menu -->
       <nav class="tabs-navigation">
-        <button class="tab-nav-btn active" data-tab="single-tab">個別プロジェクト分析</button>
+        <button class="tab-nav-btn" data-tab="single-tab">個別プロジェクト分析</button>
         <button class="tab-nav-btn" data-tab="compare-tab">複数プロジェクト比較</button>
-        <button class="tab-nav-btn" data-tab="daily-tab">日付別ランキング</button>
+        <button class="tab-nav-btn active" data-tab="daily-tab">日付別ランキング</button>
         <button class="tab-nav-btn" data-tab="monthly-tab">月次・累計ランキング</button>
       </nav>
 
@@ -40,8 +35,8 @@
     </header>
 
     <!-- Main Layout -->
-    <div class="dashboard-layout">
-      
+    <div class="dashboard-layout no-sidebar">
+
       <!-- Sidebar (Only shown in individual/compare modes) -->
       <aside class="sidebar" id="sidebar-container">
         <!-- Search -->
@@ -56,7 +51,7 @@
             <span class="notice-text">プロジェクトを複数選択できます（最大10個）</span>
           </div>
         </div>
-        
+
         <!-- Project list -->
         <div class="project-list" id="project-list-container">
           <!-- Dynamically loaded -->
@@ -68,9 +63,9 @@
 
       <!-- Main Display Area -->
       <main class="main-chart-area" id="main-display-container">
-        
+
         <!-- 1. Individual analysis welcome -->
-        <div class="welcome-view" id="welcome-view">
+        <div class="welcome-view hidden-element" id="welcome-view">
           <i data-lucide="line-chart" style="width: 64px; height: 64px; color: var(--text-secondary); margin-bottom: 1.5rem;"></i>
           <h2>FiNANCiE 市況分析</h2>
           <p>左側のリストからプロジェクトを選択してください。2024年から2026年までの現在価格、取引量、メンバー数、在庫状況の長期推移がグラフで確認できます。</p>
@@ -177,11 +172,11 @@
           </div>
         </div>
 
-        <!-- 4. Historical Daily rankings (Time Travel) -->
-        <div id="daily-travel-view" class="hidden-element flex-column">
+        <!-- 4. Historical Daily rankings -->
+        <div id="daily-travel-view" class="flex-column">
           <div class="section-title-area">
-            <h2>日付別ランキング (タイムトラベル)</h2>
-            <p style="color: var(--text-secondary); font-size: 13px;">過去の日付のランキング情報をスプレッドシート形式で遡り表示します。</p>
+            <h2>日付別ランキング</h2>
+            <p style="color: var(--text-secondary); font-size: 13px;">日付を選ぶと、その日のランキングをさかのぼって見られます。</p>
           </div>
 
           <!-- 運用からのお知らせ（新プロジェクト発見・更新エラー。data/site_notices.json 由来） -->
@@ -212,20 +207,19 @@
             <div class="table-scroll-container">
               <table class="historic-ranking-table">
                 <thead>
-                  <tr class="sec-header-row">
-                    <th rowspan="2" style="width: 5%;">順位</th>
-                    <th rowspan="2" style="width: 25%; text-align: left;">プロジェクト</th>
-                    <th colspan="2">[千円]</th>
-                    <th colspan="4">[円]</th>
-                    <th colspan="2">[人]</th>
-                    <th colspan="2">[個]</th>
-                  </tr>
-                  <tr class="sec-header-row">
-                    <th colspan="2">出来高（24h）</th>
-                    <th colspan="2">値幅制限基準価格</th>
-                    <th colspan="2">現在価格</th>
-                    <th colspan="2">メンバー数</th>
-                    <th colspan="2">トークン在庫</th>
+                  <tr>
+                    <th style="width: 5%;">順位</th>
+                    <th style="width: 22%; text-align: left;">プロジェクト</th>
+                    <th>出来高 24h［千円］</th>
+                    <th>前日比</th>
+                    <th>前日価格［円］</th>
+                    <th>前日比</th>
+                    <th>現在価格［円］</th>
+                    <th>前日比</th>
+                    <th>メンバー数［人］</th>
+                    <th>前日比</th>
+                    <th>トークン在庫［個］</th>
+                    <th>前日比</th>
                   </tr>
                 </thead>
                 <tbody id="historic-ranking-tbody">
@@ -285,8 +279,10 @@
       </main>
 
     </div>
+
+    <footer class="app-footer">FiNANCiE TIMES v2.0.0 ・ 毎晩自動更新 ・ <a href="https://financie.jp">FiNANCiE公式</a></footer>
   </div>
 
-  <script src="js/advanced.js"></script>
+  <script src="js/advanced.js?v=2.0.0"></script>
 </body>
 </html>

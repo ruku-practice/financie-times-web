@@ -1,9 +1,12 @@
 
+  const APP_VERSION = "2.0.0";
+  console.info("FiNANCiE TIMES v" + APP_VERSION);
+
   let projectsList = [];
   let currentProjectFolder = null;
   let currentProjectData = null;
   let currentPeriod = 30; // default 30 days
-  let currentTab = "single-tab"; // 'single-tab', 'compare-tab', 'daily-tab', 'monthly-tab'
+  let currentTab = "daily-tab"; // 'single-tab', 'compare-tab', 'daily-tab', 'monthly-tab'
 
   // 複数比較用の状態
   let selectedCompareFolders = []; // 最大10個
@@ -96,11 +99,11 @@
 
   // カラーパレット (最大10個)
   const COMPARE_COLORS = [
-    "#3b82f6", // Blue
+    "#2563eb", // Blue
     "#10b981", // Green
     "#f59e0b", // Yellow
-    "#ef4444", // Red
-    "#8b5cf6", // Purple
+    "#f87171", // Red
+    "#7c3aed", // Purple
     "#ec4899", // Pink
     "#06b6d4", // Cyan
     "#f97316", // Orange
@@ -122,18 +125,18 @@
     });
   };
 
-  // 差分のフォーマット（+ / - とカラー用クラス）
+  // 差分のフォーマット（▲／▼ とカラー用クラス）
   const formatDiffText = (diff, isPercent = false, decimals = 0) => {
     if (diff === undefined || diff === null || diff === 0) return "-";
-    const sign = diff > 0 ? "+" : "";
+    const arrow = diff > 0 ? "▲" : "▼";
     const suffix = isPercent ? "%" : "";
-    const val = decimals > 0 ? formatFloat(diff, decimals) : formatNumber(diff);
-    return `(${sign}${val}${suffix})`;
+    const val = decimals > 0 ? formatFloat(Math.abs(diff), decimals) : formatNumber(Math.abs(diff));
+    return `${arrow}${val}${suffix}`;
   };
 
   const getDiffClass = (diff) => {
-    if (!diff || diff === 0) return "";
-    return diff > 0 ? "diff-bg-up" : "diff-bg-down";
+    if (!diff || diff === 0) return "diff-flat";
+    return diff > 0 ? "diff-up" : "diff-down";
   };
 
   // N/A対応
@@ -153,11 +156,15 @@
       renderProjectList(projectsList);
       lucide.createIcons();
 
-      // URLパラメータのチェック (?project=...)
+      // URLパラメータのチェック (?project=...) があるときだけ個別分析タブへ。
+      // 無ければ初期タブ＝日付別ランキング（projectsList 読込完了後に切り替える）
       const urlParams = new URLSearchParams(window.location.search);
       const initialProject = urlParams.get('project');
       if (initialProject) {
+        switchTab("single-tab");
         selectProject(initialProject);
+      } else {
+        switchTab("daily-tab");
       }
     })
     .catch(error => {
@@ -433,8 +440,8 @@
     if (priceChart) priceChart.destroy();
     
     const priceGradient = priceCtx.createLinearGradient(0, 0, 0, 300);
-    priceGradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)');
-    priceGradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+    priceGradient.addColorStop(0, 'rgba(37, 99, 235, 0.4)');
+    priceGradient.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
 
     priceChart = new Chart(priceCtx, {
       type: 'line',
@@ -443,7 +450,7 @@
         datasets: [{
           label: '現在価格',
           data: prices,
-          borderColor: '#3b82f6',
+          borderColor: '#2563eb',
           borderWidth: 2,
           pointRadius: labels.length > 50 ? 0 : 2,
           pointHoverRadius: 6,
@@ -460,8 +467,8 @@
     if (volumeChart) volumeChart.destroy();
 
     const volumeGradient = volumeCtx.createLinearGradient(0, 0, 0, 300);
-    volumeGradient.addColorStop(0, '#8b5cf6');
-    volumeGradient.addColorStop(1, 'rgba(139, 92, 246, 0.2)');
+    volumeGradient.addColorStop(0, 'rgba(37, 99, 235, 0.65)');
+    volumeGradient.addColorStop(1, 'rgba(37, 99, 235, 0.15)');
 
     volumeChart = new Chart(volumeCtx, {
       type: 'bar',
@@ -973,25 +980,25 @@
       const volumeK = Math.round(item.volume_24h / 1000);
       const volumeKDiff = Math.round(item.volume_24h_diff / 1000);
       
-      const tdVolumeVal = `<td class="text-right bold-text">${formatNumber(volumeK)}</td>`;
-      const tdVolumeDiff = `<td class="text-left ${getDiffClass(volumeKDiff)}">${formatDiffText(volumeKDiff)}</td>`;
-      
+      const tdVolumeVal = `<td class="text-right bold-text" data-label="出来高 24h［千円］">${formatNumber(volumeK)}</td>`;
+      const tdVolumeDiff = `<td class="text-left ${getDiffClass(volumeKDiff)}" data-label="前日比">${formatDiffText(volumeKDiff)}</td>`;
+
       const basePriceDiffPct = basePrice > 0 ? (item.price_diff / basePrice) * 100 : 0;
-      const tdBasePriceVal = `<td class="text-right bold-text">${formatFloat(basePrice, 2)}</td>`;
-      const tdBasePriceDiff = `<td class="text-left ${getDiffClass(item.price_diff)}">${formatDiffText(basePriceDiffPct, true, 2)}</td>`;
-      
-      const tdPriceVal = `<td class="text-right bold-text">${formatFloat(item.price, 2)}</td>`;
-      const tdPriceDiff = `<td class="text-left ${getDiffClass(item.price_diff)}">${formatDiffText(item.price_diff, false, 2)}</td>`;
-      
-      const tdMembersVal = `<td class="text-right bold-text">${formatNumber(item.members)}</td>`;
-      const tdMembersDiff = `<td class="text-left ${getDiffClass(item.members_diff)}">${formatDiffText(item.members_diff)}</td>`;
-      
-      const tdStockVal = `<td class="text-right bold-text">${formatNumber(item.stock)}</td>`;
-      const tdStockDiff = `<td class="text-left ${getDiffClass(item.stock_diff)}">${formatDiffText(item.stock_diff)}</td>`;
+      const tdBasePriceVal = `<td class="text-right bold-text" data-label="前日価格［円］">${formatFloat(basePrice, 2)}</td>`;
+      const tdBasePriceDiff = `<td class="text-left ${getDiffClass(item.price_diff)}" data-label="前日比">${formatDiffText(basePriceDiffPct, true, 2)}</td>`;
+
+      const tdPriceVal = `<td class="text-right bold-text" data-label="現在価格［円］">${formatFloat(item.price, 2)}</td>`;
+      const tdPriceDiff = `<td class="text-left ${getDiffClass(item.price_diff)}" data-label="前日比">${formatDiffText(item.price_diff, false, 2)}</td>`;
+
+      const tdMembersVal = `<td class="text-right bold-text" data-label="メンバー数［人］">${formatNumber(item.members)}</td>`;
+      const tdMembersDiff = `<td class="text-left ${getDiffClass(item.members_diff)}" data-label="前日比">${formatDiffText(item.members_diff)}</td>`;
+
+      const tdStockVal = `<td class="text-right bold-text" data-label="トークン在庫［個］">${formatNumber(item.stock)}</td>`;
+      const tdStockDiff = `<td class="text-left ${getDiffClass(item.stock_diff)}" data-label="前日比">${formatDiffText(item.stock_diff)}</td>`;
 
       tr.innerHTML = `
-        <td class="text-center bold-text">${rank}</td>
-        <td class="text-left">
+        <td class="text-center bold-text" data-label="順位">${rank}</td>
+        <td class="text-left" data-label="プロジェクト">
           <a href="?project=${item.folder}" class="table-pj-link" data-folder="${item.folder}">
             <img class="table-pj-img" src="${logo}" alt="${item.name}" onerror="this.src='${defaultLogo}'">
             <span>${item.name}</span>
@@ -1111,14 +1118,14 @@
       const logo = item.logo || defaultLogo;
 
       tr.innerHTML = `
-        <td class="text-center bold-text" style="font-size: 14px;">${rank}</td>
-        <td class="text-left">
+        <td class="text-center bold-text" style="font-size: 14px;" data-label="順位">${rank}</td>
+        <td class="text-left" data-label="プロジェクト">
           <a href="?project=${item.folder}" class="table-pj-link" data-folder="${item.folder}">
             <img class="table-pj-img" src="${logo}" alt="${item.name}" onerror="this.src='${defaultLogo}'">
             <span>${item.name}</span>
           </a>
         </td>
-        <td class="text-right bold-text" style="font-size: 14px; padding-right: 2rem;">${formatFloat(item.total_volume, 2)} pt</td>
+        <td class="text-right bold-text" style="font-size: 14px; padding-right: 2rem;" data-label="期間総取引量［pt］">${formatFloat(item.total_volume, 2)} pt</td>
       `;
 
       tr.querySelector(".table-pj-link").addEventListener("click", (e) => {

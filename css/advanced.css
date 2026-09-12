@@ -1,22 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
 
 :root {
-  --bg-primary: #0b0f19;
-  --bg-secondary: #131a26;
-  --bg-tertiary: #1b2536;
-  --glass-bg: rgba(19, 26, 38, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --text-primary: #f3f4f6;
-  --text-secondary: #9ca3af;
-  --accent-color: #3b82f6; /* Blue */
-  --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-  --accent-success: #10b981;
-  --accent-warning: #f59e0b;
-  --accent-danger: #ef4444;
+  --bg-primary: #0B0F19;
+  --bg-secondary: #131A26;
+  --bg-tertiary: #1B2536;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --text-primary: #F3F4F6;
+  --text-secondary: #9CA3AF;
+  --accent-color: #2563EB; /* 平らな青1色（釦・面） */
+  --accent-hover: #1D4ED8; /* hoverは明度を1段だけ */
+  --accent-text: #60A5FA; /* 面の上のリンク文字 */
+  --accent-success: #10B981; /* 上昇 */
+  --accent-warning: #F59E0B;
+  --accent-danger: #F87171; /* 下落 */
   --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --border-radius: 12px;
+  --border-radius: 8px;
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -31,37 +31,7 @@ body {
   color: var(--text-primary);
   font-family: 'Outfit', 'Noto Sans JP', sans-serif;
   line-height: 1.5;
-  overflow-x: hidden;
   min-height: 100vh;
-}
-
-/* グリッド背景エフェクト */
-.bg-grid {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 50px 50px;
-  z-index: -2;
-  pointer-events: none;
-}
-
-.bg-blur {
-  position: fixed;
-  top: -20%;
-  left: -20%;
-  width: 140%;
-  height: 140%;
-  background: 
-    radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.1) 0%, transparent 40%),
-    radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.1) 0%, transparent 40%);
-  z-index: -1;
-  pointer-events: none;
-  filter: blur(100px);
 }
 
 /* アプリレイアウト */
@@ -78,12 +48,13 @@ body {
 /* ヘッダー */
 .app-header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
   padding: 1.5rem;
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-md);
 }
@@ -97,24 +68,13 @@ body {
 .logo-section h1 {
   font-size: 1.8rem;
   font-weight: 800;
-  background: var(--accent-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-primary);
   letter-spacing: -0.05rem;
-}
-
-.logo-badge {
-  background: var(--accent-gradient);
-  color: #fff;
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0.2rem 0.6rem;
-  border-radius: 20px;
-  text-transform: uppercase;
 }
 
 .header-nav {
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
 }
 
@@ -125,7 +85,7 @@ body {
   font-size: 0.9rem;
   padding: 0.6rem 1.2rem;
   border-radius: 8px;
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border-color);
   background: rgba(255, 255, 255, 0.02);
   transition: var(--transition-smooth);
 }
@@ -143,7 +103,7 @@ body {
   font-size: 0.85rem;
   padding: 0.6rem 1rem;
   border-radius: 8px;
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border-color);
   background: rgba(255, 255, 255, 0.02);
   transition: var(--transition-smooth);
   white-space: nowrap;
@@ -168,9 +128,8 @@ body {
 .sidebar {
   display: flex;
   flex-direction: column;
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-md);
   overflow: hidden;
@@ -179,7 +138,7 @@ body {
 
 .sidebar-search-area {
   padding: 1.2rem;
-  border-bottom: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
@@ -193,7 +152,7 @@ body {
 .search-input {
   width: 100%;
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 0.8rem 1rem 0.8rem 2.5rem;
   color: var(--text-primary);
@@ -206,7 +165,7 @@ body {
 .search-input:focus {
   border-color: var(--accent-color);
   background: rgba(255, 255, 255, 0.07);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 .search-icon {
@@ -244,8 +203,8 @@ body {
 }
 
 .project-item.active {
-  background: rgba(59, 130, 246, 0.12);
-  border-color: rgba(59, 130, 246, 0.3);
+  background: rgba(37, 99, 235, 0.12);
+  border-color: rgba(37, 99, 235, 0.3);
 }
 
 .project-item-logo {
@@ -253,7 +212,7 @@ body {
   height: 44px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border-color);
   background-color: var(--bg-tertiary);
 }
 
@@ -298,9 +257,8 @@ body {
   align-items: center;
   justify-content: center;
   height: 100%;
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-md);
   text-align: center;
@@ -320,9 +278,8 @@ body {
 
 /* プロジェクト詳細ヘッダー */
 .detail-header {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   padding: 1.5rem;
   display: flex;
@@ -342,7 +299,7 @@ body {
   height: 64px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid var(--glass-border);
+  border: 2px solid var(--border-color);
   background-color: var(--bg-tertiary);
 }
 
@@ -366,7 +323,7 @@ body {
   background: rgba(255, 255, 255, 0.04);
   padding: 0.25rem;
   border-radius: 8px;
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border-color);
 }
 
 .period-btn {
@@ -383,9 +340,13 @@ body {
 }
 
 .period-btn.active, .period-btn:hover {
-  background: var(--accent-gradient);
+  background: var(--accent-color);
   color: #fff;
   box-shadow: var(--shadow-sm);
+}
+
+.period-btn.active:hover {
+  background: var(--accent-hover);
 }
 
 /* 主要指標カード */
@@ -396,9 +357,8 @@ body {
 }
 
 .metric-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   padding: 1.2rem;
   box-shadow: var(--shadow-sm);
@@ -441,9 +401,8 @@ body {
 }
 
 .chart-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   padding: 1.5rem;
   box-shadow: var(--shadow-md);
@@ -495,35 +454,6 @@ body {
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* モニタサイズ調整 */
-@media (max-width: 1024px) {
-  .dashboard-layout {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
-  
-  .sidebar {
-    height: 400px;
-  }
-
-  .charts-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .chart-card.full-width {
-    grid-column: span 1;
-  }
-}
-@media (max-width: 768px) {
-  .app-container {
-    padding: 1rem;
-  }
-  
-  .metrics-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
 /* -------------------------------------------------------------
  * 追加機能（タブ、ピン留め、複数比較、日付・月次ランキング）用スタイル
  * ------------------------------------------------------------- */
@@ -536,7 +466,7 @@ body {
 
 .tab-nav-btn {
   background: transparent;
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border-color);
   color: var(--text-secondary);
   font-family: inherit;
   font-weight: 600;
@@ -553,10 +483,14 @@ body {
 }
 
 .tab-nav-btn.active {
-  background: var(--accent-gradient);
+  background: var(--accent-color);
   color: #fff;
   border-color: transparent;
   box-shadow: var(--shadow-sm);
+}
+
+.tab-nav-btn.active:hover {
+  background: var(--accent-hover);
 }
 
 /* サイドバー非表示制御 */
@@ -576,7 +510,7 @@ body {
   padding: 0.5rem 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.05rem;
-  border-bottom: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--border-color);
   margin-top: 0.8rem;
   margin-bottom: 0.3rem;
   display: flex;
@@ -628,7 +562,7 @@ body {
 .project-item.selected .project-item-checkbox::after {
   content: '✓';
   color: white;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: bold;
 }
 
@@ -645,8 +579,8 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: rgba(37, 99, 235, 0.1);
+  border: 1px solid rgba(37, 99, 235, 0.2);
   padding: 0.5rem;
   border-radius: 6px;
   font-size: 0.75rem;
@@ -654,7 +588,7 @@ body {
 
 .notice-badge {
   background: var(--accent-color);
-  color: #white;
+  color: #fff;
   padding: 0.1rem 0.4rem;
   border-radius: 4px;
   font-weight: bold;
@@ -670,9 +604,8 @@ body {
   flex-wrap: wrap;
   gap: 0.5rem;
   padding: 1rem;
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   min-height: 54px;
   align-items: center;
@@ -691,7 +624,7 @@ body {
   align-items: center;
   gap: 0.5rem;
   background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border-color);
   padding: 0.3rem 0.8rem;
   border-radius: 20px;
   font-size: 0.85rem;
@@ -723,9 +656,8 @@ body {
   flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   padding: 1rem;
   box-shadow: var(--shadow-sm);
@@ -734,7 +666,7 @@ body {
 
 .action-btn {
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border-color);
   color: var(--text-primary);
   font-family: inherit;
   font-weight: 600;
@@ -753,9 +685,13 @@ body {
 }
 
 .action-btn.btn-primary {
-  background: var(--accent-gradient);
+  background: var(--accent-color);
   border-color: transparent;
   color: #fff;
+}
+
+.action-btn.btn-primary:hover {
+  background: var(--accent-hover);
 }
 
 .date-picker-wrapper {
@@ -763,7 +699,7 @@ body {
   display: flex;
   align-items: center;
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   padding: 0 0.8rem;
 }
@@ -794,7 +730,7 @@ body {
   background: rgba(255, 255, 255, 0.03);
   padding: 0.25rem;
   border-radius: 6px;
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border-color);
 }
 
 .sort-tab-btn {
@@ -811,8 +747,12 @@ body {
 }
 
 .sort-tab-btn.active {
-  background: var(--accent-gradient);
+  background: var(--accent-color);
   color: white;
+}
+
+.sort-tab-btn.active:hover {
+  background: var(--accent-hover);
 }
 
 /* 月次セレクトボックス */
@@ -830,7 +770,7 @@ body {
 
 .monthly-select-input {
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   color: var(--text-primary);
   font-family: inherit;
@@ -845,11 +785,11 @@ body {
   border-color: var(--accent-color);
 }
 
-/* スプレッドシート風テーブル */
+/* ランキング表（本体と同じ面） */
 .historical-table-card {
-  background: #ffffff; /* 完全な白背景 */
-  border: 1px solid #999999;
-  border-radius: 4px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
   overflow: hidden;
   box-shadow: var(--shadow-md);
   display: flex;
@@ -864,28 +804,29 @@ body {
 .historic-ranking-table, .monthly-ranking-table {
   width: 100%;
   border-collapse: collapse;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: inherit;
   font-size: 13px;
-  color: #000000;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
 }
 
 .historic-ranking-table th, .historic-ranking-table td,
 .monthly-ranking-table th, .monthly-ranking-table td {
-  border: 1px solid #d9d9d9 !important; /* 薄いグレーのグリッド */
+  border: 1px solid var(--border-color);
   padding: 8px 6px;
   vertical-align: middle;
 }
 
 .historic-ranking-table th, .monthly-ranking-table th {
-  background-color: #d9ead3 !important; /* スプシ標準の薄い緑 */
-  font-weight: bold;
+  background-color: var(--bg-tertiary);
+  font-weight: 700;
   text-align: center;
-  color: #000000;
-  font-size: 12px;
+  color: var(--text-secondary);
+  font-size: 13px;
 }
 
 .historic-ranking-table td {
-  color: #000000;
+  color: var(--text-primary);
 }
 
 .historic-ranking-table td.text-center, .monthly-ranking-table td.text-center {
@@ -904,15 +845,17 @@ body {
   font-weight: bold;
 }
 
-/* 前日差セルの配色 */
-.diff-bg-up {
-  background-color: #cfe2f3 !important; /* スプレッドシート標準の薄い青 */
-  color: #000000;
+/* 前日差セルの配色（塗りではなく文字色だけ） */
+.diff-up {
+  color: var(--accent-success);
 }
 
-.diff-bg-down {
-  background-color: #f4cccc !important; /* スプレッドシート標準の薄い赤 */
-  color: #000000;
+.diff-down {
+  color: var(--accent-danger);
+}
+
+.diff-flat {
+  color: var(--text-secondary);
 }
 
 /* テーブル内のプロジェクト名リンク */
@@ -921,13 +864,13 @@ body {
   align-items: center;
   gap: 8px;
   text-decoration: none;
-  color: #000000;
+  color: var(--text-primary);
   font-weight: bold;
 }
 
 .table-pj-link:hover {
   text-decoration: underline;
-  color: #2b5f8c;
+  color: var(--accent-text);
 }
 
 .table-pj-img {
@@ -935,22 +878,22 @@ body {
   height: 24px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid #cccccc;
+  border: 1px solid var(--border-color);
 }
 
 /* もっと表示するボタン */
 .more-btn-area {
   padding: 1rem;
-  background: #f8f9fa;
-  border-top: 1px solid #d9d9d9;
+  background: var(--bg-tertiary);
+  border-top: 1px solid var(--border-color);
   display: flex;
   justify-content: center;
 }
 
 .btn-more {
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  color: #333333;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   font-family: inherit;
   font-size: 0.9rem;
   font-weight: 600;
@@ -958,20 +901,11 @@ body {
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
 .btn-more:hover {
-  background: #f1f3f4;
-  border-color: #c6c6c6;
-}
-
-@media (max-width: 1024px) {
-  .sort-criteria-group {
-    margin-left: 0;
-    width: 100%;
-    justify-content: center;
-  }
+  background: var(--bg-tertiary);
+  border-color: var(--text-secondary);
 }
 
 /* タイムトラベル: 取得日時・対象日の注記バナー */
@@ -982,8 +916,8 @@ body {
   gap: 6px 14px;
   margin: 4px 0 14px;
   padding: 10px 14px;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-left: 3px solid var(--accent-color);
   border-radius: 8px;
   font-size: 13px;
@@ -991,11 +925,11 @@ body {
 }
 .travel-info:empty { display: none; }
 .travel-info b { color: var(--text-primary); font-weight: 700; }
-.travel-info-result b { color: #93c5fd; }
+.travel-info-result b { color: var(--accent-text); }
 .travel-info-sep { color: var(--text-secondary); }
 .travel-info-note {
   flex-basis: 100%;
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--text-secondary);
 }
 
@@ -1012,14 +946,14 @@ body {
 .site-notice {
   padding: 10px 14px;
   border-radius: 8px;
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border-color);
   font-size: 13px;
   line-height: 1.7;
 }
 
 .site-notice.notice-error {
-  background: rgba(239, 68, 68, 0.12);
-  border-color: rgba(239, 68, 68, 0.45);
+  background: rgba(248, 113, 113, 0.12);
+  border-color: rgba(248, 113, 113, 0.45);
   color: #fca5a5;
 }
 
@@ -1036,5 +970,161 @@ body {
 
 .site-notice .notice-project-link {
   font-weight: 700;
-  color: var(--accent-color);
+  color: var(--accent-text);
+}
+
+/* -------------------------------------------------------------
+ * レスポンシブ（スマホ・タブレットで横にはみ出さない）
+ * ------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .dashboard-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .sidebar {
+    height: 400px;
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-card.full-width {
+    grid-column: span 1;
+  }
+
+  .app-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .logo-section,
+  .header-nav {
+    width: 100%;
+  }
+
+  .tabs-navigation {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+
+  .tab-nav-btn {
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  .sort-criteria-group {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    padding: 1rem;
+  }
+
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .chart-card {
+    height: 300px;
+  }
+
+  .chart-card.full-width {
+    height: 300px;
+  }
+
+  .date-picker-wrapper {
+    max-width: 100%;
+  }
+
+  .sort-criteria-group {
+    flex-wrap: wrap;
+  }
+
+  /* 表を1案件1カードに */
+  .table-scroll-container {
+    overflow: visible;
+  }
+
+  .historic-ranking-table thead,
+  .monthly-ranking-table thead {
+    display: none;
+  }
+
+  .historic-ranking-table,
+  .monthly-ranking-table {
+    display: block;
+  }
+
+  .historic-ranking-table tbody,
+  .monthly-ranking-table tbody {
+    display: block;
+  }
+
+  .historic-ranking-table tbody tr,
+  .monthly-ranking-table tbody tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 12px;
+    padding: 12px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-tertiary);
+  }
+
+  .historic-ranking-table td,
+  .monthly-ranking-table td {
+    display: flex;
+    flex-direction: column;
+    border: none;
+    padding: 2px 0;
+    text-align: left !important;
+  }
+
+  .historic-ranking-table td::before,
+  .monthly-ranking-table td::before {
+    content: attr(data-label);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .historic-ranking-table td:nth-child(1),
+  .historic-ranking-table td:nth-child(2),
+  .monthly-ranking-table td:nth-child(1),
+  .monthly-ranking-table td:nth-child(2) {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* フッター */
+.app-footer {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 1rem 0 0.5rem;
+}
+
+.app-footer a {
+  color: var(--accent-text);
+  text-decoration: none;
+}
+
+.app-footer a:hover {
+  text-decoration: underline;
 }
