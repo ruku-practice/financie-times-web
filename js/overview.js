@@ -487,31 +487,13 @@
   const NO_CANVAS_LEGEND = { display: false };
 
   // Chart.js の凡例はキャンバスの描画域を食う（スマホで描画域が9〜22pxに潰れた・重1）。
-  // 代わりにカードの下へHTMLの凡例を出す。項目を押すと系列の表示/非表示を切り替える。
+  // 代わりにカードの下へHTMLの凡例を出す（js/chart-legend.js＝全グラフ共通・v3.1 項目3：
+  // 押して出し入れ・縦軸は残った系列で再計算・「全部出す」・消した状態は描き直しても再読み込みしても保つ）。
   function renderHtmlLegend(chartKey) {
     const chart = ovCharts[chartKey];
     const box = dom.legends[chartKey];
-    if (!chart || !box) return;
-    const items = box.querySelector(".ov-legend-items");
-    const summary = box.querySelector("summary");
-    const isDonut = chart.config.type === "doughnut";
-    // 円グラフは1系列の中のスライスごと、それ以外は系列ごと
-    const entries = isDonut
-      ? chart.data.labels.map((label, i) => ({ label, color: chart.data.datasets[0].backgroundColor[i], visible: chart.getDataVisibility(i) }))
-      : chart.data.datasets.map((ds, i) => ({ label: ds.label, color: ds.backgroundColor === "transparent" ? ds.borderColor : ds.backgroundColor, visible: chart.isDatasetVisible(i) }));
-    if (summary) summary.textContent = `凡例（${entries.length}）`;
-    items.innerHTML = entries.map((en, i) => `<button type="button" class="ov-legend-item${en.visible ? "" : " off"}" data-index="${i}" aria-pressed="${en.visible}"><span class="ov-legend-swatch" style="background:${en.color}"></span>${escapeHtml(en.label)}</button>`).join("");
-    items.querySelectorAll(".ov-legend-item").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const i = Number(btn.getAttribute("data-index"));
-        let nowVisible;
-        if (isDonut) { chart.toggleDataVisibility(i); nowVisible = chart.getDataVisibility(i); }
-        else { nowVisible = !chart.isDatasetVisible(i); chart.setDatasetVisibility(i, nowVisible); }
-        chart.update();
-        btn.classList.toggle("off", !nowVisible);
-        btn.setAttribute("aria-pressed", String(nowVisible));
-      });
-    });
+    if (!chart || !box || !window.FtLegend) return;
+    window.FtLegend.render(chart, box, `ov:${chartKey}`);
   }
 
   /* ------------------------------------------------------------
@@ -563,7 +545,8 @@
       data: othersData,
       backgroundColor: OV_OTHER_COLOR,
       stack: "vol",
-      hidden: !ovState.showOthers
+      hidden: !ovState.showOthers,
+      ftLocked: !ovState.showOthers // 「その他を表示」で隠したときは凡例の記憶・「全部出す」の対象にしない
     });
 
     if (ovCharts.volume) ovCharts.volume.destroy();
@@ -610,7 +593,8 @@
       data: othersData.map((v, bi) => bucketTotals[bi] > 0 ? (v / bucketTotals[bi]) * 100 : 0),
       backgroundColor: OV_OTHER_COLOR,
       stack: "share",
-      hidden: !ovState.showOthers
+      hidden: !ovState.showOthers,
+      ftLocked: !ovState.showOthers // 「その他を表示」で隠したときは凡例の記憶・「全部出す」の対象にしない
     });
 
     if (ovCharts.share) ovCharts.share.destroy();
@@ -985,7 +969,8 @@
         data: othersData,
         backgroundColor: OV_OTHER_COLOR,
         stack: "members",
-        hidden: !ovState.showOthers
+        hidden: !ovState.showOthers,
+      ftLocked: !ovState.showOthers // 「その他を表示」で隠したときは凡例の記憶・「全部出す」の対象にしない
       });
 
       if (ovCharts.members) ovCharts.members.destroy();

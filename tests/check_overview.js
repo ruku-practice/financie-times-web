@@ -381,6 +381,46 @@ async function run() {
     await page.click('#ov-period-group button[data-period="90"]');
     await page.waitForTimeout(400);
 
+    // A43（v3.1 項目3）: 凡例で系列の出し入れ＝1位を消すと縦軸の最大が下がり、戻すと戻る・「全部出す」がある・
+    // 消した状態は期間を変えて描き直しても、再読み込みしても保たれる・「全部出す」で全部戻り記憶も消える
+    await page.evaluate(() => document.getElementById("ovVolumeChart").scrollIntoView({ block: "center" }));
+    const legendBefore = await page.evaluate(() => ({ yMax: window.FinancieOverview._debug.charts.volume.scales.y.max, items: document.querySelectorAll("#ov-legend-volume .ov-legend-item").length, all: !!document.querySelector("#ov-legend-volume .ov-legend-all") }));
+    await page.click('#ov-legend-volume .ov-legend-item[data-index="0"]');
+    await page.waitForTimeout(400);
+    const legendOff = await page.evaluate(() => {
+      const ch = window.FinancieOverview._debug.charts.volume;
+      const btn = document.querySelector('#ov-legend-volume .ov-legend-item[data-index="0"]');
+      return { yMax: ch.scales.y.max, visible: ch.isDatasetVisible(0), off: btn.classList.contains("off"), lineThrough: getComputedStyle(btn).textDecorationLine.includes("line-through"), stored: JSON.parse(localStorage.getItem("ft_legend_hidden") || "{}") };
+    });
+    await page.click('#ov-period-group button[data-period="30"]');
+    await page.waitForTimeout(500);
+    const legendAfterRedraw = await page.evaluate(() => ({ visible: window.FinancieOverview._debug.charts.volume.isDatasetVisible(0), off: document.querySelector('#ov-legend-volume .ov-legend-item[data-index="0"]').classList.contains("off") }));
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await waitOverviewReady(page);
+    await page.waitForTimeout(400);
+    const legendAfterReload = await page.evaluate(() => ({ visible: window.FinancieOverview._debug.charts.volume.isDatasetVisible(0), off: document.querySelector('#ov-legend-volume .ov-legend-item[data-index="0"]').classList.contains("off") }));
+    await page.click('#ov-legend-volume .ov-legend-item[data-index="0"]');
+    await page.waitForTimeout(400);
+    const legendBack = await page.evaluate(() => ({ yMax: window.FinancieOverview._debug.charts.volume.scales.y.max, visible: window.FinancieOverview._debug.charts.volume.isDatasetVisible(0) }));
+    await page.click('#ov-legend-volume .ov-legend-item[data-index="1"]');
+    await page.click('#ov-legend-volume .ov-legend-item[data-index="2"]');
+    await page.waitForTimeout(300);
+    await page.click("#ov-legend-volume .ov-legend-all");
+    await page.waitForTimeout(400);
+    const legendAll = await page.evaluate(() => {
+      const ch = window.FinancieOverview._debug.charts.volume;
+      return { allVisible: ch.data.datasets.every((_, i) => ch.isDatasetVisible(i)), stored: localStorage.getItem("ft_legend_hidden"), offCount: document.querySelectorAll("#ov-legend-volume .ov-legend-item.off").length };
+    });
+    const legendOk = legendBefore.items >= 11 && legendBefore.all
+      && legendOff.visible === false && legendOff.off && legendOff.lineThrough && legendOff.yMax < legendBefore.yMax && Array.isArray(legendOff.stored["ov:volume"]) && legendOff.stored["ov:volume"].length === 1
+      && legendAfterRedraw.visible === false && legendAfterRedraw.off
+      && legendAfterReload.visible === false && legendAfterReload.off
+      && legendBack.visible === true
+      && legendAll.allVisible && legendAll.offCount === 0 && !(JSON.parse(legendAll.stored || "{}")["ov:volume"]);
+    record("A43-legend-toggle-persist-all", legendOk, JSON.stringify({ legendBefore, legendOff: { ...legendOff, stored: undefined }, legendAfterRedraw, legendAfterReload, legendBack, legendAll }));
+    await page.click('#ov-period-group button[data-period="90"]');
+    await page.waitForTimeout(400);
+
     // A39（v3.1 項目6）: 表示文言は「全体市況」。タブ・見出しに出て、画面の文字に「総覧」が残っていない（id・URL・記憶のキーは据え置き）
     const naming = await page.evaluate(() => ({
       tab: document.querySelector('.tab-nav-btn[data-tab="overview-tab"]').textContent.trim(),
@@ -613,6 +653,39 @@ async function run() {
     const reset = await measureVol();
     record("A40-full-scale-resets-per-project", reset.yMax < reset.dataMax && reset.note.includes("▲") && reset.n === vol.all.n, JSON.stringify({ yMax: reset.yMax, n: reset.n, note: reset.note.slice(0, 12) }));
     record("A40-cng-full-scale-toggle", full.yMax >= full.dataMax && full.note.includes("実寸") && back.yMax < back.dataMax && back.note.includes("▲"), JSON.stringify({ full: { yMax: full.yMax, ratio: full.ratio, note: full.note.slice(0, 20) }, back: { yMax: back.yMax, ratio: back.ratio } }));
+    // A44（v3.1 項目3）: 個別ページの「メンバー数＆在庫」と比較ページの4枚もHTMLの凡例＝Chart.js の凡例は出ない・押すと消える・比較は1枚で消すと4枚とも消える
+    const combinedLegend = await page.evaluate(() => {
+      const ch = window.FinancieAdvanced._debug.charts().combined;
+      return { canvasLegend: ch.options.plugins.legend.display, items: document.querySelectorAll("#legend-combined .ov-legend-item").length, all: !!document.querySelector("#legend-combined .ov-legend-all") };
+    });
+    await page.click('#legend-combined .ov-legend-item[data-index="1"]');
+    await page.waitForTimeout(300);
+    const combinedOff = await page.evaluate(() => window.FinancieAdvanced._debug.charts().combined.isDatasetVisible(1));
+    await page.click("#legend-combined .ov-legend-all");
+    await page.waitForTimeout(300);
+    await page.click('.tab-nav-btn[data-tab="compare-tab"]');
+    await page.waitForTimeout(400);
+    const compareItems = await page.$$('.project-item[data-folder]');
+    await compareItems[0].click();
+    await compareItems[1].click();
+    await page.waitForFunction(() => window.FinancieAdvanced._debug.charts().compareVolume && document.querySelectorAll("#legend-compareVolumeChart .ov-legend-item").length === 2, { timeout: 15000 });
+    await page.click('#legend-comparePriceChart .ov-legend-item[data-index="0"]');
+    await page.waitForTimeout(400);
+    const compareOff = await page.evaluate(() => ({
+      volumeHidden: window.FinancieAdvanced._debug.charts().compareVolume.isDatasetVisible(0) === false,
+      offMarks: ["comparePriceChart", "compareVolumeChart", "compareMembersChart", "compareStockChart"].map((id) => document.querySelector(`#legend-${id} .ov-legend-item[data-index="0"]`).classList.contains("off")),
+      canvasLegend: window.FinancieAdvanced._debug.charts().compareVolume.options.plugins.legend.display
+    }));
+    await page.click("#legend-compareVolumeChart .ov-legend-all");
+    await page.waitForTimeout(300);
+    const compareBack = await page.evaluate(() => ["comparePriceChart", "compareStockChart"].every((id) => document.querySelectorAll(`#legend-${id} .ov-legend-item.off`).length === 0));
+    record("A44-legend-single-compare", combinedLegend.canvasLegend === false && combinedLegend.items === 2 && combinedLegend.all && combinedOff === false && compareOff.volumeHidden && compareOff.offMarks.every(Boolean) && compareOff.canvasLegend === false && compareBack, JSON.stringify({ combinedLegend, combinedOff, compareOff, compareBack }));
+    await page.click('.tab-nav-btn[data-tab="single-tab"]');
+    await page.waitForTimeout(300);
+    await page.click('.project-item[data-folder="cryptoninjagames"]');
+    await page.waitForFunction(() => document.getElementById("detail-slug").textContent === "@cryptoninjagames", { timeout: 15000 });
+    await page.waitForTimeout(400);
+
     // A41（v3.1 項目4）: 個別ページのプロジェクト名の横に本家へのリンク（新しいタブ・noopener・「FiNANCiEで見る」＋印）
     const pjLink = await page.evaluate(() => {
       const a = document.getElementById("detail-financie-link");

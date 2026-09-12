@@ -631,13 +631,7 @@
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: {
-            position: 'top',
-            labels: {
-              color: chartTextColor(),
-              font: { family: 'Outfit, sans-serif' }
-            }
-          },
+          legend: { display: false }, // 凡例はカードの下のHTML（js/chart-legend.js・v3.1 項目3）
           tooltip: {
             mode: 'index',
             intersect: false
@@ -673,6 +667,7 @@
         }
       }
     });
+    if (window.FtLegend) window.FtLegend.render(combinedChart, document.getElementById("legend-combined"), "single:combined");
   }
 
   // 共通のグラフ設定オプション
@@ -889,6 +884,20 @@
       data: { labels: labels, datasets: stockDatasets },
       options: getCommonCompareOptions("トークン在庫 (個)")
     });
+    renderCompareLegends();
+  }
+
+  // 比較の4枚は同じ案件の集まりなので、凡例の記憶キーを1つ共有する＝1枚で消すと4枚とも消える（v3.1 項目3）
+  function renderCompareLegends() {
+    if (!window.FtLegend) return;
+    const pairs = [
+      [comparePriceChart, "legend-comparePriceChart"],
+      [compareVolumeChart, "legend-compareVolumeChart"],
+      [compareMembersChart, "legend-compareMembersChart"],
+      [compareStockChart, "legend-compareStockChart"]
+    ];
+    const syncAll = () => pairs.forEach(([ch, id]) => window.FtLegend.render(ch, document.getElementById(id), "compare", { onChange: syncAll }));
+    syncAll();
   }
 
   function getCommonCompareOptions(yTitle) {
@@ -896,14 +905,7 @@
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          position: 'top',
-          labels: {
-            color: chartTextColor(),
-            font: { size: 11, family: 'Outfit, sans-serif' },
-            boxWidth: 12
-          }
-        },
+        legend: { display: false }, // 凡例はカードの下のHTML（js/chart-legend.js・v3.1 項目3）
         tooltip: {
           mode: 'index',
           intersect: false,

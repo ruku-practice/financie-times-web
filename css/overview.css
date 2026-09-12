@@ -294,6 +294,38 @@
   margin-left: 4px;
 }
 
+/* 凡例の「全部出す」（v3.1 項目3・全グラフ共通） */
+.ov-legend-all {
+  display: inline-flex;
+  align-items: center;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  min-height: 28px;
+  cursor: pointer;
+}
+
+.ov-legend-all[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* 個別・比較ページのグラフにHTMLの凡例を付けたカード：高さは固定をやめ、描画域を保つ */
+.chart-card:has(> details.ov-legend) {
+  height: auto;
+  gap: 12px;
+}
+
+.chart-card:has(> details.ov-legend) > .chart-wrapper {
+  flex: none;
+  height: 320px;
+}
+
 /* 個別ページ 24H 取引量：縦軸の上限の注記（v3.1 項目1） */
 .chart-cap-note {
   display: flex;
