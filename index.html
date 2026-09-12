@@ -23,7 +23,7 @@
 
       <!-- Tab menu -->
       <nav class="tabs-navigation">
-        <button class="tab-nav-btn active" data-tab="overview-tab">総覧</button>
+        <button class="tab-nav-btn active" data-tab="overview-tab">全体市況</button>
         <button class="tab-nav-btn" data-tab="single-tab">個別プロジェクト分析</button>
         <button class="tab-nav-btn" data-tab="compare-tab">複数プロジェクト比較</button>
         <button class="tab-nav-btn" data-tab="daily-tab">日付別ランキング</button>
@@ -180,14 +180,14 @@
         <!-- 0. Overview (total across projects, Dune-style) -->
         <div id="overview-view" class="flex-column">
           <div class="section-title-area">
-            <h2>総覧</h2>
+            <h2>全体市況</h2>
             <p id="ov-desc" style="color: var(--text-secondary); font-size: 13px;">全プロジェクトを横断した出来高・価格・メンバー数・在庫・時価総額の推移。上位10＋その他で内訳を見られます。</p>
             <p class="ov-meta" id="ov-meta">非公式・毎日1回の記録</p>
           </div>
 
           <!-- 読み込み失敗の案内（通常は非表示） -->
           <div id="ov-error" class="ov-error hidden-element" role="alert">
-            <span id="ov-error-text">総覧データの読み込みに失敗しました。</span>
+            <span id="ov-error-text">全体市況のデータの読み込みに失敗しました。</span>
             <button type="button" class="action-btn" id="ov-error-reload">もう一度読み込む</button>
           </div>
 

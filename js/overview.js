@@ -1290,9 +1290,9 @@
     console.error("Overview load error:", err);
     if (dom.error) {
       dom.error.classList.remove("hidden-element");
-      if (dom.errorText) dom.errorText.textContent = "総覧データの読み込みに失敗しました。通信状態を確かめて、もう一度読み込んでください。";
+      if (dom.errorText) dom.errorText.textContent = "全体市況のデータの読み込みに失敗しました。通信状態を確かめて、もう一度読み込んでください。";
     }
-    dom.rankingTbody.innerHTML = `<tr><td colspan="6" class="text-center">総覧データの読み込みに失敗しました。</td></tr>`;
+    dom.rankingTbody.innerHTML = `<tr><td colspan="6" class="text-center">全体市況のデータの読み込みに失敗しました。</td></tr>`;
   }
 
   function init() {

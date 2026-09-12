@@ -349,6 +349,14 @@ async function run() {
         return { n: ds.length, empty, firstIs100Bad: firstIs100 };
       });
     }
+    // A39（v3.1 項目6）: 表示文言は「全体市況」。タブ・見出しに出て、画面の文字に「総覧」が残っていない（id・URL・記憶のキーは据え置き）
+    const naming = await page.evaluate(() => ({
+      tab: document.querySelector('.tab-nav-btn[data-tab="overview-tab"]').textContent.trim(),
+      h2: document.querySelector("#overview-view h2").textContent.trim(),
+      errText: document.getElementById("ov-error-text").textContent,
+      leftover: document.body.innerText.includes("総覧") || document.title.includes("総覧")
+    }));
+    record("A39-name-zentai-shikyo", naming.tab === "全体市況" && naming.h2 === "全体市況" && naming.errText.includes("全体市況") && !naming.leftover, JSON.stringify(naming));
     record("A38-price-index-not-empty", ["all", "365", "90"].every((p) => priceIndex[p].n === 10 && priceIndex[p].empty.length === 0 && priceIndex[p].firstIs100Bad.length === 0), JSON.stringify(priceIndex));
     await page.click('#ov-period-group button[data-period="90"]');
     await page.waitForTimeout(300);
