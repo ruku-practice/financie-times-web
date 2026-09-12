@@ -277,7 +277,7 @@
         <div class="project-item-info">
           <div class="project-item-name">${proj.name}</div>
           <div class="project-item-meta">
-            <span class="project-item-price">${formatFloat(proj.price, 4)} pt</span>
+            <span class="project-item-price">${formatFloat(proj.price, 4)} 円</span>
             <span style="color: ${changeColor}">${sign}${formatNumber(proj.member_change_24h)}人</span>
           </div>
         </div>
@@ -366,7 +366,7 @@
     const latest = history[history.length - 1];
     
     // 現在価格
-    metricPrice.textContent = `${formatFloat(latest.price, 4)} pt`;
+    metricPrice.textContent = `${formatFloat(latest.price, 4)} 円`;
     
     // 価格変化 (前日比)
     if (history.length > 1) {
@@ -377,17 +377,17 @@
       const colorClass = diff > 0 ? "up" : diff < 0 ? "down" : "";
       
       metricPriceSub.className = `metric-sub ${colorClass}`;
-      metricPriceSub.textContent = `前日比: ${sign}${formatFloat(diff, 4)} pt (${sign}${pct.toFixed(2)}%)`;
+      metricPriceSub.textContent = `前日比: ${sign}${formatFloat(diff, 4)} 円 (${sign}${pct.toFixed(2)}%)`;
     } else {
       metricPriceSub.className = "metric-sub";
       metricPriceSub.textContent = "前日比: -";
     }
 
     // 24H 出来高
-    metricVolume.textContent = `${formatFloat(latest.volume, 2)} pt`;
+    metricVolume.textContent = `${formatFloat(latest.volume, 2)} 円`;
     
     // 累計取引量
-    metricVolumeSub.textContent = `累計取引量: ${formatFloat(latest.volume, 2)} pt`;
+    metricVolumeSub.textContent = `累計取引量: ${formatFloat(latest.volume, 2)} 円`;
 
     // メンバー数
     metricMembers.textContent = `${formatNumber(latest.members)} 人`;
@@ -407,7 +407,7 @@
     }
 
     // トークン在庫
-    metricStock.textContent = `${formatNumber(latest.stock)} pt`;
+    metricStock.textContent = `${formatNumber(latest.stock)} 円`;
     metricMarketcapSub.textContent = `時価総額: ¥${formatNumber(latest.marketCap)}`;
   }
 
@@ -507,7 +507,7 @@
             tension: 0.15
           },
           {
-            label: 'トークン在庫 (pt)',
+            label: 'トークン在庫 (個)',
             data: stocks,
             borderColor: '#f59e0b',
             borderWidth: 2,
@@ -558,7 +558,7 @@
             ticks: { color: '#f59e0b' },
             title: {
               display: true,
-              text: 'トークン在庫 (pt)',
+              text: 'トークン在庫 (個)',
               color: '#f59e0b'
             }
           }
@@ -755,7 +755,7 @@
     comparePriceChart = new Chart(priceCtx, {
       type: 'line',
       data: { labels: labels, datasets: priceDatasets },
-      options: getCommonCompareOptions("価格 (pt)")
+      options: getCommonCompareOptions("価格 (円)")
     });
 
     const volumeCtx = document.getElementById("compareVolumeChart").getContext("2d");
@@ -763,7 +763,7 @@
     compareVolumeChart = new Chart(volumeCtx, {
       type: 'line',
       data: { labels: labels, datasets: volumeDatasets },
-      options: getCommonCompareOptions("出来高 (pt)")
+      options: getCommonCompareOptions("出来高 (円)")
     });
 
     const membersCtx = document.getElementById("compareMembersChart").getContext("2d");
@@ -779,7 +779,7 @@
     compareStockChart = new Chart(stockCtx, {
       type: 'line',
       data: { labels: labels, datasets: stockDatasets },
-      options: getCommonCompareOptions("トークン在庫 (pt)")
+      options: getCommonCompareOptions("トークン在庫 (個)")
     });
   }
 
@@ -1126,7 +1126,7 @@
             <span>${item.name}</span>
           </a>
         </td>
-        <td class="text-right bold-text" style="font-size: 14px; padding-right: 2rem;" data-label="期間総取引量［pt］">${formatFloat(item.total_volume, 2)} pt</td>
+        <td class="text-right bold-text" style="font-size: 14px; padding-right: 2rem;" data-label="期間総取引量［円］">${formatFloat(item.total_volume, 2)} 円</td>
       `;
 
       tr.querySelector(".table-pj-link").addEventListener("click", (e) => {

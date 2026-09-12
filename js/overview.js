@@ -11,10 +11,10 @@
 
   const OV_APP_VERSION = "3.0.0";
 
-  // 🔴 出来高の単位はルク確認待ち。ラベルの定義はここ1か所だけ（A12）。
-  //    切り替えるときはこの1行だけ直せばよい。
+  // 出来高の単位＝「円」（2026-09-12 19:03 ルク決定・本家 financie.jp が円表示のため）。
+  // ラベルの定義はここ1か所だけ（A12）。切り替えるときはこの1行だけ直せばよい。
   const OVERVIEW_CONFIG = {
-    volumeUnitLabel: "volume（単位は確認待ち）",
+    volumeUnitLabel: "円",
     dataFiles: {
       market: "data/overview/market.json",
       volume: "data/overview/v24.json",
@@ -24,7 +24,9 @@
       mcap: "data/overview/mcap.json"
     },
     defaultTopN: 10,
-    defaultPeriod: 90
+    defaultPeriod: 90,
+    // 日付欄を打っている途中（フォーカス中）は、この時間だけ入力が止まってから再計算する（重4）
+    dateInputDebounceMs: 1000
   };
 
   const METRIC_LABELS = {
@@ -35,16 +37,22 @@
     mcap: "時価総額"
   };
 
-  // 上位10まで区別できる色（advanced.js の比較色パレットに合わせる）＋不足分は循環。
+  // 1〜10位は見分けのつく10色。11位以降は同じ青系で明るさだけ変える（同じ色が2本出ない・中6）。
   const OV_COLORS = [
     "#2563eb", "#10b981", "#f59e0b", "#f87171", "#7c3aed",
-    "#ec4899", "#06b6d4", "#f97316", "#14b8a6", "#a3e635",
-    "#38bdf8", "#e879f9"
+    "#ec4899", "#06b6d4", "#f97316", "#14b8a6", "#a3e635"
   ];
   const OV_OTHER_COLOR = "#6b7280";
 
   function ovColor(i) {
-    return OV_COLORS[i % OV_COLORS.length];
+    if (i < OV_COLORS.length) return OV_COLORS[i];
+    const k = i - OV_COLORS.length; // 0..19 を想定（上位30まで）
+    const light = 78 - (k % 20) * 2.2; // 78% → 36.2%（20段・重複なし）
+    return `hsl(217, 55%, ${light.toFixed(1)}%)`;
+  }
+
+  function isMobile() {
+    return window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
   }
 
   /* ------------------------------------------------------------
@@ -52,7 +60,7 @@
    * ------------------------------------------------------------ */
   const ovState = {
     initialized: false,
-    period: OVERVIEW_CONFIG.defaultPeriod, // 7|30|90|365|'all'
+    period: OVERVIEW_CONFIG.defaultPeriod, // 7|30|90|365|'all'|'custom'
     granularity: "day", // 'day'|'week'|'month'
     granularityManual: false,
     topN: OVERVIEW_CONFIG.defaultTopN,
@@ -63,7 +71,9 @@
     rangeSwapped: false,
     // パネルD/Eは画面に出てくるまでデータを読まない（初回読み込みを market+v24 だけに絞るため）
     panelDReady: false,
-    panelEReady: false
+    panelEReady: false,
+    // 日付欄の未確定の変更（重4）
+    dateDirty: false
   };
 
   const ovData = {}; // { volume: {days,projects,rows,folderIndex}, market: {...}, ... }
@@ -78,6 +88,11 @@
 
   function bindDom() {
     dom = {
+      desc: document.getElementById("ov-desc"),
+      meta: document.getElementById("ov-meta"),
+      error: document.getElementById("ov-error"),
+      errorText: document.getElementById("ov-error-text"),
+      errorReload: document.getElementById("ov-error-reload"),
       periodGroup: document.getElementById("ov-period-group"),
       granularityGroup: document.getElementById("ov-granularity-group"),
       topnGroup: document.getElementById("ov-topn-group"),
@@ -86,16 +101,26 @@
       endInput: document.getElementById("ov-end-date"),
       rangeNote: document.getElementById("ov-range-note"),
       showOthers: document.getElementById("ov-show-others"),
+      kpiTotalLabel: document.getElementById("ov-kpi-total-label"),
       kpiTotal: document.getElementById("ov-kpi-total"),
       kpiTotalSub: document.getElementById("ov-kpi-total-sub"),
       kpiAvg: document.getElementById("ov-kpi-avg"),
       kpiActive: document.getElementById("ov-kpi-active"),
       kpiActiveSub: document.getElementById("ov-kpi-active-sub"),
+      kpiShareLabel: document.getElementById("ov-kpi-share-label"),
       kpiShare: document.getElementById("ov-kpi-share"),
       kpiShareSub: document.getElementById("ov-kpi-share-sub"),
+      panelDTitle: document.getElementById("ov-panelD-title"),
       rankingTitle: document.getElementById("ov-ranking-title"),
+      rankingNote: document.getElementById("ov-ranking-note"),
       rankingThead: document.getElementById("ov-ranking-thead"),
-      rankingTbody: document.getElementById("ov-ranking-tbody")
+      rankingTbody: document.getElementById("ov-ranking-tbody"),
+      legends: {
+        volume: document.getElementById("ov-legend-volume"),
+        share: document.getElementById("ov-legend-share"),
+        price: document.getElementById("ov-legend-price"),
+        members: document.getElementById("ov-legend-members")
+      }
     };
   }
 
@@ -106,18 +131,45 @@
   const fmtFloat = (n, d = 2) => (n === null || n === undefined || isNaN(n)) ? "-" : Number(n).toLocaleString("ja-JP", { minimumFractionDigits: d, maximumFractionDigits: d });
   const fmtPercent = (n, d = 1) => (n === null || n === undefined || isNaN(n)) ? "-" : `${(n * 100).toFixed(d)}%`;
 
-  // 前期間比（出来高ランキング表の4列目）: 現在値と前期間値から ▲/▼ 表示を作る。
-  // 前期間そのものが存在しない/前期間ゼロで今回もゼロ → "—"。前期間ゼロで今回>0 → "新規"（理由が分かる扱い）。
-  function fmtPeriodDiff(current, prevTotal) {
-    if (prevTotal === null || prevTotal === undefined) return { text: "—", cls: "" };
-    if (prevTotal === 0) {
+  // "YYYY-MM-DD" → "YYYY/MM/DD"（見出し用）
+  const fmtDateJa = (s) => (s ? s.replace(/-/g, "/") : "-");
+  // "YYYY-MM-DD" → "MM/DD"（グラフの横軸・期末値の日付用）
+  const fmtMD = (s) => (s ? s.slice(5).replace("-", "/") : "");
+
+  // 変化率の書式（全指標で1つに統一・中3/中4）。
+  //   前期間（または期首値）が無い → 「比較なし」／前期間ゼロで今期>0 → 「新規」／ちょうど0 → 「±0%」
+  //   10倍超（+1000%以上）は「▲10倍超」に丸める（巨大な数字が煽りに見えないように）
+  function fmtChangePct(current, base) {
+    if (base === null || base === undefined || current === null || current === undefined) return { text: "比較なし", cls: "diff-flat" };
+    if (base === 0) {
       if (current > 0) return { text: "新規", cls: "diff-up" };
-      return { text: "—", cls: "" };
+      return { text: "比較なし", cls: "diff-flat" };
     }
-    const pct = ((current - prevTotal) / prevTotal) * 100;
-    if (pct === 0) return { text: "-", cls: "diff-flat" };
+    const pct = ((current - base) / base) * 100;
+    if (pct === 0) return { text: "±0%", cls: "diff-flat" };
+    if (pct >= 1000) return { text: "▲10倍超", cls: "diff-up" };
     const arrow = pct > 0 ? "▲" : "▼";
     return { text: `${arrow}${Math.abs(pct).toFixed(1)}%`, cls: pct > 0 ? "diff-up" : "diff-down" };
+  }
+
+  // 増減（実数）の書式：▲1,234／▼80,827／±0／比較なし
+  function fmtChangeAbs(diff) {
+    if (diff === null || diff === undefined || isNaN(diff)) return { text: "比較なし", cls: "diff-flat" };
+    if (diff === 0) return { text: "±0", cls: "diff-flat" };
+    const arrow = diff > 0 ? "▲" : "▼";
+    return { text: `${arrow}${fmtInt(Math.abs(diff))}`, cls: diff > 0 ? "diff-up" : "diff-down" };
+  }
+
+  // 順位変化：→（変わらず）／▲3／▼2／比較なし
+  function fmtRankChange(prevRank, nowRank) {
+    if (!prevRank) return { text: "比較なし", cls: "diff-flat" };
+    const d = prevRank - nowRank;
+    if (d === 0) return { text: "→", cls: "diff-flat" };
+    return { text: d > 0 ? `▲${d}` : `▼${Math.abs(d)}`, cls: d > 0 ? "diff-up" : "diff-down" };
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
 
   function fetchOverviewFile(path) {
@@ -161,28 +213,16 @@
     return ans;
   }
 
-  function periodSum(metricKey, folder, startIdx, endIdx) {
-    const payload = ovData[metricKey];
-    const idx = payload.folderIndex[folder];
-    if (idx === undefined) return 0;
-    const row = payload.rows[idx];
-    let sum = 0;
-    for (let i = startIdx; i <= endIdx; i++) {
-      const v = row[i];
-      if (v !== null && v !== undefined) sum += v;
-    }
-    return sum;
-  }
-
+  // 期間内で最初・最後に記録のある値と、その日のインデックス
   function firstLastValid(row, startIdx, endIdx) {
-    let first = null, last = null;
+    let first = null, last = null, firstIdx = -1, lastIdx = -1;
     for (let i = startIdx; i <= endIdx; i++) {
-      if (row[i] !== null && row[i] !== undefined) { first = row[i]; break; }
+      if (row[i] !== null && row[i] !== undefined) { first = row[i]; firstIdx = i; break; }
     }
     for (let i = endIdx; i >= startIdx; i--) {
-      if (row[i] !== null && row[i] !== undefined) { last = row[i]; break; }
+      if (row[i] !== null && row[i] !== undefined) { last = row[i]; lastIdx = i; break; }
     }
-    return { first, last };
+    return { first, last, firstIdx, lastIdx };
   }
 
   /* ------------------------------------------------------------
@@ -195,7 +235,7 @@
     if (ovState.period === "custom") {
       const startVal = dom.startInput.value;
       const endVal = dom.endInput.value;
-      // 終了日: データの範囲外（過去すぎ）なら最古日ではなく最新日へ丸める（floorIndexが-1を返すのは
+      // 終了日: データの範囲外（過去すぎ）なら最古日へ丸める（floorIndexが-1を返すのは
       // 「target未満の日が1つも無い」＝終了日がデータの最初の日より前のケース）。
       let endIdx = endVal ? floorIndex(days, endVal) : latestIdx;
       if (endIdx < 0) endIdx = 0;
@@ -222,8 +262,11 @@
       ovState.rangeSwapped = false;
     }
 
-    dom.startInput.value = days[ovState.startIdx];
-    dom.endInput.value = days[ovState.endIdx];
+    // 打っている途中の欄（編集中）には書き戻さない（重4：1字ごとに値が飛ぶのを防ぐ）。
+    // 🔴 document.activeElement は Chrome の日付欄が年→月へ自動で進む瞬間に空になるため使わない。
+    //    focus/blur で自前に持つ editingInputs を見る。
+    if (!editingInputs.has(dom.startInput)) dom.startInput.value = days[ovState.startIdx];
+    if (!editingInputs.has(dom.endInput)) dom.endInput.value = days[ovState.endIdx];
     if (dom.rangeNote) {
       dom.rangeNote.textContent = ovState.rangeSwapped ? "開始日と終了日を入れ替えました" : "";
       dom.rangeNote.classList.toggle("hidden-element", !ovState.rangeSwapped);
@@ -250,7 +293,9 @@
   }
 
   // 期間内の日付インデックスを、粒度に応じたバケツへまとめる。
-  // 戻り値: [{ label, indices: [dayIdx, ...] }, ...]（時系列順）
+  // 戻り値: [{ label, short, indices: [dayIdx, ...] }, ...]（時系列順）
+  //   label = ツールチップ用（日:YYYY-MM-DD／週:YYYY-Www（MM/DD〜）／月:YYYY-MM）
+  //   short = 横軸用の短い表記（日・週:MM/DD、月:YYYY/MM）＝回転させずに読める（重1・軽6）
   function buildBuckets() {
     const days = ovData.market.days;
     const buckets = [];
@@ -263,7 +308,11 @@
       else key = dstr.slice(0, 7); // YYYY-MM
 
       if (!bucketMap[key]) {
-        bucketMap[key] = { label: key, indices: [] };
+        let label = key, short;
+        if (ovState.granularity === "day") short = fmtMD(dstr);
+        else if (ovState.granularity === "week") { label = `${key}（${fmtMD(dstr)}〜）`; short = fmtMD(dstr); }
+        else short = key.replace("-", "/");
+        bucketMap[key] = { label, short, indices: [] };
         buckets.push(bucketMap[key]);
       }
       bucketMap[key].indices.push(i);
@@ -289,7 +338,7 @@
   }
 
   /* ------------------------------------------------------------
-   * KPI
+   * KPI・見出し
    * ------------------------------------------------------------ */
   function prevPeriodRange() {
     const len = ovState.endIdx - ovState.startIdx + 1;
@@ -306,6 +355,19 @@
       if (arr[i] !== null && arr[i] !== undefined) { sum += arr[i]; hasAny = true; }
     }
     return hasAny ? sum : 0;
+  }
+
+  // 「上位N」の N を実際の数に置き換える（中1）・データの日付と件数を見出しに出す（中2・中7）
+  function renderHeadings() {
+    const n = ovState.topN;
+    const days = ovData.market.days;
+    const latest = days[days.length - 1];
+    const count = ovData.volume.projects.length;
+    if (dom.desc) dom.desc.textContent = `全プロジェクトを横断した出来高・価格・メンバー数・在庫・時価総額の推移。上位${n}＋その他で内訳を見られます。`;
+    if (dom.meta) dom.meta.textContent = `非公式・${count}プロジェクト・最終記録 ${fmtDateJa(latest)}・毎日1回の記録`;
+    if (dom.kpiTotalLabel) dom.kpiTotalLabel.textContent = `期間の全体出来高（${OVERVIEW_CONFIG.volumeUnitLabel}）`;
+    if (dom.kpiShareLabel) dom.kpiShareLabel.textContent = `上位${n}のシェア`;
+    if (dom.panelDTitle) dom.panelDTitle.textContent = `価格の推移（上位${n}・期間初日=100の指数）`;
   }
 
   function renderKPIs(topRanked) {
@@ -325,7 +387,7 @@
     }
 
     dom.kpiTotal.textContent = `${fmtInt(total)}`;
-    dom.kpiTotalSub.textContent = `${subText}（${OVERVIEW_CONFIG.volumeUnitLabel}）`;
+    dom.kpiTotalSub.textContent = subText;
     dom.kpiAvg.textContent = `${fmtInt(avg)}`;
 
     const activeCount = ovData.volume.projects.filter((p, i) => {
@@ -343,7 +405,51 @@
     const topSum = topN.reduce((s, x) => s + x.total, 0);
     const share = total > 0 ? topSum / total : 0;
     dom.kpiShare.textContent = fmtPercent(share);
-    dom.kpiShareSub.textContent = `上位${ovState.topN}`;
+    dom.kpiShareSub.textContent = `その他 ${fmtPercent(Math.max(0, 1 - share))}`;
+  }
+
+  /* ------------------------------------------------------------
+   * グラフ共通（横軸の短い日付・凡例はHTMLで別出し）
+   * ------------------------------------------------------------ */
+  function xTicksOptions(shortLabels) {
+    return {
+      color: "#9ca3af",
+      maxRotation: 0,
+      minRotation: 0,
+      autoSkip: true,
+      maxTicksLimit: isMobile() ? 6 : 12,
+      font: { size: 11 },
+      callback: (value, index) => shortLabels[index] !== undefined ? shortLabels[index] : value
+    };
+  }
+
+  const NO_CANVAS_LEGEND = { display: false };
+
+  // Chart.js の凡例はキャンバスの描画域を食う（スマホで描画域が9〜22pxに潰れた・重1）。
+  // 代わりにカードの下へHTMLの凡例を出す。項目を押すと系列の表示/非表示を切り替える。
+  function renderHtmlLegend(chartKey) {
+    const chart = ovCharts[chartKey];
+    const box = dom.legends[chartKey];
+    if (!chart || !box) return;
+    const items = box.querySelector(".ov-legend-items");
+    const summary = box.querySelector("summary");
+    const datasets = chart.data.datasets;
+    if (summary) summary.textContent = `凡例（${datasets.length}）`;
+    items.innerHTML = datasets.map((ds, i) => {
+      const color = ds.backgroundColor === "transparent" ? ds.borderColor : ds.backgroundColor;
+      const visible = chart.isDatasetVisible(i);
+      return `<button type="button" class="ov-legend-item${visible ? "" : " off"}" data-index="${i}" aria-pressed="${visible}"><span class="ov-legend-swatch" style="background:${color}"></span>${escapeHtml(ds.label)}</button>`;
+    }).join("");
+    items.querySelectorAll(".ov-legend-item").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const i = Number(btn.getAttribute("data-index"));
+        const nowVisible = !chart.isDatasetVisible(i);
+        chart.setDatasetVisibility(i, nowVisible);
+        chart.update();
+        btn.classList.toggle("off", !nowVisible);
+        btn.setAttribute("aria-pressed", String(nowVisible));
+      });
+    });
   }
 
   /* ------------------------------------------------------------
@@ -382,6 +488,7 @@
     const topN = topFolders.slice(0, ovState.topN);
     const { series, othersData } = buildSeriesForBuckets(buckets, topN);
     const labels = buckets.map((b) => b.label);
+    const shortLabels = buckets.map((b) => b.short);
 
     const datasetsA = series.map((s, i) => ({
       label: s.name,
@@ -406,15 +513,16 @@
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { position: "bottom", labels: { color: "#9ca3af", boxWidth: 10, font: { size: 10 } } },
+          legend: NO_CANVAS_LEGEND,
           tooltip: { mode: "index", intersect: false }
         },
         scales: {
-          x: { stacked: true, ticks: { color: "#9ca3af", maxTicksLimit: 12 }, grid: { color: "rgba(255,255,255,0.03)" } },
+          x: { stacked: true, ticks: xTicksOptions(shortLabels), grid: { color: "rgba(255,255,255,0.03)" } },
           y: { stacked: true, ticks: { color: "#9ca3af" }, grid: { color: "rgba(255,255,255,0.05)" } }
         }
       }
     });
+    renderHtmlLegend("volume");
 
     // シェア（100%積み上げ）: バケツごとの合計（上位N + その他）でパーセント化
     const bucketTotals = labels.map((_, bi) => {
@@ -445,31 +553,60 @@
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { position: "bottom", labels: { color: "#9ca3af", boxWidth: 10, font: { size: 10 } } },
+          legend: NO_CANVAS_LEGEND,
           tooltip: { mode: "index", intersect: false }
         },
         scales: {
-          x: { stacked: true, ticks: { color: "#9ca3af", maxTicksLimit: 12 }, grid: { color: "rgba(255,255,255,0.03)" } },
+          x: { stacked: true, ticks: xTicksOptions(shortLabels), grid: { color: "rgba(255,255,255,0.03)" } },
           y: { stacked: true, min: 0, max: 100, ticks: { color: "#9ca3af", callback: (v) => v + "%" }, grid: { color: "rgba(255,255,255,0.05)" } }
         }
       }
     });
+    renderHtmlLegend("share");
   }
 
   /* ------------------------------------------------------------
    * パネル C: 指標ランキング表
    * ------------------------------------------------------------ */
-  function renderRankingHeader(metric) {
+  // 列の定義：head = 見出し／label = スマホのカード表示で各セルに付ける短い列名（重2）／align = 見出しの寄せ（軽4）
+  function rankingColumns(metric) {
+    const unit = OVERVIEW_CONFIG.volumeUnitLabel;
+    const rank = { head: "順位", label: "順位", align: "center" };
+    const pj = { head: "プロジェクト", label: "プロジェクト", align: "left" };
     const cols = {
-      volume: ["順位", "プロジェクト", `期間合計（${OVERVIEW_CONFIG.volumeUnitLabel}）`, "前期間比", "シェア", "順位変化"],
-      price: ["順位", "プロジェクト", "期末値", "期間の変化率"],
-      members: ["順位", "プロジェクト", "期末値（人）", "期間純増（人）※購入者数ではない"],
-      stock: ["順位", "プロジェクト", "期末値", "期間の減り ※販売数ではない・売り戻しと差し引き"],
-      mcap: ["順位", "プロジェクト", "期末値", "期間の変化率"]
+      volume: [rank, pj,
+        { head: `期間合計（${unit}）`, label: `期間合計（${unit}）`, align: "right" },
+        { head: "前期間比", label: "前期間比", align: "right" },
+        { head: "シェア", label: "シェア", align: "right" },
+        { head: "順位変化", label: "順位変化", align: "right" }],
+      price: [rank, pj,
+        { head: `期末値（${unit}）`, label: `期末値（${unit}）`, align: "right" },
+        { head: "期間の変化率", label: "期間の変化率", align: "right" }],
+      members: [rank, pj,
+        { head: "期末値（人）", label: "期末値（人）", align: "right" },
+        { head: "期間の増減（人）", label: "期間の増減（人）", align: "right" }],
+      stock: [rank, pj,
+        { head: "期末値（個）", label: "期末値（個）", align: "right" },
+        { head: "期間の増減（個）", label: "期間の増減（個）", align: "right" }],
+      mcap: [rank, pj,
+        { head: `期末値（${unit}）`, label: `期末値（${unit}）`, align: "right" },
+        { head: "期間の変化率", label: "期間の変化率", align: "right" }]
     };
-    const list = cols[metric] || cols.volume;
-    dom.rankingThead.innerHTML = `<tr>${list.map((c) => `<th>${c}</th>`).join("")}</tr>`;
-    return list.length;
+    return cols[metric] || cols.volume;
+  }
+
+  const RANKING_NOTES = {
+    volume: "並び＝期間合計の多い順。「その他」＝上位以外の全件（期間中に取引の無かった案件も含む）。行を押すと個別分析を開きます",
+    price: "並び＝期間の変化率の高い順。期末値＝期間内で最後に記録された値（終了日より前で止まっている案件は日付を添えています）。行を押すと個別分析を開きます",
+    members: "並び＝期間の増減の多い順。メンバー数の増減は購入者数ではありません。期末値＝期間内で最後に記録された値。行を押すと個別分析を開きます",
+    stock: "並び＝在庫の減りが大きい順。減りは販売数ではありません（売り戻しと差し引き）。期末値＝期間内で最後に記録された値。行を押すと個別分析を開きます",
+    mcap: "並び＝期間の変化率の高い順。期末値＝期間内で最後に記録された値。行を押すと個別分析を開きます"
+  };
+
+  function renderRankingHeader(metric) {
+    const cols = rankingColumns(metric);
+    dom.rankingThead.innerHTML = `<tr>${cols.map((c) => `<th class="ov-th-${c.align}">${c.head}</th>`).join("")}</tr>`;
+    return cols;
   }
 
   function rankingRowsForMetric(metric) {
@@ -501,7 +638,7 @@
     const payload = ovData[metric];
     const rows = payload.projects.map((p, i) => {
       const row = payload.rows[i];
-      const { first, last } = firstLastValid(row, ovState.startIdx, ovState.endIdx);
+      const { first, last, lastIdx } = firstLastValid(row, ovState.startIdx, ovState.endIdx);
       let changeAbs = null, changePct = null;
       if (first !== null && last !== null) {
         changeAbs = last - first;
@@ -512,96 +649,106 @@
       if (metric === "stock") sortValue = changeAbs === null ? -Infinity : -changeAbs; // 減少(負)ほど大きい正値に
       else if (metric === "members") sortValue = changeAbs === null ? -Infinity : changeAbs;
       else sortValue = changePct === null ? -Infinity : changePct;
-      return { folder: p.folder, name: p.name, last, changeAbs, changePct, sortValue };
+      return { folder: p.folder, name: p.name, first, last, lastIdx, changeAbs, changePct, sortValue };
     });
     rows.sort((a, b) => b.sortValue - a.sortValue);
     return { ranked: rows, extra: {} };
   }
 
+  // 期末値：終了日より前で記録が止まっている案件は「（MM/DD時点）」を添える（軽1）
+  function lastValueCell(text, lastIdx) {
+    if (lastIdx >= 0 && lastIdx < ovState.endIdx) {
+      return `${text}<span class="ov-asof">（${fmtMD(ovData.market.days[lastIdx])}時点）</span>`;
+    }
+    return text;
+  }
+
+  function projectCell(r) {
+    return `<td class="text-left"><a class="table-pj-link" href="?project=${encodeURIComponent(r.folder)}">${escapeHtml(r.name)}</a></td>`;
+  }
+
   function renderPanelC() {
     const metric = ovState.metric;
     dom.rankingTitle.textContent = `指標ランキング（${METRIC_LABELS[metric]}）`;
-    const colCount = renderRankingHeader(metric);
+    const cols = renderRankingHeader(metric);
+    if (dom.rankingNote) dom.rankingNote.textContent = RANKING_NOTES[metric] || "";
 
     ensureMetricLoaded(metric).then(() => {
       const { ranked, extra } = rankingRowsForMetric(metric);
       const topN = ranked.slice(0, ovState.topN);
       const restCount = ranked.length - topN.length;
+      const othersLabel = `その他（上位${ovState.topN}以外の${restCount}件）`;
 
       let rowsHtml = "";
       if (metric === "volume") {
         topN.forEach((r, i) => {
-          const prevRank = extra.prevRankedMap[r.folder];
-          const rankChange = prevRank ? prevRank - (i + 1) : null;
+          const rank = fmtRankChange(extra.prevRankedMap[r.folder], i + 1);
           const share = extra.grandTotal > 0 ? r.total / extra.grandTotal : 0;
           const prevTotal = extra.prevTotalMap ? extra.prevTotalMap[r.folder] : null;
-          const diff = fmtPeriodDiff(r.total, prevTotal);
-          rowsHtml += `<tr class="ov-ranking-row" data-folder="${r.folder}">
+          const diff = fmtChangePct(r.total, prevTotal);
+          rowsHtml += `<tr class="ov-ranking-row" data-folder="${escapeHtml(r.folder)}">
             <td class="text-center">${i + 1}</td>
-            <td class="text-left"><a class="table-pj-link" href="?project=${r.folder}">${r.name}</a></td>
+            ${projectCell(r)}
             <td class="text-right">${fmtInt(r.total)}</td>
             <td class="text-right ${diff.cls}">${diff.text}</td>
             <td class="text-right">${fmtPercent(share)}</td>
-            <td class="text-right">${rankChange === null ? "-" : (rankChange > 0 ? `▲${rankChange}` : (rankChange < 0 ? `▼${Math.abs(rankChange)}` : "-"))}</td>
+            <td class="text-right ${rank.cls}">${rank.text}</td>
           </tr>`;
         });
-        if (!ovState.showOthers) {
-          // 表示切替: その他行を隠す
-        } else if (restCount > 0) {
+        if (ovState.showOthers && restCount > 0) {
           const restFolders = ranked.slice(ovState.topN);
           const othersSum = restFolders.reduce((s, r) => s + r.total, 0);
-          let othersDiff = { text: "-", cls: "" };
+          const othersShare = extra.grandTotal > 0 ? othersSum / extra.grandTotal : 0;
+          let othersDiff;
           if (extra.prevTotalMap) {
             const prevOthersSum = restFolders.reduce((s, r) => s + (extra.prevTotalMap[r.folder] || 0), 0);
-            othersDiff = fmtPeriodDiff(othersSum, prevOthersSum);
+            othersDiff = fmtChangePct(othersSum, prevOthersSum);
           } else {
-            othersDiff = fmtPeriodDiff(othersSum, null);
+            othersDiff = fmtChangePct(othersSum, null);
           }
-          rowsHtml += `<tr class="ov-ranking-row ov-others-row"><td class="text-center">-</td><td class="text-left">その他（${restCount}件）</td><td class="text-right">${fmtInt(othersSum)}</td><td class="text-right ${othersDiff.cls}">${othersDiff.text}</td><td class="text-right">-</td><td class="text-right">-</td></tr>`;
+          rowsHtml += `<tr class="ov-ranking-row ov-others-row"><td class="text-center">-</td><td class="text-left">${othersLabel}</td><td class="text-right">${fmtInt(othersSum)}</td><td class="text-right ${othersDiff.cls}">${othersDiff.text}</td><td class="text-right">${fmtPercent(othersShare)}</td><td class="text-right diff-flat">対象外</td></tr>`;
         }
       } else if (metric === "price" || metric === "mcap") {
         topN.forEach((r, i) => {
-          rowsHtml += `<tr class="ov-ranking-row" data-folder="${r.folder}">
+          const chg = fmtChangePct(r.last, r.first);
+          const lastText = metric === "price" ? fmtFloat(r.last, 2) : fmtInt(r.last);
+          rowsHtml += `<tr class="ov-ranking-row" data-folder="${escapeHtml(r.folder)}">
             <td class="text-center">${i + 1}</td>
-            <td class="text-left"><a class="table-pj-link" href="?project=${r.folder}">${r.name}</a></td>
-            <td class="text-right">${fmtFloat(r.last, 4)}</td>
-            <td class="text-right ${r.changePct === null ? "" : (r.changePct >= 0 ? "diff-up" : "diff-down")}">${r.changePct === null ? "-" : fmtPercent(r.changePct)}</td>
+            ${projectCell(r)}
+            <td class="text-right">${lastValueCell(lastText, r.lastIdx)}</td>
+            <td class="text-right ${chg.cls}">${chg.text}</td>
           </tr>`;
         });
         if (ovState.showOthers && restCount > 0) {
-          rowsHtml += `<tr class="ov-ranking-row ov-others-row"><td class="text-center">-</td><td class="text-left">その他（${restCount}件）</td><td class="text-right">-</td><td class="text-right">-</td></tr>`;
+          rowsHtml += `<tr class="ov-ranking-row ov-others-row"><td class="text-center">-</td><td class="text-left">${othersLabel}</td><td class="text-right diff-flat">対象外</td><td class="text-right diff-flat">対象外</td></tr>`;
         }
-      } else if (metric === "members") {
+      } else if (metric === "members" || metric === "stock") {
         topN.forEach((r, i) => {
-          rowsHtml += `<tr class="ov-ranking-row" data-folder="${r.folder}">
+          const chg = fmtChangeAbs(r.changeAbs);
+          rowsHtml += `<tr class="ov-ranking-row" data-folder="${escapeHtml(r.folder)}">
             <td class="text-center">${i + 1}</td>
-            <td class="text-left"><a class="table-pj-link" href="?project=${r.folder}">${r.name}</a></td>
-            <td class="text-right">${fmtInt(r.last)}</td>
-            <td class="text-right ${r.changeAbs === null ? "" : (r.changeAbs >= 0 ? "diff-up" : "diff-down")}">${r.changeAbs === null ? "-" : fmtInt(r.changeAbs)}</td>
+            ${projectCell(r)}
+            <td class="text-right">${lastValueCell(fmtInt(r.last), r.lastIdx)}</td>
+            <td class="text-right ${chg.cls}">${chg.text}</td>
           </tr>`;
         });
         if (ovState.showOthers && restCount > 0) {
-          rowsHtml += `<tr class="ov-ranking-row ov-others-row"><td class="text-center">-</td><td class="text-left">その他（${restCount}件）</td><td class="text-right">-</td><td class="text-right">-</td></tr>`;
-        }
-      } else if (metric === "stock") {
-        topN.forEach((r, i) => {
-          rowsHtml += `<tr class="ov-ranking-row" data-folder="${r.folder}">
-            <td class="text-center">${i + 1}</td>
-            <td class="text-left"><a class="table-pj-link" href="?project=${r.folder}">${r.name}</a></td>
-            <td class="text-right">${fmtInt(r.last)}</td>
-            <td class="text-right ${r.changeAbs === null ? "" : (r.changeAbs <= 0 ? "diff-down" : "diff-up")}">${r.changeAbs === null ? "-" : fmtInt(r.changeAbs)}</td>
-          </tr>`;
-        });
-        if (ovState.showOthers && restCount > 0) {
-          rowsHtml += `<tr class="ov-ranking-row ov-others-row"><td class="text-center">-</td><td class="text-left">その他（${restCount}件）</td><td class="text-right">-</td><td class="text-right">-</td></tr>`;
+          rowsHtml += `<tr class="ov-ranking-row ov-others-row"><td class="text-center">-</td><td class="text-left">${othersLabel}</td><td class="text-right diff-flat">対象外</td><td class="text-right diff-flat">対象外</td></tr>`;
         }
       }
 
-      dom.rankingTbody.innerHTML = rowsHtml || `<tr><td colspan="${colCount}" class="text-center">データがありません</td></tr>`;
+      dom.rankingTbody.innerHTML = rowsHtml || `<tr><td colspan="${cols.length}" class="text-center">データがありません</td></tr>`;
+
+      // スマホのカード表示で列名を出すため、全セルに data-label を付ける（重2）
+      dom.rankingTbody.querySelectorAll("tr").forEach((tr) => {
+        tr.querySelectorAll("td").forEach((td, i) => {
+          if (cols[i]) td.setAttribute("data-label", cols[i].label);
+        });
+      });
 
       dom.rankingTbody.querySelectorAll(".ov-ranking-row[data-folder]").forEach((tr) => {
         tr.addEventListener("click", () => {
-          window.location.href = `?project=${tr.getAttribute("data-folder")}`;
+          window.location.href = `?project=${encodeURIComponent(tr.getAttribute("data-folder"))}`;
         });
       });
     });
@@ -614,6 +761,7 @@
     ensureMetricLoaded("price").then((payload) => {
       const days = ovData.market.days;
       const labels = days.slice(ovState.startIdx, ovState.endIdx + 1);
+      const shortLabels = labels.map(fmtMD);
       const topN = topFolders.slice(0, ovState.topN);
 
       const datasets = topN.map((tf, i) => {
@@ -651,15 +799,16 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { position: "bottom", labels: { color: "#9ca3af", boxWidth: 10, font: { size: 10 } } },
+            legend: NO_CANVAS_LEGEND,
             tooltip: { mode: "index", intersect: false }
           },
           scales: {
-            x: { ticks: { color: "#9ca3af", maxTicksLimit: 12 }, grid: { color: "rgba(255,255,255,0.03)" } },
+            x: { ticks: xTicksOptions(shortLabels), grid: { color: "rgba(255,255,255,0.03)" } },
             y: { ticks: { color: "#9ca3af" }, grid: { color: "rgba(255,255,255,0.05)" } }
           }
         }
       });
+      renderHtmlLegend("price");
     });
   }
 
@@ -710,6 +859,7 @@
       });
 
       const labels = buckets.map((b) => b.label);
+      const shortLabels = buckets.map((b) => b.short);
       const datasets = series.map((s, i) => ({
         label: s.name,
         data: s.data,
@@ -733,16 +883,78 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { position: "bottom", labels: { color: "#9ca3af", boxWidth: 10, font: { size: 10 } } },
+            legend: NO_CANVAS_LEGEND,
             tooltip: { mode: "index", intersect: false }
           },
           scales: {
-            x: { stacked: true, ticks: { color: "#9ca3af", maxTicksLimit: 12 }, grid: { color: "rgba(255,255,255,0.03)" } },
+            x: { stacked: true, ticks: xTicksOptions(shortLabels), grid: { color: "rgba(255,255,255,0.03)" } },
             y: { stacked: true, ticks: { color: "#9ca3af" }, grid: { color: "rgba(255,255,255,0.05)" } }
           }
         }
       });
+      renderHtmlLegend("members");
     });
+  }
+
+  /* ------------------------------------------------------------
+   * 状態をURLに残す（個別分析から戻っても期間・上位・指標が保たれる・軽9）
+   * ------------------------------------------------------------ */
+  const URL_KEYS = { period: "ov_p", granularity: "ov_g", topN: "ov_n", metric: "ov_m", start: "ov_s", end: "ov_e", others: "ov_o" };
+
+  function syncUrl() {
+    if (!window.history || !window.history.replaceState) return;
+    const params = new URLSearchParams(window.location.search);
+    Object.values(URL_KEYS).forEach((k) => params.delete(k));
+    if (ovState.period !== OVERVIEW_CONFIG.defaultPeriod) params.set(URL_KEYS.period, String(ovState.period));
+    if (ovState.period === "custom") {
+      params.set(URL_KEYS.start, ovData.market.days[ovState.startIdx]);
+      params.set(URL_KEYS.end, ovData.market.days[ovState.endIdx]);
+    }
+    if (ovState.granularityManual) params.set(URL_KEYS.granularity, ovState.granularity);
+    if (ovState.topN !== OVERVIEW_CONFIG.defaultTopN) params.set(URL_KEYS.topN, String(ovState.topN));
+    if (ovState.metric !== "volume") params.set(URL_KEYS.metric, ovState.metric);
+    if (!ovState.showOthers) params.set(URL_KEYS.others, "0");
+    const qs = params.toString();
+    const url = `${window.location.pathname}${qs ? "?" + qs : ""}${window.location.hash}`;
+    window.history.replaceState(null, "", url);
+  }
+
+  function setActive(group, attr, value) {
+    group.querySelectorAll("button").forEach((b) => b.classList.toggle("active", b.getAttribute(attr) === String(value)));
+  }
+
+  function restoreStateFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const p = params.get(URL_KEYS.period);
+    if (p === "all" || ["7", "30", "90", "365"].includes(p)) {
+      ovState.period = p === "all" ? "all" : Number(p);
+      setActive(dom.periodGroup, "data-period", p);
+    } else if (p === "custom" && params.get(URL_KEYS.start) && params.get(URL_KEYS.end)) {
+      ovState.period = "custom";
+      dom.startInput.value = params.get(URL_KEYS.start);
+      dom.endInput.value = params.get(URL_KEYS.end);
+      dom.periodGroup.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
+    }
+    const g = params.get(URL_KEYS.granularity);
+    if (["day", "week", "month"].includes(g)) {
+      ovState.granularity = g;
+      ovState.granularityManual = true;
+      setActive(dom.granularityGroup, "data-granularity", g);
+    }
+    const n = params.get(URL_KEYS.topN);
+    if (["10", "20", "30"].includes(n)) {
+      ovState.topN = Number(n);
+      setActive(dom.topnGroup, "data-topn", n);
+    }
+    const m = params.get(URL_KEYS.metric);
+    if (METRIC_LABELS[m]) {
+      ovState.metric = m;
+      setActive(dom.metricGroup, "data-metric", m);
+    }
+    if (params.get(URL_KEYS.others) === "0") {
+      ovState.showOthers = false;
+      dom.showOthers.checked = false;
+    }
   }
 
   /* ------------------------------------------------------------
@@ -751,6 +963,7 @@
   function recomputeAll() {
     computeRange();
     autoAdjustGranularity();
+    renderHeadings();
     const topFolders = computeTopNVolumeFolders();
     renderKPIs(topFolders);
     renderPanelAB(topFolders);
@@ -759,6 +972,7 @@
     // （初回読み込みを market.json + v24.json だけに絞るため。一度出たら以降は追随する）
     if (ovState.panelDReady) renderPanelD(topFolders);
     if (ovState.panelEReady) renderPanelE(topFolders);
+    syncUrl();
   }
 
   // パネルD/Eが画面に入って初めて、それぞれの指標データを読んで描画する。
@@ -786,46 +1000,85 @@
     observer.observe(eCard);
   }
 
+  // 凡例の初期状態：PCは開く・スマホはたたむ（描画域を優先）。以降は利用者の開閉を保つ。
+  function setupLegends() {
+    const open = !isMobile();
+    Object.values(dom.legends).forEach((box) => { if (box) box.open = open; });
+  }
+
   /* ------------------------------------------------------------
    * イベント登録
    * ------------------------------------------------------------ */
+  let dateTimer = null;
+  const editingInputs = new Set(); // フォーカス中の日付欄（focus で入れ blur で外す）
+
+  // "YYYY-MM-DD" で 2000年以降なら、打ち終わった値とみなす
+  function isPlausibleDate(v) {
+    return /^\d{4}-\d{2}-\d{2}$/.test(v || "") && Number(v.slice(0, 4)) >= 2000;
+  }
+
+  // 日付欄の確定（重4）：フォーカスが外れた・Enter・または入力が止まって一定時間で再計算する。
+  function commitDateInputs() {
+    if (dateTimer) { clearTimeout(dateTimer); dateTimer = null; }
+    if (!ovState.dateDirty) return;
+    ovState.dateDirty = false;
+    dom.periodGroup.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
+    ovState.period = "custom";
+    ovState.granularityManual = false;
+    recomputeAll();
+  }
+
   function attachEvents() {
     dom.periodGroup.querySelectorAll("button[data-period]").forEach((btn) => {
       btn.addEventListener("click", () => {
-        dom.periodGroup.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
+        setActive(dom.periodGroup, "data-period", btn.getAttribute("data-period"));
         const val = btn.getAttribute("data-period");
         ovState.period = val === "all" ? "all" : Number(val);
         ovState.granularityManual = false;
+        ovState.dateDirty = false;
         recomputeAll();
       });
     });
 
     [dom.startInput, dom.endInput].forEach((input) => {
+      input.addEventListener("focus", () => editingInputs.add(input));
       input.addEventListener("change", () => {
-        dom.periodGroup.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
-        ovState.period = "custom";
-        ovState.granularityManual = false;
-        recomputeAll();
+        ovState.dateDirty = true;
+        if (editingInputs.has(input)) {
+          // 年の桁が揃っていない途中の値（例 0002-06-15）では再計算しない
+          if (!isPlausibleDate(dom.startInput.value) || !isPlausibleDate(dom.endInput.value)) return;
+          // 打っている途中＝止まってから再計算（値の書き戻しは computeRange 側でフォーカス中は行わない）
+          if (dateTimer) clearTimeout(dateTimer);
+          dateTimer = setTimeout(commitDateInputs, OVERVIEW_CONFIG.dateInputDebounceMs);
+        } else {
+          commitDateInputs();
+        }
+      });
+      input.addEventListener("blur", () => {
+        editingInputs.delete(input);
+        if (ovState.dateDirty) commitDateInputs();
+        else if (ovData.market) computeRange(); // 途中で捨てた入力を、確定済みの値へ戻す
+      });
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") { e.preventDefault(); commitDateInputs(); input.blur(); }
       });
     });
 
     dom.granularityGroup.querySelectorAll("button[data-granularity]").forEach((btn) => {
       btn.addEventListener("click", () => {
-        dom.granularityGroup.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
+        setActive(dom.granularityGroup, "data-granularity", btn.getAttribute("data-granularity"));
         ovState.granularity = btn.getAttribute("data-granularity");
         ovState.granularityManual = true;
         const topFolders = computeTopNVolumeFolders();
         renderPanelAB(topFolders);
         if (ovState.panelEReady) renderPanelE(topFolders);
+        syncUrl();
       });
     });
 
     dom.topnGroup.querySelectorAll("button[data-topn]").forEach((btn) => {
       btn.addEventListener("click", () => {
-        dom.topnGroup.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
+        setActive(dom.topnGroup, "data-topn", btn.getAttribute("data-topn"));
         ovState.topN = Number(btn.getAttribute("data-topn"));
         recomputeAll();
       });
@@ -833,10 +1086,10 @@
 
     dom.metricGroup.querySelectorAll("button[data-metric]").forEach((btn) => {
       btn.addEventListener("click", () => {
-        dom.metricGroup.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
+        setActive(dom.metricGroup, "data-metric", btn.getAttribute("data-metric"));
         ovState.metric = btn.getAttribute("data-metric");
         renderPanelC();
+        syncUrl();
       });
     });
 
@@ -846,27 +1099,45 @@
       renderPanelAB(topFolders);
       if (ovState.panelEReady) renderPanelE(topFolders);
       renderPanelC();
+      syncUrl();
     });
+
+    if (dom.errorReload) {
+      dom.errorReload.addEventListener("click", () => window.location.reload());
+    }
   }
 
   /* ------------------------------------------------------------
    * 初回表示
    * ------------------------------------------------------------ */
+  function showLoadError(err) {
+    console.error("Overview load error:", err);
+    if (dom.error) {
+      dom.error.classList.remove("hidden-element");
+      if (dom.errorText) dom.errorText.textContent = "総覧データの読み込みに失敗しました。通信状態を確かめて、もう一度読み込んでください。";
+    }
+    dom.rankingTbody.innerHTML = `<tr><td colspan="6" class="text-center">総覧データの読み込みに失敗しました。</td></tr>`;
+  }
+
   function init() {
     bindDom();
     attachEvents();
+    setupLegends();
     setupLazyPanels();
+    restoreStateFromUrl();
 
     Promise.all([
       ensureMetricLoaded("market"),
       ensureMetricLoaded("volume")
     ]).then(() => {
+      const days = ovData.market.days;
+      [dom.startInput, dom.endInput].forEach((input) => {
+        input.min = days[0];
+        input.max = days[days.length - 1];
+      });
       ovState.initialized = true;
       recomputeAll();
-    }).catch((err) => {
-      console.error("Overview load error:", err);
-      dom.rankingTbody.innerHTML = `<tr><td colspan="6" class="text-center">総覧データの読み込みに失敗しました。</td></tr>`;
-    });
+    }).catch(showLoadError);
   }
 
   function onShow() {
@@ -880,6 +1151,6 @@
     onShow,
     OVERVIEW_CONFIG,
     // 検査用（tests/check_overview.js から参照）。本番の見た目には影響しない。
-    _debug: { state: ovState, charts: ovCharts, data: ovData }
+    _debug: { state: ovState, charts: ovCharts, data: ovData, ovColor, isMobile }
   };
 })();

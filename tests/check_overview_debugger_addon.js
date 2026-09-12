@@ -54,6 +54,7 @@ async function run() {
   // ---- 2) 未来日の開始日で範囲が暴走しないか ----
   await page.fill("#ov-start-date", "2099-01-01");
   await page.dispatchEvent("#ov-start-date", "change");
+  await page.dispatchEvent("#ov-start-date", "blur"); // 日付欄は確定（blur/Enter）で反映（重4対応・2026-09-12 夜）
   await page.waitForTimeout(300);
   const future = await page.evaluate(() => {
     const s = window.FinancieOverview._debug.state;

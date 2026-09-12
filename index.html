@@ -119,11 +119,11 @@
           <!-- Charts -->
           <div class="charts-grid">
             <div class="chart-card">
-              <div class="chart-card-header"><h3 class="chart-card-title">現在価格の推移 (pt)</h3></div>
+              <div class="chart-card-header"><h3 class="chart-card-title">現在価格の推移 (円)</h3></div>
               <div class="chart-wrapper"><canvas id="priceChart"></canvas></div>
             </div>
             <div class="chart-card">
-              <div class="chart-card-header"><h3 class="chart-card-title">24H 取引量の推移 (pt)</h3></div>
+              <div class="chart-card-header"><h3 class="chart-card-title">24H 取引量の推移 (円)</h3></div>
               <div class="chart-wrapper"><canvas id="volumeChart"></canvas></div>
             </div>
             <div class="chart-card full-width">
@@ -156,11 +156,11 @@
           <!-- Comparison Charts Grid -->
           <div class="charts-grid" id="compare-charts-area" style="display: none;">
             <div class="chart-card">
-              <div class="chart-card-header"><h3 class="chart-card-title">現在価格の比較 (pt)</h3></div>
+              <div class="chart-card-header"><h3 class="chart-card-title">現在価格の比較 (円)</h3></div>
               <div class="chart-wrapper"><canvas id="comparePriceChart"></canvas></div>
             </div>
             <div class="chart-card">
-              <div class="chart-card-header"><h3 class="chart-card-title">24H 取引量の比較 (pt)</h3></div>
+              <div class="chart-card-header"><h3 class="chart-card-title">24H 取引量の比較 (円)</h3></div>
               <div class="chart-wrapper"><canvas id="compareVolumeChart"></canvas></div>
             </div>
             <div class="chart-card">
@@ -168,7 +168,7 @@
               <div class="chart-wrapper"><canvas id="compareMembersChart"></canvas></div>
             </div>
             <div class="chart-card">
-              <div class="chart-card-header"><h3 class="chart-card-title">トークン在庫の比較 (pt)</h3></div>
+              <div class="chart-card-header"><h3 class="chart-card-title">トークン在庫の比較 (個)</h3></div>
               <div class="chart-wrapper"><canvas id="compareStockChart"></canvas></div>
             </div>
           </div>
@@ -178,45 +178,44 @@
         <div id="overview-view" class="flex-column">
           <div class="section-title-area">
             <h2>総覧</h2>
-            <p style="color: var(--text-secondary); font-size: 13px;">全プロジェクトを横断した出来高・価格・メンバー数・在庫・時価総額の推移。上位N＋その他で内訳を見られます。</p>
+            <p id="ov-desc" style="color: var(--text-secondary); font-size: 13px;">全プロジェクトを横断した出来高・価格・メンバー数・在庫・時価総額の推移。上位10＋その他で内訳を見られます。</p>
+            <p class="ov-meta" id="ov-meta">非公式・毎日1回の記録</p>
           </div>
 
-          <!-- Control bar -->
+          <!-- 読み込み失敗の案内（通常は非表示） -->
+          <div id="ov-error" class="ov-error hidden-element" role="alert">
+            <span id="ov-error-text">総覧データの読み込みに失敗しました。</span>
+            <button type="button" class="action-btn" id="ov-error-reload">もう一度読み込む</button>
+          </div>
+
+          <!-- Control bar（指標の切り替えはランキング表の見出しの横にある） -->
           <div class="travel-controls-bar overview-controls-bar" id="overview-controls">
             <div class="ov-control-group" id="ov-period-group">
-              <span class="ov-control-label">期間: </span>
+              <span class="ov-control-label">期間</span>
               <button class="sort-tab-btn" data-period="7">7日</button>
               <button class="sort-tab-btn" data-period="30">30日</button>
               <button class="sort-tab-btn active" data-period="90">90日</button>
               <button class="sort-tab-btn" data-period="365">1年</button>
               <button class="sort-tab-btn" data-period="all">全期間</button>
             </div>
-            <div class="ov-control-group">
-              <span class="ov-control-label">開始〜終了: </span>
-              <input type="date" id="ov-start-date" class="travel-date-picker-input ov-date-input">
+            <div class="ov-control-group" id="ov-range-group">
+              <span class="ov-control-label">開始〜終了（打ち終わると反映）</span>
+              <input type="date" id="ov-start-date" class="travel-date-picker-input ov-date-input" aria-label="開始日">
               <span class="ov-control-sep">〜</span>
-              <input type="date" id="ov-end-date" class="travel-date-picker-input ov-date-input">
+              <input type="date" id="ov-end-date" class="travel-date-picker-input ov-date-input" aria-label="終了日">
               <span id="ov-range-note" class="ov-range-note hidden-element"></span>
             </div>
             <div class="ov-control-group" id="ov-granularity-group">
-              <span class="ov-control-label">粒度: </span>
+              <span class="ov-control-label">粒度</span>
               <button class="sort-tab-btn active" data-granularity="day">日</button>
               <button class="sort-tab-btn" data-granularity="week">週</button>
               <button class="sort-tab-btn" data-granularity="month">月</button>
             </div>
             <div class="ov-control-group" id="ov-topn-group">
-              <span class="ov-control-label">上位: </span>
+              <span class="ov-control-label">上位</span>
               <button class="sort-tab-btn active" data-topn="10">10</button>
               <button class="sort-tab-btn" data-topn="20">20</button>
               <button class="sort-tab-btn" data-topn="30">30</button>
-            </div>
-            <div class="ov-control-group" id="ov-metric-group">
-              <span class="ov-control-label">指標: </span>
-              <button class="sort-tab-btn active" data-metric="volume">出来高</button>
-              <button class="sort-tab-btn" data-metric="price">価格</button>
-              <button class="sort-tab-btn" data-metric="members">メンバー数</button>
-              <button class="sort-tab-btn" data-metric="stock">在庫</button>
-              <button class="sort-tab-btn" data-metric="mcap">時価総額</button>
             </div>
             <div class="ov-control-group">
               <label class="ov-toggle-label">
@@ -229,7 +228,7 @@
           <!-- KPI cards -->
           <div class="metrics-grid" id="ov-kpi-grid">
             <div class="metric-card">
-              <span class="metric-label">期間の全体出来高</span>
+              <span class="metric-label" id="ov-kpi-total-label">期間の全体出来高（円）</span>
               <div class="metric-value" id="ov-kpi-total">-</div>
               <span class="metric-sub" id="ov-kpi-total-sub">-</span>
             </div>
@@ -244,7 +243,7 @@
               <span class="metric-sub" id="ov-kpi-active-sub">-</span>
             </div>
             <div class="metric-card">
-              <span class="metric-label">上位Nのシェア</span>
+              <span class="metric-label" id="ov-kpi-share-label">上位10のシェア</span>
               <div class="metric-value" id="ov-kpi-share">-</div>
               <span class="metric-sub" id="ov-kpi-share-sub">-</span>
             </div>
@@ -252,21 +251,32 @@
 
           <!-- Panel A/B: stacked volume + share -->
           <div class="charts-grid ov-charts-grid">
-            <div class="chart-card">
+            <div class="chart-card ov-chart-card">
               <div class="chart-card-header"><h3 class="chart-card-title">全体出来高（上位＋その他の積み上げ）</h3></div>
               <div class="chart-wrapper"><canvas id="ovVolumeChart"></canvas></div>
+              <details class="ov-legend" id="ov-legend-volume"><summary>凡例</summary><div class="ov-legend-items"></div></details>
             </div>
-            <div class="chart-card">
+            <div class="chart-card ov-chart-card">
               <div class="chart-card-header"><h3 class="chart-card-title">出来高シェア（100%積み上げ）</h3></div>
               <div class="chart-wrapper"><canvas id="ovShareChart"></canvas></div>
+              <details class="ov-legend" id="ov-legend-share"><summary>凡例</summary><div class="ov-legend-items"></div></details>
             </div>
           </div>
 
-          <!-- Panel C: ranking table -->
+          <!-- Panel C: ranking table（指標の切り替えは表の見出しの横） -->
           <div class="historical-table-card ov-ranking-card">
-            <div class="section-title-area" style="padding: 1rem 1rem 0;">
+            <div class="ov-ranking-head">
               <h3 class="chart-card-title" id="ov-ranking-title">指標ランキング（出来高）</h3>
+              <div class="ov-control-group" id="ov-metric-group">
+                <span class="ov-control-label">指標</span>
+                <button class="sort-tab-btn active" data-metric="volume">出来高</button>
+                <button class="sort-tab-btn" data-metric="price">価格</button>
+                <button class="sort-tab-btn" data-metric="members">メンバー数</button>
+                <button class="sort-tab-btn" data-metric="stock">在庫</button>
+                <button class="sort-tab-btn" data-metric="mcap">時価総額</button>
+              </div>
             </div>
+            <p class="ov-note" id="ov-ranking-note"></p>
             <div class="table-scroll-container">
               <table class="historic-ranking-table" id="ov-ranking-table">
                 <thead id="ov-ranking-thead"></thead>
@@ -279,18 +289,20 @@
 
           <!-- Panel D/E -->
           <div class="charts-grid ov-charts-grid">
-            <div class="chart-card">
-              <div class="chart-card-header"><h3 class="chart-card-title">価格の推移（上位N・期間初日=100の指数）</h3></div>
+            <div class="chart-card ov-chart-card">
+              <div class="chart-card-header"><h3 class="chart-card-title" id="ov-panelD-title">価格の推移（上位10・期間初日=100の指数）</h3></div>
               <div class="chart-wrapper"><canvas id="ovPriceChart"></canvas></div>
+              <details class="ov-legend" id="ov-legend-price"><summary>凡例</summary><div class="ov-legend-items"></div></details>
             </div>
-            <div class="chart-card">
-              <div class="chart-card-header"><h3 class="chart-card-title">メンバー数の増減（日ごとの純増・注記: 購入者数ではない）</h3></div>
+            <div class="chart-card ov-chart-card">
+              <div class="chart-card-header"><h3 class="chart-card-title">メンバー数の増減（日ごとの純増・購入者数ではない）</h3></div>
               <div class="chart-wrapper"><canvas id="ovMembersChart"></canvas></div>
+              <details class="ov-legend" id="ov-legend-members"><summary>凡例</summary><div class="ov-legend-items"></div></details>
             </div>
           </div>
 
           <footer class="ov-footer">
-            非公式サイト・FiNANCiE公開ページの表示値を毎日1回記録・正確性は保証しません・24h出来高が取れなかった日（24h＝30日の一致）は欠測扱い・期間合計は毎晩1回の記録の合計で厳密な期間出来高ではありません・v3.0.0
+            非公式サイト・FiNANCiE公開ページの表示値を毎日1回記録・正確性は保証しません・出来高の単位は円・24h出来高が取れなかった日（24h＝30日の一致）は欠測扱い・期間合計は毎晩1回の記録の合計で厳密な期間出来高ではありません・v3.0.0
           </footer>
         </div>
 
@@ -383,7 +395,7 @@
                   <tr>
                     <th style="width: 10%; text-align: center;">順位</th>
                     <th style="width: 50%; text-align: left;">プロジェクト</th>
-                    <th style="width: 40%; text-align: right;">期間総取引量 (pt)</th>
+                    <th style="width: 40%; text-align: right;">期間総取引量 (円)</th>
                   </tr>
                 </thead>
                 <tbody id="monthly-ranking-tbody">
@@ -402,7 +414,7 @@
 
     </div>
 
-    <footer class="app-footer">FiNANCiE TIMES v3.0.0 ・ 毎晩自動更新 ・ <a href="https://financie.jp">FiNANCiE公式</a></footer>
+    <footer class="app-footer">FiNANCiE TIMES v3.0.0（非公式） ・ 毎晩自動更新 ・ <a href="https://financie.jp">FiNANCiE公式</a></footer>
   </div>
 
   <script src="js/advanced.js?v=3.0.0"></script>

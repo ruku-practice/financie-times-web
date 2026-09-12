@@ -97,6 +97,8 @@ async function run() {
     await page.dispatchEvent("#ov-start-date", "change");
     await page.fill("#ov-end-date", "2026-07-31");
     await page.dispatchEvent("#ov-end-date", "change");
+    // 日付欄は「確定（フォーカスが外れる・Enter）」で反映する（重4対応）＝blur を送る
+    await page.dispatchEvent("#ov-end-date", "blur");
     await page.waitForTimeout(300);
     const kpiRange = num(await page.textContent("#ov-kpi-total"));
     const rr = ref.range_20260701_20260731;
@@ -122,10 +124,11 @@ async function run() {
       const cellText = zenkikanhi90[i];
       if (r.pct === null) {
         // 前期間ゼロ: 現在値>0なら「新規」、現在値も0なら「—」を期待
-        const expected = r.current > 0 ? "新規" : "—";
+        const expected = r.current > 0 ? "新規" : "比較なし";
         if (cellText !== expected) diffMismatches.push(`${r.folder}: got=${cellText} expect=${expected}`);
         return;
       }
+      if (r.pct >= 1000 && cellText === "▲10倍超") return; // +1000%以上は「▲10倍超」に丸める仕様
       const m = /^([▲▼])([\d,.]+)%$/.exec(cellText);
       if (!m) { diffMismatches.push(`${r.folder}: got=${cellText}（形式不一致） expect_pct=${r.pct.toFixed(1)}`); return; }
       const sign = m[1] === "▲" ? 1 : -1;
@@ -202,6 +205,7 @@ async function run() {
     //    偽に戻ってしまう（実機のユーザー操作では起きない・fillのみで1回にする）。
     await page.fill("#ov-start-date", "2026-08-01");
     await page.fill("#ov-end-date", "2026-01-01");
+    await page.dispatchEvent("#ov-end-date", "blur");
     await page.waitForTimeout(300);
     const swapped = await page.evaluate(() => {
       const s = window.FinancieOverview._debug.state;
@@ -222,6 +226,106 @@ async function run() {
       `swapped=${JSON.stringify(swapped)} noteVisible=${noteVisible}`
     );
     // 90日に戻す（後続テストへの影響を消す）
+    await page.click('#ov-period-group button[data-period="90"]');
+    await page.waitForTimeout(300);
+
+    // ---------- エマの突き返し対応（2026-09-12 夜）の受け入れ検査 ----------
+    // A25: 単位＝円（ルク決定7）：表の見出し・KPIの見出しに「円」、総覧に pt の表記が無い
+    const unitScan = await page.evaluate(() => {
+      const el = document.getElementById("overview-view");
+      return {
+        head: document.getElementById("ov-ranking-thead").textContent,
+        kpi: document.getElementById("ov-kpi-total-label").textContent,
+        hasPt: /\bpt\b/.test(el.innerText)
+      };
+    });
+    record("A25-unit-yen", unitScan.head.includes("円") && unitScan.kpi.includes("円") && !unitScan.hasPt, JSON.stringify(unitScan));
+
+    // A26: 「その他」行にシェアが出て、上位10のシェア＋その他≈100%（中5）・件数の書き方は「上位10以外のN件」（ルク決定8＝全件）
+    const shares = await page.evaluate(() => {
+      const rows = [...document.querySelectorAll("#ov-ranking-tbody tr")];
+      const others = rows.find((r) => r.classList.contains("ov-others-row"));
+      const top = rows.filter((r) => r.hasAttribute("data-folder")).map((r) => parseFloat(r.children[4].textContent));
+      const total = window.FinancieOverview._debug.data.volume.projects.length;
+      return {
+        others: others ? others.children[4].textContent.trim() : null,
+        othersLabel: others ? others.children[1].textContent.trim() : null,
+        topSum: top.reduce((a, b) => a + b, 0),
+        expectCount: total - 10
+      };
+    });
+    const othersPct = parseFloat(shares.others);
+    record(
+      "A26-others-share-and-count",
+      !isNaN(othersPct) && Math.abs(shares.topSum + othersPct - 100) <= 0.6 && shares.othersLabel === `その他（上位10以外の${shares.expectCount}件）`,
+      JSON.stringify(shares)
+    );
+
+    // A27: 「上位N」の N が実際の数（中1）
+    await page.click('#ov-topn-group button[data-topn="20"]');
+    await page.waitForTimeout(300);
+    const nLabels = await page.evaluate(() => ({
+      kpi: document.getElementById("ov-kpi-share-label").textContent,
+      d: document.getElementById("ov-panelD-title").textContent,
+      desc: document.getElementById("ov-desc").textContent,
+      anyN: /上位N/.test(document.getElementById("overview-view").innerText)
+    }));
+    record("A27-topN-label", nLabels.kpi.includes("上位20") && nLabels.d.includes("上位20") && nLabels.desc.includes("上位20") && !nLabels.anyN, JSON.stringify(nLabels));
+
+    // A24: 上位30で系列の色が重複しない（中6）
+    await page.click('#ov-topn-group button[data-topn="30"]');
+    await page.waitForTimeout(300);
+    const colors = await page.evaluate(() => window.FinancieOverview._debug.charts.volume.data.datasets.map((d) => d.backgroundColor));
+    record("A24-colors-unique-top30", new Set(colors).size === colors.length && colors.length === 31, `n=${colors.length} unique=${new Set(colors).size}`);
+    await page.click('#ov-topn-group button[data-topn="10"]');
+    await page.waitForTimeout(300);
+
+    // A28: 見出しにデータの日付・件数・非公式（中2・中7）、共通フッターにも「非公式」
+    const meta = await page.textContent("#ov-meta");
+    const latestDate = await page.evaluate(() => window.FinancieOverview._debug.data.market.days.slice(-1)[0].replace(/-/g, "/"));
+    record("A28-meta", meta.includes("非公式") && meta.includes(latestDate) && /\d+プロジェクト/.test(meta), meta.trim());
+    const appFooter = await page.textContent(".app-footer");
+    record("A28-app-footer-unofficial", appFooter.includes("非公式"), appFooter.trim());
+
+    // A23: 指標の切り替えはランキング表の見出しの横（重5）＝同じカードの中・表との距離200px未満
+    const metricPlace = await page.evaluate(() => {
+      const g = document.getElementById("ov-metric-group");
+      const card = g.closest(".ov-ranking-card");
+      const t = document.getElementById("ov-ranking-table").getBoundingClientRect();
+      const r = g.getBoundingClientRect();
+      return { inCard: !!card, distance: Math.round(t.top - r.bottom) };
+    });
+    record("A23-metric-in-ranking-card", metricPlace.inCard && metricPlace.distance >= 0 && metricPlace.distance < 200, JSON.stringify(metricPlace));
+
+    // A29: 変化の書式が全指標で1つ（中4）＝4列目は ▲x／▼x／±0／新規／比較なし／▲10倍超 のどれか・期末値は価格2桁／他は整数（＋「（MM/DD時点）」）
+    for (const m of ["price", "mcap", "members", "stock"]) {
+      await page.click(`#ov-metric-group button[data-metric="${m}"]`);
+      await page.waitForTimeout(400);
+      const cells = await page.$$eval("#ov-ranking-tbody tr[data-folder] td:nth-child(4)", (tds) => tds.map((t) => t.textContent.trim()));
+      const bad = cells.filter((t) => !/^(▲|▼)[\d,.]+%?$|^±0%?$|^新規$|^比較なし$|^▲10倍超$/.test(t));
+      const last = await page.$$eval("#ov-ranking-tbody tr[data-folder] td:nth-child(3)", (tds) => tds.map((t) => t.textContent.trim()));
+      const badLast = m === "price"
+        ? last.filter((t) => !/^[\d,]+\.\d{2}(（\d\d\/\d\d時点）)?$/.test(t))
+        : last.filter((t) => !/^-?[\d,]+(（\d\d\/\d\d時点）)?$/.test(t));
+      record(`A29-change-format-${m}`, cells.length > 0 && bad.length === 0 && badLast.length === 0, `bad=${JSON.stringify(bad)} badLast=${JSON.stringify(badLast.slice(0, 3))}`);
+    }
+    await page.click('#ov-metric-group button[data-metric="volume"]');
+    await page.waitForTimeout(300);
+    const rankCells = await page.$$eval("#ov-ranking-tbody tr[data-folder] td:nth-child(6)", (tds) => tds.map((t) => t.textContent.trim()));
+    const badRank = rankCells.filter((t) => !/^→$|^(▲|▼)\d+$|^比較なし$/.test(t));
+    record("A29-rank-change-format", rankCells.length > 0 && badRank.length === 0, `bad=${JSON.stringify(badRank)}`);
+
+    // A31: 期間・上位・指標がURLに残り、再読み込みで戻る（軽9）
+    await page.click('#ov-period-group button[data-period="30"]');
+    await page.waitForTimeout(300);
+    const urlAfter30 = page.url();
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await waitOverviewReady(page);
+    const restored = await page.evaluate(() => ({
+      period: window.FinancieOverview._debug.state.period,
+      active: document.querySelector("#ov-period-group button.active").getAttribute("data-period")
+    }));
+    record("A31-url-state", urlAfter30.includes("ov_p=30") && restored.period === 30 && restored.active === "30", `url=${urlAfter30} restored=${JSON.stringify(restored)}`);
     await page.click('#ov-period-group button[data-period="90"]');
     await page.waitForTimeout(300);
 
@@ -294,7 +398,89 @@ async function run() {
       JSON.stringify(panelDE)
     );
 
+    // A19: 4グラフの描画域（Chart.js の chartArea）の高さ ≥160px（重1）
+    const areas = await page.evaluate(() => {
+      const c = window.FinancieOverview._debug.charts;
+      const o = {};
+      for (const k of ["volume", "share", "price", "members"]) {
+        const ch = c[k];
+        o[k] = ch && ch.chartArea ? Math.round(ch.chartArea.bottom - ch.chartArea.top) : 0;
+      }
+      return o;
+    });
+    record(`A19-chartArea-${w}`, Object.values(areas).every((h) => h >= 160), JSON.stringify(areas));
+
+    // A20: ランキング表の全セルに data-label（重2）＝スマホのカード表示で列名が出る
+    const dl = await page.$$eval("#ov-ranking-tbody td", (tds) => ({ total: tds.length, missing: tds.filter((td) => !td.getAttribute("data-label")).length }));
+    record(`A20-datalabel-${w}`, dl.total > 0 && dl.missing === 0, JSON.stringify(dl));
+
+    if (w <= 768) {
+      // A21: 操作帯は横スクロールなしで全グループが画面内・押す部分（釦・日付欄・チェックのラベル）は高さ44px以上（重3）
+      const tap = await page.evaluate(() => {
+        const bar = document.getElementById("overview-controls");
+        const els = [...bar.querySelectorAll("button, input[type=date], label")].concat([...document.querySelectorAll("#ov-metric-group button")]);
+        const small = els.filter((el) => el.getBoundingClientRect().height < 44)
+          .map((el) => `${el.tagName}:${(el.textContent || el.id).trim().slice(0, 8)}=${Math.round(el.getBoundingClientRect().height)}`);
+        const groups = [...bar.querySelectorAll(".ov-control-group")].map((g) => { const r = g.getBoundingClientRect(); return r.left >= 0 && r.right <= window.innerWidth; });
+        return { n: els.length, small, allGroupsVisible: groups.every(Boolean), noBarScroll: bar.scrollWidth <= bar.clientWidth };
+      });
+      record(`A21-tap-${w}`, tap.n > 0 && tap.small.length === 0 && tap.allGroupsVisible && tap.noBarScroll, JSON.stringify(tap));
+
+      // A19b: スマホでは凡例はたたまれている（描画域を優先）
+      const legendsClosed = await page.$$eval("details.ov-legend", (ds) => ds.every((d) => !d.open));
+      record(`A19b-legend-closed-${w}`, legendsClosed, `closed=${legendsClosed}`);
+    }
+
     await page.screenshot({ path: path.join(OUT_DIR, `overview_${w}.png`), fullPage: true });
+    await context.close();
+  }
+
+  // ---------- A22: 日付欄にキーボードで打っても値が飛ばない（重4） ----------
+  {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "ja-JP" });
+    await installStubs(context);
+    const page = await context.newPage();
+    await page.goto(BASE_ROOT, { waitUntil: "domcontentloaded", timeout: 20000 });
+    await waitOverviewReady(page);
+    const kpiBefore = await page.textContent("#ov-kpi-total");
+    await page.focus("#ov-start-date");
+    await page.keyboard.type("20260910");
+    const typed = await page.evaluate(() => ({ value: document.getElementById("ov-start-date").value, focused: document.activeElement.id }));
+    const kpiDuring = await page.textContent("#ov-kpi-total");
+    record("A22-date-typing-value", typed.value === "2026-09-10", JSON.stringify(typed));
+    record("A22-date-typing-no-jump", kpiDuring === kpiBefore, `before=${kpiBefore} during=${kpiDuring}`);
+    await page.keyboard.press("Enter");
+    await page.waitForTimeout(300);
+    const after = await page.evaluate(() => {
+      const s = window.FinancieOverview._debug.state;
+      const d = window.FinancieOverview._debug.data.market.days;
+      return { start: d[s.startIdx], end: d[s.endIdx], period: s.period, inputValue: document.getElementById("ov-start-date").value };
+    });
+    record("A22-date-typing-commit", after.start === "2026-09-10" && after.period === "custom" && after.inputValue === "2026-09-10", JSON.stringify(after));
+    await context.close();
+  }
+
+  // ---------- A30: 読み込みに失敗したとき、案内と「もう一度読み込む」が出る（軽11） ----------
+  {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    await installStubs(context);
+    await context.route("**/data/overview/market.json", (route) => route.fulfill({ status: 404, contentType: "text/plain", body: "not found" }));
+    const page = await context.newPage();
+    await page.goto(BASE_ROOT, { waitUntil: "domcontentloaded", timeout: 20000 });
+    await page.waitForFunction(() => {
+      const e = document.getElementById("ov-error");
+      return e && !e.classList.contains("hidden-element");
+    }, { timeout: 15000 }).catch(() => {});
+    const errUi = await page.evaluate(() => {
+      const e = document.getElementById("ov-error");
+      const b = document.getElementById("ov-error-reload");
+      return {
+        visible: !!e && !e.classList.contains("hidden-element") && e.getBoundingClientRect().height > 0,
+        hasButton: !!b && b.getBoundingClientRect().height >= 40,
+        text: e ? e.textContent.trim().slice(0, 40) : ""
+      };
+    });
+    record("A30-load-error-ui", errUi.visible && errUi.hasButton, JSON.stringify(errUi));
     await context.close();
   }
 

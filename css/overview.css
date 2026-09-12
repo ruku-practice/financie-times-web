@@ -1,69 +1,207 @@
 /* ============================================================
    総覧タブ（Dune型ダッシュボード）専用スタイル v3.0.0
    既存の advanced.css の変数（--bg-*, --accent-*, --text-*）を流用する。
+   文字の段は 12（注記）／13（表・ラベル）／14（釦）の3段だけ（金継ぎ診断 09-03 の方針）。
    ============================================================ */
 
+/* 見出しまわり：データの日付・件数・非公式（中2・中7） */
+.ov-meta {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+/* 読み込み失敗（軽11） */
+.ov-error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border: 1px solid var(--accent-danger);
+  border-radius: var(--border-radius);
+  background: rgba(248, 113, 113, 0.08);
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.ov-error .action-btn {
+  min-height: 44px;
+  font-size: 14px;
+}
+
+/* 操作帯 */
 .overview-controls-bar {
   align-items: center;
-  row-gap: 0.8rem;
+  row-gap: 12px;
 }
 
 .ov-control-group {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  flex-wrap: wrap;
+  gap: 4px;
   background: rgba(255, 255, 255, 0.03);
-  padding: 0.25rem;
+  padding: 4px;
   border-radius: 6px;
   border: 1px solid var(--border-color);
 }
 
 .ov-control-label {
-  font-size: 0.78rem;
+  font-size: 13px;
   color: var(--text-secondary);
   font-weight: 600;
-  padding: 0 0.4rem 0 0.6rem;
+  padding: 0 6px 0 8px;
   white-space: nowrap;
 }
 
+.ov-control-group .sort-tab-btn {
+  min-height: 32px;
+  font-size: 14px;
+  padding: 4px 12px;
+}
+
 .ov-date-input {
-  padding: 0.3rem 0.5rem;
-  font-size: 0.8rem;
+  min-height: 32px;
+  padding: 4px 8px;
+  font-size: 13px;
 }
 
 .ov-control-sep {
   color: var(--text-secondary);
-  font-size: 0.8rem;
+  font-size: 13px;
 }
 
 .ov-range-note {
-  font-size: 0.72rem;
+  font-size: 12px;
   color: var(--accent-warning, #f59e0b);
   white-space: nowrap;
-  padding-left: 0.3rem;
+  padding-left: 4px;
 }
 
 .ov-toggle-label {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.82rem;
+  gap: 8px;
+  font-size: 13px;
   color: var(--text-secondary);
   cursor: pointer;
-  padding: 0.2rem 0.4rem;
+  padding: 4px 8px;
+  min-height: 32px;
 }
 
 .ov-toggle-label input {
   cursor: pointer;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-color);
 }
 
+/* KPI の補足文：見出しより目立たせない（軽3） */
+#ov-kpi-grid .metric-sub {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+/* グラフのカード：凡例はキャンバスの外（下）へ出し、描画域を確保する（重1） */
 .ov-charts-grid {
-  margin-bottom: 1.5rem;
+  margin-bottom: 24px;
 }
 
-.ov-ranking-card {
-  margin-bottom: 1.5rem;
+.ov-chart-card {
+  height: auto;
+  gap: 12px;
 }
+
+.ov-chart-card .chart-wrapper {
+  flex: none;
+  height: 260px;
+}
+
+.ov-legend {
+  border-top: 1px solid var(--border-color);
+  padding-top: 8px;
+}
+
+.ov-legend summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-secondary);
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  user-select: none;
+}
+
+.ov-legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  padding-top: 6px;
+}
+
+.ov-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 12px;
+  padding: 4px 6px;
+  min-height: 28px;
+  cursor: pointer;
+}
+
+.ov-legend-item:hover {
+  border-color: var(--border-color);
+}
+
+.ov-legend-item.off {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+.ov-legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  flex: none;
+}
+
+/* ランキング表：指標の切り替えは表の見出しの横（重5） */
+.ov-ranking-card {
+  margin-bottom: 24px;
+}
+
+.ov-ranking-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 16px 16px 8px;
+}
+
+.ov-ranking-head .ov-control-group {
+  margin-left: auto;
+}
+
+.ov-note {
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 0 16px 12px;
+  line-height: 1.6;
+}
+
+/* 見出しの寄せを列の内容に合わせる（軽4） */
+.historic-ranking-table th.ov-th-left { text-align: left; }
+.historic-ranking-table th.ov-th-right { text-align: right; }
+.historic-ranking-table th.ov-th-center { text-align: center; }
 
 .ov-ranking-row {
   cursor: pointer;
@@ -71,6 +209,10 @@
 
 .ov-ranking-row:hover {
   background: rgba(255, 255, 255, 0.04);
+}
+
+.ov-ranking-row .table-pj-link {
+  color: var(--accent-text);
 }
 
 .ov-ranking-row.ov-others-row {
@@ -83,33 +225,74 @@
   background: transparent;
 }
 
-.ov-footer {
-  font-size: 11px;
+.ov-asof {
+  font-size: 12px;
   color: var(--text-secondary);
-  padding: 0.8rem 0.2rem 0.2rem;
+  margin-left: 4px;
+}
+
+.ov-footer {
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 12px 4px 4px;
   line-height: 1.6;
 }
 
-.ov-note {
-  font-size: 11px;
-  color: var(--text-secondary);
-  margin-top: 0.3rem;
-}
-
-/* スマホ: 操作帯を横スクロールのチップ列に */
+/* スマホ：操作帯は折り返して全部見せる・押す部分は44px（重3） */
 @media (max-width: 768px) {
   .overview-controls-bar {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 0.6rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
   }
 
   .ov-control-group {
-    flex-shrink: 0;
+    width: 100%;
+  }
+
+  .ov-control-label {
+    flex: 0 0 100%;
+    padding: 6px 8px 2px;
+    font-size: 13px;
+  }
+
+  .ov-control-group .sort-tab-btn {
+    flex: 1 1 auto;
+    min-height: 44px;
+    padding: 0 8px;
+  }
+
+  .ov-date-input {
+    flex: 1 1 40%;
+    min-height: 44px;
+    font-size: 14px;
+  }
+
+  .ov-range-note {
+    flex: 0 0 100%;
+    white-space: normal;
+    padding: 4px 8px;
+  }
+
+  .ov-toggle-label {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .ov-toggle-label input {
+    width: 22px;
+    height: 22px;
   }
 
   .ov-charts-grid {
     grid-template-columns: 1fr;
+  }
+
+  .ov-chart-card .chart-wrapper {
+    height: 240px;
+  }
+
+  .ov-ranking-head .ov-control-group {
+    margin-left: 0;
   }
 }
