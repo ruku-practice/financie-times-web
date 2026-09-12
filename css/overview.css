@@ -256,6 +256,36 @@
   margin-left: 4px;
 }
 
+/* 個別ページ 24H 取引量：縦軸の上限の注記（v3.1 項目1） */
+.chart-cap-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.chart-cap-note[hidden] {
+  display: none;
+}
+
+/* 注記が出ているときだけカードの高さを自動にし、描画域は保つ（固定380pxのままだと注記がはみ出して下のカードに重なり、描画域も127pxまで潰れた） */
+.chart-card:has(> .chart-cap-note:not([hidden])) {
+  height: auto;
+}
+
+.chart-card:has(> .chart-cap-note:not([hidden])) > .chart-wrapper {
+  flex: none;
+  height: 300px;
+}
+
+.chart-cap-note .chart-cap-toggle {
+  border: 1px solid var(--border-color);
+  padding: 0 10px;
+}
+
 /* グラフの高さ 小／中／大 */
 .ov-size-group {
   display: inline-flex;

@@ -506,6 +506,63 @@ async function run() {
     await context.close();
   }
 
+  // ---------- A40（v3.1 項目1）: 個別ページ CNG の 24H 取引量 ----------
+  // 直近30日の最大の棒の高さが描画域の10%以上（全期間・1年・90日）。全期間だけ上限がつき注記と▲、「実寸で見る」で上限が外れる
+  {
+    const consoleErrors = [];
+    const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    await installStubs(context);
+    const page = await context.newPage();
+    page.on("console", (msg) => { if (msg.type() === "error") consoleErrors.push(msg.text()); });
+    await page.addInitScript(() => { try { localStorage.setItem("sound", "false"); localStorage.setItem("bgm", "false"); } catch (e) {} });
+    await page.goto(`${BASE_SUB}?project=cryptoninjagames`, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => window.FinancieAdvanced && window.FinancieAdvanced._debug.charts().volume, { timeout: 15000 });
+    const measureVol = () => page.evaluate(() => {
+      const ch = window.FinancieAdvanced._debug.charts().volume;
+      const vals = ch.data.datasets[0].data;
+      const last = vals.slice(-30).filter((v) => typeof v === "number");
+      const lastMax = Math.max(...last);
+      const area = ch.chartArea;
+      const y = ch.scales.y;
+      const px = y.getPixelForValue(Math.min(lastMax, y.max));
+      const note = document.getElementById("volume-cap-note");
+      return {
+        n: vals.length, lastMax, yMax: y.max, dataMax: Math.max(...vals.filter((v) => typeof v === "number")),
+        ratio: Math.round(((area.bottom - px) / (area.bottom - area.top)) * 1000) / 1000,
+        areaH: Math.round(area.bottom - area.top),
+        noteShown: !note.hidden, note: note.textContent.trim()
+      };
+    });
+    const vol = {};
+    for (const p of ["all", "365", "90"]) {
+      await page.click(`.period-btn[data-days="${p}"]`);
+      await page.waitForTimeout(400);
+      vol[p] = await measureVol();
+    }
+    record("A40-cng-volume-visible", ["all", "365", "90"].every((p) => vol[p].ratio >= 0.1), JSON.stringify(vol));
+    record("A40-cng-cap-note", vol.all.noteShown && vol.all.note.includes("2024/01/22") && vol.all.note.includes("▲") && vol.all.yMax < vol.all.dataMax && !vol["365"].noteShown && !vol["90"].noteShown && vol["90"].yMax >= vol["90"].dataMax, JSON.stringify({ all: vol.all.note, y365: vol["365"].yMax, d365: vol["365"].dataMax, y90: vol["90"].yMax, d90: vol["90"].dataMax }));
+    await page.click('.period-btn[data-days="all"]');
+    await page.waitForTimeout(300);
+    await page.click("#volume-cap-toggle");
+    await page.waitForTimeout(400);
+    const full = await measureVol();
+    await page.click("#volume-cap-toggle");
+    await page.waitForTimeout(400);
+    const back = await measureVol();
+    record("A40-cng-full-scale-toggle", full.yMax >= full.dataMax && full.note.includes("実寸") && back.yMax < back.dataMax && back.note.includes("▲"), JSON.stringify({ full: { yMax: full.yMax, ratio: full.ratio, note: full.note.slice(0, 20) }, back: { yMax: back.yMax, ratio: back.ratio } }));
+    const noteBox = await page.evaluate(() => {
+      const note = document.getElementById("volume-cap-note").getBoundingClientRect();
+      const card = document.getElementById("volume-cap-note").closest(".chart-card").getBoundingClientRect();
+      const area = window.FinancieAdvanced._debug.charts().volume.chartArea;
+      return { noteBottom: Math.round(note.bottom), cardBottom: Math.round(card.bottom), areaH: Math.round(area.bottom - area.top) };
+    });
+    record("A40-cap-note-inside-card", noteBox.noteBottom <= noteBox.cardBottom && noteBox.areaH >= 160, JSON.stringify(noteBox));
+    await page.evaluate(() => document.getElementById("volumeChart").scrollIntoView({ block: "center" }));
+    await page.screenshot({ path: path.join(OUT_DIR, "project_cng_volume_all_1280.png"), fullPage: false });
+    record("A40-console-errors", consoleErrors.length === 0, `errors=${JSON.stringify(consoleErrors.slice(0, 5))}`);
+    await context.close();
+  }
+
   // ---------- A10: レスポンシブ ----------
   for (const w of [1280, 768, 390]) {
     const context = await browser.newContext({ viewport: { width: w, height: 900 } });

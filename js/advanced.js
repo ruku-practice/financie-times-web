@@ -6,6 +6,10 @@
   let currentProjectFolder = null;
   let currentProjectData = null;
   let currentPeriod = 30; // default 30 days
+  let volumeFullScale = false; // 24H 取引量グラフを実寸（縦軸の上限なし）で見るか
+
+  // 検査用（tests/check_overview.js から参照）。本番の見た目には影響しない。
+  window.FinancieAdvanced = { _debug: { charts: () => ({ price: priceChart, volume: volumeChart, combined: combinedChart, compareVolume: compareVolumeChart }) } };
   let currentTab = "overview-tab"; // 'overview-tab', 'single-tab', 'compare-tab', 'daily-tab', 'monthly-tab'
 
   // 複数比較用の状態
@@ -219,6 +223,15 @@
     });
   });
 
+  // 24H 取引量グラフの「実寸で見る／上限をつけて見る」
+  const volumeCapToggle = document.getElementById("volume-cap-toggle");
+  if (volumeCapToggle) {
+    volumeCapToggle.addEventListener("click", () => {
+      volumeFullScale = !volumeFullScale;
+      if (currentProjectData) updateCharts();
+    });
+  }
+
   // プロジェクトリストレンダリング
   function renderProjectList(list) {
     projectListContainer.innerHTML = "";
@@ -420,6 +433,70 @@
     metricMarketcapSub.textContent = `時価総額: ¥${formatNumber(latest.marketCap)}`;
   }
 
+  // "YYYYMMDD" → "YYYY/MM/DD"
+  const fmtYmd = (s) => (s && s.length === 8 ? `${s.slice(0, 4)}/${s.slice(4, 6)}/${s.slice(6, 8)}` : s);
+
+  // 24H 取引量の縦軸：期間内の最大が p95 の VOLUME_CAP_RATIO 倍を超えるときだけ、上限＝ceil(p95×VOLUME_CAP_MULT)。
+  // 値の根拠＝Astra（Codex）の実測（2026-09-13・全409件）：CNG 全期間は28.0倍で切り、1年・90日（4.2倍・2.7倍）は切らない。
+  // p95 が 0 の案件（まれにしか取引が無い）は切らない（上限が 0 になり棒が全部消えるため）。データは直さない（v3.1 項目1）。
+  const VOLUME_CAP_RATIO = 20;
+  const VOLUME_CAP_MULT = 1.5;
+  function volumeAxisCap(values) {
+    const v = values.filter(x => typeof x === "number" && isFinite(x) && x >= 0).sort((a, b) => a - b);
+    if (v.length < 2) return null;
+    const max = v[v.length - 1];
+    const pos = (v.length - 1) * 0.95;
+    const lo = Math.floor(pos);
+    const p95 = v[lo] + (v[Math.min(lo + 1, v.length - 1)] - v[lo]) * (pos - lo);
+    if (!(p95 > 0) || max <= VOLUME_CAP_RATIO * p95) return null;
+    const cap = Math.ceil(VOLUME_CAP_MULT * p95);
+    return { cap, max, maxIndex: values.indexOf(max), overCount: values.filter(x => typeof x === "number" && x > cap).length };
+  }
+
+  // 上限を超えた棒の上端に ▲ を描く（Chart.js のインラインプラグイン）
+  function capMarkerPlugin(cap) {
+    return {
+      id: "ftVolumeCapMarks",
+      afterDatasetsDraw(chart) {
+        const meta = chart.getDatasetMeta(0);
+        const values = chart.data.datasets[0].data;
+        const { ctx, chartArea } = chart;
+        ctx.save();
+        ctx.fillStyle = "#f59e0b";
+        meta.data.forEach((bar, i) => {
+          if (!(values[i] > cap)) return;
+          const top = chartArea.top + 1;
+          ctx.beginPath();
+          ctx.moveTo(bar.x, top);
+          ctx.lineTo(bar.x - 5, top + 8);
+          ctx.lineTo(bar.x + 5, top + 8);
+          ctx.closePath();
+          ctx.fill();
+        });
+        ctx.restore();
+      }
+    };
+  }
+
+  function renderVolumeCapNote(capInfo, rows) {
+    const box = document.getElementById("volume-cap-note");
+    if (!box) return;
+    if (!capInfo) { box.hidden = true; return; }
+    const text = document.getElementById("volume-cap-text");
+    const btn = document.getElementById("volume-cap-toggle");
+    const maxDay = rows[capInfo.maxIndex] ? fmtYmd(rows[capInfo.maxIndex].date) : "";
+    const maxYen = Math.round(capInfo.max).toLocaleString("ja-JP");
+    box.hidden = false;
+    if (volumeFullScale) {
+      text.textContent = `実寸で表示中です（いちばん大きい日 ${maxDay} の ${maxYen} 円に縦軸を合わせているため、ほかの日の棒は低く見えます）。`;
+      btn.textContent = "上限をつけて見る";
+    } else {
+      text.textContent = `▲＝縦軸の上限（${Math.round(capInfo.cap).toLocaleString("ja-JP")} 円）を超えた日（${capInfo.overCount}日・棒は上端で切れています）。いちばん大きい日：${maxDay} ${maxYen} 円。`;
+      btn.textContent = "実寸で見る";
+    }
+    btn.setAttribute("aria-pressed", String(volumeFullScale));
+  }
+
   // チャートの更新
   function updateCharts() {
     if (!currentProjectData || currentProjectData.history.length === 0) return;
@@ -480,6 +557,20 @@
     volumeGradient.addColorStop(0, 'rgba(37, 99, 235, 0.65)');
     volumeGradient.addColorStop(1, 'rgba(37, 99, 235, 0.15)');
 
+    // 期間の中に突出があるときだけ縦軸に上限（v3.1 項目1）。上限を超えた棒は上端で切り、▲と注記で実値を示す
+    const volumeCap = volumeAxisCap(volumes);
+    const capOn = volumeCap !== null && !volumeFullScale;
+    const volumeOptions = getCommonOptions();
+    volumeOptions.plugins.tooltip.callbacks = {
+      title: (items) => (items.length && data[items[0].dataIndex] ? fmtYmd(data[items[0].dataIndex].date) : ""),
+      label: (item) => `24H 取引量: ${formatFloat(item.raw, 2)} 円${capOn && item.raw > volumeCap.cap ? "（縦軸の上限を超えています）" : ""}`
+    };
+    if (capOn) {
+      volumeOptions.scales.y.min = 0;
+      volumeOptions.scales.y.max = volumeCap.cap;
+    }
+    renderVolumeCapNote(volumeCap, data); // 注記でカードの高さが変わるので、グラフより先に出す
+
     volumeChart = new Chart(volumeCtx, {
       type: 'bar',
       data: {
@@ -492,7 +583,8 @@
           borderWidth: 0
         }]
       },
-      options: getCommonOptions()
+      options: volumeOptions,
+      plugins: capOn ? [capMarkerPlugin(volumeCap.cap)] : []
     });
 
     // 3. メンバー数 ＆ 在庫数チャート
