@@ -245,9 +245,45 @@
   margin-top: 4px;
 }
 
-/* 名前のリンク（本家へ）の外部リンク印 */
+/* 名前のリンク（個別分析へ）＋右の ↗（本家へ・v3.1 項目5） */
+.ov-pj-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
 .ov-pj-link {
   display: inline-flex;
+}
+
+.ov-ext-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+/* 個別ページ：プロジェクト名の横の「FiNANCiEで見る ↗」（v3.1 項目4） */
+.detail-financie-link {
+  gap: 4px;
+  padding: 2px 8px;
+  border: 1px solid var(--border-color);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ov-ext-link:hover,
+.ov-ext-link:focus-visible {
+  background: rgba(127, 127, 127, 0.15);
+}
+
+.ov-ext-link .ov-ext {
+  margin-left: 0;
 }
 
 .ov-ext {

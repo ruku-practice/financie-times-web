@@ -363,17 +363,38 @@ async function run() {
 
     // ---------- ルク要望3（21:50 決裁）と注記a〜d の受け入れ検査 ----------
     // A34: 名前のリンク＝本家 financie.jp/users/<slug>・新しいタブ・noopener・title に「FiNANCiEで見る」と各案件のデータ取得開始日。名前を押しても個別分析へは飛ばない
-    const links = await page.$$eval("#ov-ranking-tbody tr[data-folder] a.ov-pj-link", (as) => as.map((a) => ({
-      href: a.getAttribute("href"), target: a.getAttribute("target"), rel: a.getAttribute("rel") || "", title: a.getAttribute("title") || "",
-      folder: a.closest("tr").getAttribute("data-folder"), hasMark: !!a.querySelector(".ov-ext")
-    })));
+    // v3.1 項目5で入れ替え：名前＝個別分析（?project=<folder>・同じタブ）／名前の右の ↗＝本家 financie.jp/users/<slug>（新しいタブ・noopener・title「FiNANCiEで見る」）。行ボタンは置かない
+    const links = await page.$$eval("#ov-ranking-tbody tr[data-folder]", (trs) => trs.map((tr) => {
+      const name = tr.querySelector("a.ov-pj-link");
+      const ext = tr.querySelector("a.ov-ext-link");
+      const r = ext ? ext.getBoundingClientRect() : null;
+      return {
+        folder: tr.getAttribute("data-folder"),
+        nameHref: name && name.getAttribute("href"), nameTarget: name && name.getAttribute("target"), nameTitle: name ? name.getAttribute("title") || "" : "",
+        extHref: ext && ext.getAttribute("href"), extTarget: ext && ext.getAttribute("target"), extRel: ext ? ext.getAttribute("rel") || "" : "", extTitle: ext ? ext.getAttribute("title") || "" : "",
+        extMark: !!(ext && ext.querySelector(".ov-ext")), extRightOfName: !!(name && ext && ext.getBoundingClientRect().left >= name.getBoundingClientRect().right - 1),
+        extSize: r ? Math.min(r.width, r.height) : 0, buttons: tr.querySelectorAll("button").length
+      };
+    }));
     const slugOf = await page.evaluate(() => { const o = {}; window.FinancieOverview._debug.data.volume.projects.forEach((p) => { o[p.folder] = p.slug; }); return o; });
-    const badLinks = links.filter((l) => !(l.href === `https://financie.jp/users/${encodeURIComponent(slugOf[l.folder])}` && l.target === "_blank" && l.rel.includes("noopener") && l.title.includes("FiNANCiEで見る") && /データ取得開始 20\d\d\/\d\d\/\d\d/.test(l.title) && l.hasMark));
+    const badLinks = links.filter((l) => !(
+      l.nameHref === `?project=${encodeURIComponent(l.folder)}` && !l.nameTarget && /データ取得開始 20\d\d\/\d\d\/\d\d/.test(l.nameTitle) &&
+      l.extHref === `https://financie.jp/users/${encodeURIComponent(slugOf[l.folder])}` && l.extTarget === "_blank" && l.extRel.includes("noopener") && l.extTitle.includes("FiNANCiEで見る") &&
+      l.extMark && l.extRightOfName && l.extSize >= 24 && l.buttons === 0
+    ));
+    // ↗ を押しても行のクリック（個別分析へ）は走らない
     const urlBeforeClick = page.url();
-    await page.evaluate(() => { const a = document.querySelector("#ov-ranking-tbody tr[data-folder] a.ov-pj-link"); a.addEventListener("click", (e) => e.preventDefault(), { once: true }); a.click(); });
+    await page.evaluate(() => { const a = document.querySelector("#ov-ranking-tbody tr[data-folder] a.ov-ext-link"); a.addEventListener("click", (e) => e.preventDefault(), { once: true }); a.click(); });
     await page.waitForTimeout(400);
     const stayed = page.url() === urlBeforeClick && !page.url().includes("project=");
-    record("A34-financie-link", links.length >= 10 && badLinks.length === 0 && stayed, `n=${links.length} bad=${JSON.stringify(badLinks.slice(0, 2))} stayed=${stayed}`);
+    // 名前のリンク先を開くと、その案件の個別分析が出る
+    const firstName = links[0];
+    const namePage = await context.newPage();
+    await namePage.goto(new URL(firstName.nameHref, BASE_SUB).toString(), { waitUntil: "domcontentloaded" });
+    await namePage.waitForFunction(() => { const v = document.getElementById("detail-view"); const n = document.getElementById("detail-name"); return v && !v.classList.contains("hidden-element") && n && n.textContent !== "Project Name"; }, { timeout: 15000 }).catch(() => {});
+    const opened = await namePage.evaluate(() => ({ visible: !document.getElementById("detail-view").classList.contains("hidden-element"), name: document.getElementById("detail-name").textContent }));
+    await namePage.close();
+    record("A34-two-links", links.length >= 10 && badLinks.length === 0 && stayed && opened.visible && opened.name !== "Project Name", `n=${links.length} bad=${JSON.stringify(badLinks.slice(0, 2))} stayed=${stayed} opened=${JSON.stringify(opened)}`);
 
     // A35: 注記＝記録の開始日（実測の最古日）と「それ以前は持っていない」・許可・参考値・非公式が13px以上の帯にある
     const notes = await page.evaluate(() => {
@@ -550,6 +571,16 @@ async function run() {
     await page.waitForTimeout(400);
     const back = await measureVol();
     record("A40-cng-full-scale-toggle", full.yMax >= full.dataMax && full.note.includes("実寸") && back.yMax < back.dataMax && back.note.includes("▲"), JSON.stringify({ full: { yMax: full.yMax, ratio: full.ratio, note: full.note.slice(0, 20) }, back: { yMax: back.yMax, ratio: back.ratio } }));
+    // A41（v3.1 項目4）: 個別ページのプロジェクト名の横に本家へのリンク（新しいタブ・noopener・「FiNANCiEで見る」＋印）
+    const pjLink = await page.evaluate(() => {
+      const a = document.getElementById("detail-financie-link");
+      const slug = document.getElementById("detail-slug").textContent.replace(/^@/, "");
+      const r = a.getBoundingClientRect();
+      const nameR = document.getElementById("detail-name").getBoundingClientRect();
+      const cs = getComputedStyle(a);
+      return { href: a.getAttribute("href"), slug, target: a.getAttribute("target"), rel: a.getAttribute("rel") || "", text: a.textContent.trim(), mark: !!a.querySelector(".ov-ext"), w: Math.round(r.width), h: Math.round(r.height), nearName: Math.abs(r.top - nameR.top) < 80, color: cs.color, display: cs.display };
+    });
+    record("A41-detail-financie-link", pjLink.href === `https://financie.jp/users/${encodeURIComponent(pjLink.slug)}` && pjLink.slug === "cryptoninjagames" && pjLink.target === "_blank" && pjLink.rel.includes("noopener") && pjLink.text.includes("FiNANCiEで見る") && pjLink.mark && pjLink.h >= 24 && pjLink.nearName && pjLink.color !== "rgb(0, 0, 238)", JSON.stringify(pjLink));
     const noteBox = await page.evaluate(() => {
       const note = document.getElementById("volume-cap-note").getBoundingClientRect();
       const card = document.getElementById("volume-cap-note").closest(".chart-card").getBoundingClientRect();

@@ -702,7 +702,7 @@
     return cols[metric] || cols.volume;
   }
 
-  const ROW_HINT = "名前を押すと FiNANCiE のプロジェクトページ（新しいタブ・名前に載せると各案件のデータ取得開始日が出ます）・行のほかの場所を押すと個別分析";
+  const ROW_HINT = "名前を押すと個別分析・名前の右の ↗ で FiNANCiE のプロジェクトページ（新しいタブ）。名前に載せると各案件のデータ取得開始日が出ます";
   const RANKING_NOTES = {
     volume: `並び＝期間合計の多い順。「その他」＝上位以外の全件（期間中に取引の無かった案件も含む）。${ROW_HINT}`,
     price: `並び＝期間の変化率の高い順。期末値＝期間内で最後に記録された値（終了日より前で止まっている案件は日付を添えています）。${ROW_HINT}`,
@@ -776,10 +776,11 @@
     return `https://financie.jp/users/${encodeURIComponent(r.slug || r.folder)}`;
   }
 
+  // 名前＝FiNANCiE TIMES 内の個別分析（?project=<folder>）・名前の右の ↗＝本家（新しいタブ）。v3.1 項目5（v3.0.0 の「名前＝本家」を入れ替え）
   function projectCell(r) {
     const firstDay = r.firstDay || r.first;
-    const title = `FiNANCiEで見る（新しいタブ）${typeof firstDay === "string" ? `・データ取得開始 ${fmtDateJa(firstDay)}` : ""}`;
-    return `<td class="text-left"><a class="table-pj-link ov-pj-link" href="${financieUrl(r)}" target="_blank" rel="noopener" title="${escapeHtml(title)}">${escapeHtml(r.name)}<span class="ov-ext" aria-hidden="true">↗</span></a></td>`;
+    const title = `個別分析を見る${typeof firstDay === "string" ? `・データ取得開始 ${fmtDateJa(firstDay)}` : ""}`;
+    return `<td class="text-left"><span class="ov-pj-cell"><a class="table-pj-link ov-pj-link" href="?project=${encodeURIComponent(r.folder)}" title="${escapeHtml(title)}">${escapeHtml(r.name)}</a><a class="ov-ext-link" href="${financieUrl(r)}" target="_blank" rel="noopener" title="FiNANCiEで見る（新しいタブ）" aria-label="${escapeHtml(r.name)} を FiNANCiEで見る（新しいタブ）"><span class="ov-ext" aria-hidden="true">↗</span></a></span></td>`;
   }
 
   function renderPanelC() {

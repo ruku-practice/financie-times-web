@@ -363,6 +363,12 @@
         detailLogo.onerror = () => { detailLogo.src = defaultLogo; };
         detailName.textContent = data.name;
         detailSlug.textContent = `@${data.slug}`;
+        // 本家 FiNANCiE のプロジェクトページ（新しいタブ・v3.1 項目4）
+        const detailFinancieLink = document.getElementById("detail-financie-link");
+        if (detailFinancieLink) {
+          detailFinancieLink.href = `https://financie.jp/users/${encodeURIComponent(data.slug)}`;
+          detailFinancieLink.setAttribute("aria-label", `${data.name} を FiNANCiEで見る（新しいタブ）`);
+        }
         // データ取得開始日（その案件の最古の記録日）＝それ以前のデータは持っていない
         const detailFirst = document.getElementById("detail-first");
         if (detailFirst) {
