@@ -42,7 +42,7 @@
 <div class="wrap">
   <div class="eyebrow">FiNANCiE TIMES Web · 分析タブ v0.1.0 · 2026-09-13 · 社長室27室目</div>
   <h1>分析レポートの図10枚を、期間切替つきの「分析」タブにしました</h1>
-  <p class="lead">ステージングで見られます。全体市況 v3.1 とは<span class="mark">別タブ・別ファイル</span>で作ったので、本番は触っていません。</p>
+  <p class="lead">ステージングで見られます。全体市況 v3.1 とは<span class="mark">別タブ・別ファイル</span>で作ったので、本番は触っていません。07:08／07:13 の指示（<span class="mark">箱を縦1列＝1ペイン・縦／横の切替・スクロールをページ全体に</span>）は両タブに反映済み（ヘッダー右の「⇔ 横2列」釦）。</p>
   <p>
     <a class="cta" href="https://financie-times-analysis-staging.ruku-practice.workers.dev/financie/?tab=analysis" target="_blank" rel="noopener">ステージングを開く（分析タブ）</a>
     <a class="cta sub" href="https://financie-times-analysis-staging.ruku-practice.workers.dev/financie/?tab=analysis&amp;an_p=all" target="_blank" rel="noopener">全期間で開く</a>
@@ -113,15 +113,15 @@
   <h2>検収の結果</h2>
   <table>
     <tr><th style="width:24%">段</th><th>結果</th></tr>
-    <tr><td>機械の検査（47項目）</td><td><span class="ok">ALL PASS</span>（07:16）。独立計算と一致・レポートの数字（14.97M／11.15M・162.5／163.0）と仕様メモの窓ごとの判定（30日 3/5・90日 1/5・180日 0/5）を再現・両テーマ AA・スマホの表に列名・横はみ出しなし・境界3つ</td></tr>
-    <tr><td>断（1回目・作り手の目）</td><td id="dan-result"><span class="ok">通す</span>（07:00）。指摘＝検査項目数の実測ズレ・境界検査3つの追加・月次ピック方式の文言差 → 検査を3つ足して 38項目 ALL PASS（07:03）</td></tr>
-    <tr><td>エマ（2回目・初見の目・PC 1280 主）</td><td id="emma-result"><span class="ng">突き返し</span>（07:08）＝スマホの表に列名が無い・スクショが全区画でない・図の文言が実画面と違う・「束」「PJ」の説明・自動文の重複 → すべて直して再検収（結果は完了報告に追記）</td></tr>
+    <tr><td>機械の検査</td><td><span class="ok">ALL PASS</span>。35項目（06:53）→ 断の提案で38（07:03）→ 仕様メモ照合・エマ対応で47（07:16）→ 名寄せ一致・1ペイン・スクロールで54（07:20）→ エマ2回目の対応で56。独立計算と一致・レポートと仕様メモの数字（30日 3/5・90日 1/5・180日 0/5）を再現・両テーマ AA・スマホの表に列名・横はみ出しなし・ページ全体スクロール・縦横切替の記憶</td></tr>
+    <tr><td>断（作り手の目）</td><td>1回目（07:00）<span class="ok">通す</span>・再検査（07:17）<span class="ng">突き返し</span>＝名寄せ4件目がルク決裁（結合しない）と逆 → 確定3組に戻し、名寄せの一致検査を常設（07:20）</td></tr>
+    <tr><td>エマ（初見の目・PC 1280 主）</td><td>1回目（07:08）<span class="ng">突き返し</span>＝スマホの表に列名が無い・スクショが1画面だけ・図の文言・「束」「PJ」・自動文の重複 → 全件修正。2回目（07:20）<span class="ng">突き返し</span>＝スマホで指標#1の判定が枠外・自動文の「当てはまった指標」が番号・窓の説明位置・期間＝窓のときの重複 → 全件修正（07:25）→ <span id="emma-final">3回目＝再検収中</span></td></tr>
   </table>
 
   <h2>やっていないこと（意図して）</h2>
   <p>本番反映・push・移設・本家への巡回・全体市況との合体。</p>
   <p class="small">名寄せは分析レポート担当の仕様メモ（06:45）どおり4件を結合済み（RED° TOKYO PREMIUM→TEAM RED・山本商店・音夢パンダ・<span class="mark">パティスリー・ル・ヴェール→KX：鹿児島タイムズ＝ルク確認待ちの候補</span>）。TEAM RED を RED系に入れるかもルク確認待ち。どちらも <code>build_analysis.py</code> の1行で戻せます。</p>
-  <p class="small">設計書（Obsidian で開く）＝<a href="obsidian://open?path=/Users/kkr/ruku_data/00_products/apps/FiNANCiE-times-web/.claude/worktrees/analysis-tab/docs/2026-09-13_分析タブ_設計.md">/Users/kkr/ruku_data/00_products/apps/FiNANCiE-times-web/.claude/worktrees/analysis-tab/docs/2026-09-13_分析タブ_設計.md</a><br>完了報告（Obsidian で開く）＝<a href="obsidian://open?path=/Users/kkr/ruku_data/company/logs/2026-09-13_FiNANCiE-TIMES-Web_分析タブ_完了報告.md">/Users/kkr/ruku_data/company/logs/2026-09-13_FiNANCiE-TIMES-Web_分析タブ_完了報告.md</a><br>作業場所＝<code>/Users/kkr/ruku_data/00_products/apps/FiNANCiE-times-web/.claude/worktrees/analysis-tab</code>（ブランチ <code>feature/analysis-tab</code>・起点 6528da66）</p>
+  <p class="small">設計書＝<a href="obsidian://open?path=/Users/kkr/ruku_data/00_products/apps/FiNANCiE-times-web/.claude/worktrees/analysis-tab/docs/2026-09-13_分析タブ_設計.md">Obsidian で開く</a>／Antigravity で開く場合はターミナルで <code>open -a "Antigravity IDE" "/Users/kkr/ruku_data/00_products/apps/FiNANCiE-times-web/.claude/worktrees/analysis-tab/docs/2026-09-13_分析タブ_設計.md"</code><br>完了報告＝<a href="obsidian://open?path=/Users/kkr/ruku_data/company/logs/2026-09-13_FiNANCiE-TIMES-Web_分析タブ_完了報告.md">Obsidian で開く</a>／<code>open -a "Antigravity IDE" "/Users/kkr/ruku_data/company/logs/2026-09-13_FiNANCiE-TIMES-Web_分析タブ_完了報告.md"</code><br>作業場所＝<code>/Users/kkr/ruku_data/00_products/apps/FiNANCiE-times-web/.claude/worktrees/analysis-tab</code>（ブランチ <code>feature/analysis-tab</code>・起点 6528da66）</p>
 </div>
 </body>
 </html>

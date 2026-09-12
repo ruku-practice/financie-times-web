@@ -500,9 +500,10 @@
     const isDonut = chart.config.type === "doughnut";
     const entries = isDonut
       ? chart.data.labels.map((label, i) => ({ label, color: chart.data.datasets[0].backgroundColor[i], visible: chart.getDataVisibility(i), dashed: false }))
-      : chart.data.datasets.map((ds, i) => ({ label: ds.label, color: ds.borderColor || ds.backgroundColor, visible: chart.isDatasetVisible(i), dashed: !!(ds.borderDash && ds.borderDash.length) }));
+      : chart.data.datasets.map((ds, i) => ({ label: ds.label, color: ds.borderColor || ds.backgroundColor, visible: chart.isDatasetVisible(i), dashed: !!(ds.borderDash && ds.borderDash.length),
+          dashKind: ds.borderDash && ds.borderDash.length ? (ds.borderDash[0] >= 5 ? "破線" : "点線") : "" }));
     box.innerHTML = entries.map((en, i) =>
-      `<button type="button" class="an-legend-item${en.visible ? "" : " off"}" data-index="${i}" aria-pressed="${en.visible}"><span class="an-legend-swatch${en.dashed ? " dashed" : ""}" style="background:${en.color};color:${en.color}"></span>${escapeHtml(en.label)}</button>`
+      `<button type="button" class="an-legend-item${en.visible ? "" : " off"}" data-index="${i}" aria-pressed="${en.visible}"><span class="an-legend-swatch${en.dashed ? " dashed" : ""}" style="background:${en.color};color:${en.color}"></span>${escapeHtml(en.label)}${en.dashKind ? `（${en.dashKind}）` : ""}</button>`
     ).join("");
     box.querySelectorAll(".an-legend-item").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -553,10 +554,14 @@
     // カードにある数字（合計・前期間比）は繰り返さず、カードに無いこと（集中度・上位2を除いた比）だけ書く（エマ中8）
     lines.push(`<strong>出来高：</strong>前期間比は${dir(change)}。` +
       (top1 ? `上位1PJは ${escapeHtml(top1.short)}（シェア ${share1.toFixed(1)}%）。上位2PJ（${top2now.map((t) => escapeHtml(t.short)).join("・")}）を除くと前期間比 ${fmtPct(exChange, 0)}。` : "期間内に出来高のあるPJがありません。"));
-    lines.push(`<strong>裾野：</strong>出来高が立ったPJ数は期間内 ${fmtInt(activeN)} PJ` + (activePrev === null ? "。" : `（前期間 ${fmtInt(activePrev)} PJ）。`) +
-      `窓${ind.W}日では直近 ${ind.nRec} PJ／前 ${ind.nPrv} PJ（${fmtPct(ind.aChange, 1)}）。窓内の後半÷前半（出来高）＝${fmtPct(ind.halfChange, 0)}。`);
+    // 期間と窓が同じ日数なら同じ数字を2回言わない（エマ中2）
+    const periodDays = daysBetween(days[anState.startIdx], days[anState.endIdx]) + 1;
+    const sameAsWindow = periodDays === ind.W && anState.period !== "custom";
+    lines.push(`<strong>裾野：</strong>出来高が立ったPJ数は期間内 ${fmtInt(activeN)} PJ` + (activePrev === null ? "。" : `（前期間 ${fmtInt(activePrev)} PJ・${fmtPct(pctChange(activeN, activePrev), 1)}）。`) +
+      (sameAsWindow ? "" : `窓${ind.W}日では直近 ${ind.nRec} PJ／前 ${ind.nPrv} PJ（${fmtPct(ind.aChange, 1)}）。`) +
+      `窓内の後半÷前半（出来高）＝${fmtPct(ind.halfChange, 0)}。`);
     lines.push(`<strong>判定：</strong>機運の5指標（窓 ${ind.W}日・期末 ${fmtYMD(ind.endDate)} 基準）のうち当てはまるのは ${ind.count}/5 ＝「${ind.band}」（ルール：4〜5＝あり・2〜3＝兆しあり・0〜1＝なし）。` +
-      `当てはまった指標＝${ind.items.filter((x) => x.ok).map((x) => x.n).join("・") || "なし"}。`);
+      `当てはまった指標＝${ind.items.filter((x) => x.ok).map((x) => x.label).join("・") || "なし"}。`);
     dom.conclusion.innerHTML = lines.map((l) => `<li>${l}</li>`).join("");
   }
 
@@ -783,7 +788,7 @@
       const ch = pctChange(t.total, prevTotalsMap[t.folder]);
       // スマホのカード表示で列名を出すため、全セルに data-label を付ける（全体市況の重2と同じ・エマ重1）
       return `<tr data-folder="${escapeHtml(t.folder)}"><td class="rank" data-label="順位">${i + 1}</td>` +
-        `<td data-label="プロジェクト"><a href="?project=${encodeURIComponent(t.folder)}" title="${escapeHtml(t.name)}">${escapeHtml(t.short)}</a><a class="an-ext-link" href="${financieUrl(t)}" target="_blank" rel="noopener" title="FiNANCiEで見る">↗</a></td>` +
+        `<td data-label="プロジェクト"><a href="?project=${encodeURIComponent(t.folder)}" title="${escapeHtml(t.name)}">${escapeHtml(t.short)}</a><a class="an-ext-link" href="${financieUrl(t)}" target="_blank" rel="noopener" title="FiNANCiEで見る">本家↗</a></td>` +
         `<td class="num" data-label="期間合計（円）">${fmtInt(t.total)}</td><td class="num" data-label="シェア">${vNow > 0 ? (t.total / vNow * 100).toFixed(1) : "-"}%</td>` +
         `<td class="num" data-label="期末直近30日（円）">${fmtInt(last30Map[t.folder] || 0)}</td><td class="num ${changeClass(ch)}" data-label="前期間比">${prevTotalsMap[t.folder] ? fmtPct(ch, 0) : "-"}</td></tr>`;
     }).join("") || `<tr><td colspan="6" class="text-center">期間内に出来高のあるPJがありません。</td></tr>`;

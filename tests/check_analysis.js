@@ -228,6 +228,9 @@ async function run() {
       record("B7-verdict-30", last.count === fx.count && JSON.stringify(last.indicators.map((x) => x.ok)) === JSON.stringify(fx.ok) && last.band === (fx.count >= 4 ? "あり" : fx.count >= 2 ? "兆しあり" : "なし"), `count=${last.count} band=${last.band} ref=${fx.count}`);
       const marks = await page.$$eval("#an-indicators-tbody tr td:last-child", (tds) => tds.map((t) => t.textContent.trim()[0]));
       record("B7-table-marks", JSON.stringify(marks) === JSON.stringify(last.indicators.map((x) => x.ok ? "○" : "×")), JSON.stringify(marks));
+      // 自動文3行目は「当てはまった指標」を番号でなく名前で言う（エマ重2）
+      const concl3 = await page.evaluate(() => document.querySelectorAll("#an-conclusion li")[2].textContent);
+      record("B7-conclusion-labels", concl3.includes("当てはまった指標＝") && !/当てはまった指標＝\d/.test(concl3), concl3.slice(-80));
       // 窓 90日（既定）・180日でも一致し、窓で数字が変わる（仕様メモ：30日 3/5・90日 1/5・180日 0/5）
       await page.click('#an-window-group button[data-window="90"]');
       await waitReady(page);
@@ -381,6 +384,14 @@ async function run() {
         shown: getComputedStyle(document.querySelector("#an-top30-tbody tr:first-child td:nth-child(3)"), "::before").content
       }));
       record("B15-mobile-data-label", labels.top30.every(Boolean) && labels.ind.every(Boolean) && labels.shown.includes("期間合計"), JSON.stringify(labels));
+      // スマホの機運表：#1 のカードでも「判定」が card の中に収まっている（エマ重1）
+      const ind1 = await page.evaluate(() => {
+        const tr = document.querySelector("#an-indicators-tbody tr");
+        const td = tr.querySelector("td.verdict");
+        const a = tr.getBoundingClientRect(), b = td.getBoundingClientRect();
+        return { inside: b.right <= a.right + 1 && b.bottom <= a.bottom + 1 && b.width > 0, text: td.textContent.trim() };
+      });
+      record("B15-mobile-indicator1-verdict", ind1.inside && /^[○×]/.test(ind1.text), JSON.stringify(ind1));
       await fullShot(page, path.join(OUT_DIR, "analysis_390.png"));
       await context.close();
     }

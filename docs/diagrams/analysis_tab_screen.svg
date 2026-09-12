@@ -16,8 +16,8 @@
     <g font-size="8" fill="#4f5d75">
       <text x="176" y="49">全体市況</text>
       <rect x="220" y="36" width="34" height="18" rx="9" fill="#eb6c36" fill-opacity="0.18"/><text x="237" y="49" text-anchor="middle" fill="#eb6c36" font-weight="600">分析</text>
-      <text x="264" y="49">個別プロジェクト分析</text><text x="360" y="49">複数プロジェクト比較</text><text x="456" y="49">日付別ランキング</text>
-      <text x="600" y="49" text-anchor="end">☀ ライト</text>
+      <text x="262" y="49" font-size="7">個別プロジェクト分析</text><text x="342" y="49" font-size="7">複数プロジェクト比較</text><text x="422" y="49" font-size="7">日付別ランキング</text><text x="488" y="49" font-size="7">月次・累計ランキング</text>
+      <text x="632" y="49" text-anchor="end" font-size="7">⇔ 横2列　☀ ライト</text>
     </g>
     <!-- 操作帯 -->
     <rect x="52" y="74" width="576" height="26" rx="4" fill="#2d3142" fill-opacity="0.04" stroke="#2d3142" stroke-opacity="0.12"/>
