@@ -34,9 +34,11 @@
   function entriesOf(chart) {
     if (isSliceChart(chart)) {
       const colors = chart.data.datasets[0].backgroundColor;
-      return chart.data.labels.map((label, i) => ({ label, color: Array.isArray(colors) ? colors[i] : colors, visible: chart.getDataVisibility(i), locked: false }));
+      const ids = chart.data.datasets[0].ftIds || [];
+      return chart.data.labels.map((label, i) => ({ id: ids[i] || label, label, color: Array.isArray(colors) ? colors[i] : colors, visible: chart.getDataVisibility(i), locked: false }));
     }
     return chart.data.datasets.map((ds, i) => ({
+      id: ds.ftId || ds.label, // 記憶の識別子＝folder（同名の案件が2つあるため名前では区別できない・断 v3.1 重2）
       label: ds.label,
       color: !ds.backgroundColor || ds.backgroundColor === "transparent" || typeof ds.backgroundColor !== "string" ? ds.borderColor : ds.backgroundColor,
       visible: chart.isDatasetVisible(i),
@@ -58,7 +60,7 @@
     let changed = false;
     entriesOf(chart).forEach((en, i) => {
       if (en.locked) return;
-      const want = !hidden.has(en.label);
+      const want = !hidden.has(en.id);
       if (en.visible !== want) { setVisible(chart, i, want); changed = true; }
     });
     if (changed) chart.update("none");
@@ -71,7 +73,7 @@
     const hidden = new Set(store[storeKey] || []);
     entriesOf(chart).forEach((en) => {
       if (en.locked) return;
-      if (en.visible) hidden.delete(en.label); else hidden.add(en.label);
+      if (en.visible) hidden.delete(en.id); else hidden.add(en.id);
     });
     if (hidden.size > 0) store[storeKey] = Array.from(hidden); else delete store[storeKey];
     writeStore(store);
@@ -97,7 +99,7 @@
       if (summary) summary.textContent = offCount > 0 ? `凡例（${entries.length}・${offCount}件を非表示）` : `凡例（${entries.length}）`;
       items.innerHTML = entries.map((en, i) =>
         `<button type="button" class="ov-legend-item${en.visible ? "" : " off"}" data-index="${i}" aria-pressed="${en.visible}" title="${en.visible ? "押すと隠す" : "押すと出す"}"><span class="ov-legend-swatch" style="background:${escapeHtml(en.color || "#6b7280")}"></span>${escapeHtml(en.label)}</button>`
-      ).join("") + `<button type="button" class="ov-legend-all" data-legend-all="1"${offCount > 0 ? "" : " aria-disabled=\"true\""}>全部出す</button>`;
+      ).join("") + `<button type="button" class="ov-legend-all" data-legend-all="1"${offCount > 0 ? "" : " disabled aria-disabled=\"true\""}>全部出す</button>`;
 
       items.querySelectorAll(".ov-legend-item").forEach((btn) => {
         btn.addEventListener("click", () => {
@@ -123,5 +125,17 @@
     draw();
   }
 
-  window.FtLegend = { render, STORE_KEY };
+  // 記憶から特定の項目を外す（例：全体市況の「その他を表示」を入れ直したとき＝断 v3.1 重1）
+  function forget(storeKeys, id) {
+    const store = readStore();
+    let changed = false;
+    (Array.isArray(storeKeys) ? storeKeys : [storeKeys]).forEach((k) => {
+      if (!Array.isArray(store[k])) return;
+      const next = store[k].filter((x) => x !== id);
+      if (next.length !== store[k].length) { changed = true; if (next.length > 0) store[k] = next; else delete store[k]; }
+    });
+    if (changed) writeStore(store);
+  }
+
+  window.FtLegend = { render, forget, STORE_KEY };
 })();

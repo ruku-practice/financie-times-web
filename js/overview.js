@@ -1,5 +1,5 @@
 /* ============================================================
- * FiNANCiE TIMES 総覧タブ（Dune型ダッシュボード） v3.0.0
+ * FiNANCiE TIMES 全体市況タブ（Dune型ダッシュボード） v3.1.0
  *
  * advanced.js が読み込まれたあとに読み込まれる想定（同じドキュメント内の
  * 別スクリプトなので、トップレベルの let/const は共有される）。
@@ -9,7 +9,7 @@
 (function () {
   "use strict";
 
-  const OV_APP_VERSION = "3.0.0";
+  const OV_APP_VERSION = "3.1.0";
 
   // 出来高の単位＝「円」（2026-09-12 21:30 ルク決定・本家 financie.jp が円表示のため）。
   // ラベルの定義はここ1か所だけ（A12）。切り替えるときはこの1行だけ直せばよい。
@@ -536,6 +536,7 @@
 
     const datasetsA = series.map((s, i) => ({
       label: s.name,
+      ftId: s.folder,
       data: s.data,
       backgroundColor: ovColor(i),
       stack: "vol"
@@ -584,6 +585,7 @@
     });
     const shareDatasets = series.map((s, i) => ({
       label: s.name,
+      ftId: s.folder,
       data: s.data.map((v, bi) => bucketTotals[bi] > 0 ? (v / bucketTotals[bi]) * 100 : 0),
       backgroundColor: ovColor(i),
       stack: "share"
@@ -622,10 +624,12 @@
   function renderShareDonut(series, othersData) {
     const totals = series.map((s) => s.data.reduce((a, b) => a + b, 0));
     const labels = series.map((s) => s.name);
+    const ids = series.map((s) => s.folder); // 凡例の記憶の識別子（棒グラフと共通＝同じ案件を同じ記憶で出し入れ）
     const colors = series.map((_, i) => ovColor(i));
     if (ovState.showOthers) {
       totals.push(othersData.reduce((a, b) => a + b, 0));
       labels.push("その他");
+      ids.push("その他");
       colors.push(OV_OTHER_COLOR);
     }
     const grand = totals.reduce((a, b) => a + b, 0);
@@ -635,7 +639,7 @@
     const ctx = document.getElementById("ovShareChart").getContext("2d");
     ovCharts.share = new Chart(ctx, {
       type: "doughnut",
-      data: { labels, datasets: [{ data: totals, backgroundColor: colors, borderColor: currentTheme() === "light" ? "#ffffff" : "#131A26", borderWidth: 1 }] },
+      data: { labels, datasets: [{ data: totals, ftIds: ids, backgroundColor: colors, borderColor: currentTheme() === "light" ? "#ffffff" : "#131A26", borderWidth: 1 }] },
       options: {
         responsive: true,
         maintainAspectRatio: false,
@@ -878,6 +882,7 @@
         }
         return {
           label: tf.name,
+          ftId: tf.folder,
           data,
           borderColor: ovColor(i),
           backgroundColor: "transparent",
@@ -960,6 +965,7 @@
       const shortLabels = buckets.map((b) => b.short);
       const datasets = series.map((s, i) => ({
         label: s.name,
+        ftId: s.folder,
         data: s.data,
         backgroundColor: ovColor(i),
         stack: "members"
@@ -1241,6 +1247,8 @@
 
     dom.showOthers.addEventListener("change", () => {
       ovState.showOthers = dom.showOthers.checked;
+      // 入れ直したら「その他」は必ず出す（凡例で消した記憶が残って食い違わないように・断 v3.1 重1）
+      if (ovState.showOthers && window.FtLegend) window.FtLegend.forget(["ov:volume", "ov:share", "ov:members"], "その他");
       const topFolders = computeTopNVolumeFolders();
       renderPanelAB(topFolders);
       if (ovState.panelEReady) renderPanelE(topFolders);

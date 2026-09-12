@@ -1,5 +1,5 @@
 
-  const APP_VERSION = "3.0.0";
+  const APP_VERSION = "3.1.0";
   console.info("FiNANCiE TIMES v" + APP_VERSION);
 
   let projectsList = [];
@@ -837,6 +837,7 @@
 
       const commonConfig = {
         label: projData.name,
+        ftId: projData.folder || selectedCompareFolders[index], // 凡例の記憶の識別子（同名の案件があるため名前では区別しない）
         borderColor: color,
         backgroundColor: color,
         borderWidth: 2,

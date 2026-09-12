@@ -417,6 +417,16 @@ async function run() {
       && legendAfterReload.visible === false && legendAfterReload.off
       && legendBack.visible === true
       && legendAll.allVisible && legendAll.offCount === 0 && !(JSON.parse(legendAll.stored || "{}")["ov:volume"]);
+    // A45（断 v3.1 重1・重2）: 凡例で「その他」を消す→「その他を表示」を OFF→ON で「その他」が出る＝記憶が消えている／記憶の識別子は名前でなく folder
+    await page.evaluate(() => { const b = Array.from(document.querySelectorAll("#ov-legend-volume .ov-legend-item")).find((x) => x.textContent.trim() === "その他"); b.click(); });
+    await page.waitForTimeout(300);
+    const othersHiddenByLegend = await page.evaluate(() => { const ch = window.FinancieOverview._debug.charts.volume; const i = ch.data.datasets.findIndex((d) => d.label === "その他"); return { hidden: !ch.isDatasetVisible(i), stored: (JSON.parse(localStorage.getItem("ft_legend_hidden") || "{}")["ov:volume"] || []) }; });
+    await page.uncheck("#ov-show-others");
+    await page.waitForTimeout(300);
+    await page.check("#ov-show-others");
+    await page.waitForTimeout(500);
+    const othersBack = await page.evaluate(() => { const ch = window.FinancieOverview._debug.charts.volume; const i = ch.data.datasets.findIndex((d) => d.label === "その他"); const st = JSON.parse(localStorage.getItem("ft_legend_hidden") || "{}"); return { visible: ch.isDatasetVisible(i), stored: st["ov:volume"] || [], ids: ch.data.datasets.slice(0, 2).map((d) => d.ftId) }; });
+    record("A45-legend-others-checkbox-and-folder-id", othersHiddenByLegend.hidden && othersHiddenByLegend.stored.includes("その他") && othersBack.visible && !othersBack.stored.includes("その他") && othersBack.ids.every((id) => id && !/[｜（]/.test(id) && id !== "その他"), JSON.stringify({ othersHiddenByLegend, othersBack }));
     record("A43-legend-toggle-persist-all", legendOk, JSON.stringify({ legendBefore, legendOff: { ...legendOff, stored: undefined }, legendAfterRedraw, legendAfterReload, legendBack, legendAll }));
     await page.click('#ov-period-group button[data-period="90"]');
     await page.waitForTimeout(400);
