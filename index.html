@@ -305,8 +305,9 @@
               <details class="ov-legend" id="ov-legend-price"><summary>凡例</summary><div class="ov-legend-items"></div></details>
             </div>
             <div class="chart-card ov-chart-card">
-              <div class="chart-card-header"><h3 class="chart-card-title">メンバー数の増減（日ごとの純増・購入者数ではない）</h3><div class="ov-size-group" role="group" aria-label="グラフの高さ"><button type="button" class="ov-size-btn" data-size="s">小</button><button type="button" class="ov-size-btn" data-size="m">中</button><button type="button" class="ov-size-btn" data-size="l">大</button></div></div>
+              <div class="chart-card-header"><h3 class="chart-card-title">メンバー数の増減（日ごとの純増・購入者数ではない）</h3><div class="ov-header-tools"><div class="ov-size-group ov-view-group" id="ov-gap-mode" role="group" aria-label="欠測・一斉変動の日の扱い"><button type="button" class="ov-size-btn" data-gap="exclude" title="0に落ちて後で戻った日は前の値で埋め、多数の案件が同じ日に同じ向きに動いた日（一斉の再集計）は増減0にします">欠測を除く</button><button type="button" class="ov-size-btn" data-gap="raw" title="記録された値の差をそのまま出します">そのまま</button></div><div class="ov-size-group" role="group" aria-label="グラフの高さ"><button type="button" class="ov-size-btn" data-size="s">小</button><button type="button" class="ov-size-btn" data-size="m">中</button><button type="button" class="ov-size-btn" data-size="l">大</button></div></div></div>
               <div class="chart-wrapper"><canvas id="ovMembersChart"></canvas></div>
+              <p class="ov-gap-note" id="ov-gap-note"></p>
               <details class="ov-legend" id="ov-legend-members"><summary>凡例</summary><div class="ov-legend-items"></div></details>
             </div>
           </div>

@@ -133,6 +133,10 @@
   };
   const SHARE_VIEW_KEY = "ft_share_view";
   try { if (localStorage.getItem(SHARE_VIEW_KEY) === "donut") ovState.shareView = "donut"; } catch (e) { /* 記憶なし */ }
+  // メンバー数の増減：欠測・一斉変動の日の扱い 'exclude'（既定・除く）／'raw'（そのまま）＝2026-09-13 07:10 ルク指摘
+  ovState.gapMode = "exclude";
+  const GAP_MODE_KEY = "ft_gap_mode";
+  try { if (localStorage.getItem(GAP_MODE_KEY) === "raw") ovState.gapMode = "raw"; } catch (e) { /* 記憶なし */ }
 
   const ovData = {}; // { volume: {days,projects,rows,folderIndex}, market: {...}, ... }
   const ovCharts = { volume: null, share: null, price: null, members: null };
@@ -918,20 +922,74 @@
   /* ------------------------------------------------------------
    * パネル E: メンバー数の増減（日ごとの純増・上位N＋その他の積み上げ）
    * ------------------------------------------------------------ */
+  // 欠測・一斉変動の日（2026-09-13 ルク指摘＝06/24 に「その他」が −15,611 で縦軸が潰れた）。
+  //  ①0落ち：直前が GAP_ZERO_MIN 以上で 0 になった日は欠測＝前の値で埋める（分析タブ仕様メモ §4）
+  //  ②一斉変動：GAP_MASS_MIN 以上の案件が同じ日に同じ向きへ GAP_MASS_STEP 以上動いた日（本家側の再集計の跡・
+  //    実測＝2026-06-24 は45案件がそろって約−100・2024-09-12 は211案件が0→09-14 に復帰）は、その日の増減を全案件 0 にする
+  const GAP_ZERO_MIN = 100;
+  const GAP_MASS_MIN = 20;
+  const GAP_MASS_STEP = 100;
+  let gapCache = null; // { filled: rows（①適用後）, massDays: {dayIdx: {count, sign}} }
+
+  function membersGapInfo(payload) {
+    if (gapCache && gapCache.payload === payload) return gapCache;
+    const n = payload.days.length;
+    const filled = payload.rows.map((row) => {
+      const out = row.slice();
+      for (let d = 1; d < n; d++) {
+        const prev = out[d - 1];
+        if (out[d] === 0 && typeof prev === "number" && prev >= GAP_ZERO_MIN) out[d] = prev; // ①前の値で埋める（連続する0も埋まる）
+      }
+      return out;
+    });
+    const massDays = {};
+    for (let d = 1; d < n; d++) {
+      let down = 0, up = 0;
+      payload.rows.forEach((row) => {
+        const a = row[d - 1], b = row[d];
+        if (typeof a !== "number" || typeof b !== "number") return;
+        if (b - a <= -GAP_MASS_STEP) down++; else if (b - a >= GAP_MASS_STEP) up++;
+      });
+      if (down >= GAP_MASS_MIN) massDays[d] = { count: down, sign: -1 };
+      else if (up >= GAP_MASS_MIN) massDays[d] = { count: up, sign: 1 };
+    }
+    gapCache = { payload, filled, massDays };
+    return gapCache;
+  }
+
+  function renderGapNote() {
+    const el = document.getElementById("ov-gap-note");
+    if (!el || !ovData.members) return;
+    const info = membersGapInfo(ovData.members);
+    const days = ovData.members.days;
+    const inRange = Object.keys(info.massDays).map(Number).filter((d) => d >= ovState.startIdx && d <= ovState.endIdx).sort((a, b) => a - b);
+    const list = inRange.map((d) => `${fmtDateJa(days[d])}（${info.massDays[d].count}案件が同時に${info.massDays[d].sign < 0 ? "減" : "増"}）`).join("・");
+    if (ovState.gapMode === "raw") {
+      el.textContent = `記録された値の差をそのまま出しています。${inRange.length > 0 ? `期間内の一斉変動の日＝${list}。この日は本家側の再集計やページ消失の跡で、実際の退会・入会ではありません。` : ""}`;
+    } else {
+      el.textContent = `欠測を除いています＝0に落ちて後で戻った日は前の値で埋め、多数の案件が同じ日に同じ向きに動いた日は増減0にしています${inRange.length > 0 ? `（期間内 ${inRange.length}日＝${list}）` : "（期間内に該当日なし）"}。「そのまま」で記録どおりの値に切り替えられます。`;
+    }
+  }
+
   function renderPanelE(topFolders) {
     ensureMetricLoaded("members").then((payload) => {
       const buckets = buildBuckets();
       const topN = topFolders.slice(0, ovState.topN);
+      const exclude = ovState.gapMode !== "raw";
+      const gap = exclude ? membersGapInfo(payload) : null;
+      const rowsUsed = exclude ? gap.filled : payload.rows;
 
       // 期間開始日の1日前が要る（純増の差分計算のため）。無ければ最初の日はnull扱い。
       function netAddRow(folder) {
         const idx = payload.folderIndex[folder];
         if (idx === undefined) return {};
-        const row = payload.rows[idx];
+        const row = rowsUsed[idx];
         const net = {};
         for (let d = ovState.startIdx; d <= ovState.endIdx; d++) {
           if (d === 0 || row[d] === null || row[d - 1] === null || row[d] === undefined || row[d - 1] === undefined) {
             net[d] = null;
+          } else if (exclude && gap.massDays[d]) {
+            net[d] = 0; // ②一斉変動の日は増減0
           } else {
             net[d] = row[d] - row[d - 1];
           }
@@ -946,8 +1004,9 @@
           b.indices.forEach((di) => { if (net[di] !== null && net[di] !== undefined) { s += net[di]; has = true; } });
           return has ? s : 0;
         });
-        return { name: tf.name, data };
+        return { name: tf.name, folder: tf.folder, data };
       });
+      renderGapNote();
 
       // その他 = 上位N以外の全プロジェクトの純増合計
       const topFolderSet = new Set(topN.map((t) => t.folder));
@@ -1258,6 +1317,20 @@
 
     if (dom.errorReload) {
       dom.errorReload.addEventListener("click", () => window.location.reload());
+    }
+
+    // メンバー数の増減：欠測を除く／そのまま（記憶・ルク指摘 07:10）
+    const gapGroup = document.getElementById("ov-gap-mode");
+    if (gapGroup) {
+      setActive(gapGroup, "data-gap", ovState.gapMode);
+      gapGroup.querySelectorAll("button[data-gap]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          ovState.gapMode = btn.getAttribute("data-gap") === "raw" ? "raw" : "exclude";
+          try { localStorage.setItem(GAP_MODE_KEY, ovState.gapMode); } catch (e) { /* 記憶できなくても動く */ }
+          setActive(gapGroup, "data-gap", ovState.gapMode);
+          if (ovState.panelEReady) renderPanelE(computeTopNVolumeFolders());
+        });
+      });
     }
 
     if (dom.shareView) {

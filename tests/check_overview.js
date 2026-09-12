@@ -431,6 +431,34 @@ async function run() {
     await page.click('#ov-period-group button[data-period="90"]');
     await page.waitForTimeout(400);
 
+    // A46（07:10 ルク指摘）: メンバー数の増減＝「欠測を除く」（既定）で 2026-06-24 の合計が −1,000 以内・「そのまま」で −15,000 以下・注記に日付・切替を記憶
+    await page.click('#ov-period-group button[data-period="all"]');
+    await page.click('#ov-granularity-group button[data-granularity="day"]');
+    await page.evaluate(() => document.getElementById("ovMembersChart").scrollIntoView({ block: "center" }));
+    await page.waitForFunction(() => { const ch = window.FinancieOverview._debug.charts.members; const st = window.FinancieOverview._debug.state; return ch && ch.data.labels.length === st.endIdx - st.startIdx + 1; }, { timeout: 15000 });
+    await page.waitForTimeout(400);
+    const gapSum = () => page.evaluate(() => {
+      const ch = window.FinancieOverview._debug.charts.members;
+      const i = ch.data.labels.indexOf("2026-06-24");
+      const sum = ch.data.datasets.reduce((s, d) => s + (d.data[i] || 0), 0);
+      return { i, sum: Math.round(sum), mode: window.FinancieOverview._debug.state.gapMode, active: document.querySelector("#ov-gap-mode button.active").getAttribute("data-gap"), note: document.getElementById("ov-gap-note").textContent, yMin: ch.scales.y.min };
+    });
+    const gapExclude = await gapSum();
+    await page.click('#ov-gap-mode button[data-gap="raw"]');
+    await page.waitForTimeout(500);
+    const gapRaw = await gapSum();
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await waitOverviewReady(page);
+    await page.evaluate(() => document.getElementById("ovMembersChart").scrollIntoView({ block: "center" }));
+    await page.waitForFunction(() => !!window.FinancieOverview._debug.charts.members, { timeout: 15000 });
+    await page.waitForTimeout(400);
+    const gapPersist = await gapSum();
+    await page.click('#ov-gap-mode button[data-gap="exclude"]');
+    await page.waitForTimeout(400);
+    record("A46-members-gap-toggle", gapExclude.i >= 0 && gapExclude.mode === "exclude" && gapExclude.active === "exclude" && gapExclude.sum > -1000 && gapExclude.note.includes("2026/06/24") && gapRaw.mode === "raw" && gapRaw.sum <= -15000 && gapRaw.note.includes("2026/06/24") && gapPersist.mode === "raw" && gapPersist.active === "raw" && gapExclude.yMin > gapRaw.yMin, JSON.stringify({ exclude: { sum: gapExclude.sum, yMin: gapExclude.yMin, note: gapExclude.note.slice(0, 60) }, raw: { sum: gapRaw.sum, yMin: gapRaw.yMin }, persist: gapPersist.mode }));
+    await page.click('#ov-period-group button[data-period="90"]');
+    await page.waitForTimeout(400);
+
     // A39（v3.1 項目6）: 表示文言は「全体市況」。タブ・見出しに出て、画面の文字に「総覧」が残っていない（id・URL・記憶のキーは据え置き）
     const naming = await page.evaluate(() => ({
       tab: document.querySelector('.tab-nav-btn[data-tab="overview-tab"]').textContent.trim(),

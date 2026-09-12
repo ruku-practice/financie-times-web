@@ -294,6 +294,21 @@
   margin-left: 4px;
 }
 
+/* メンバー数の増減：見出し右の釦2組（欠測の扱い＋高さ）と注記 */
+.ov-header-tools {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.ov-gap-note {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
 /* 凡例の「全部出す」（v3.1 項目3・全グラフ共通） */
 .ov-legend-all {
   display: inline-flex;
