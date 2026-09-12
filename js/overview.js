@@ -428,7 +428,7 @@
     if (dom.meta) dom.meta.textContent = `非公式・${count}プロジェクト・記録 ${fmtDateJa(first)}〜${fmtDateJa(latest)}（毎日1回）・それ以前のデータは持っていません（FiNANCiE 自体はそれ以前からあるサービスです）`;
     if (dom.kpiTotalLabel) dom.kpiTotalLabel.textContent = `期間の全体出来高（${OVERVIEW_CONFIG.volumeUnitLabel}）`;
     if (dom.kpiShareLabel) dom.kpiShareLabel.textContent = `上位${n}のシェア`;
-    if (dom.panelDTitle) dom.panelDTitle.textContent = `価格の推移（上位${n}・期間初日=100の指数）`;
+    if (dom.panelDTitle) dom.panelDTitle.textContent = `価格の推移（上位${n}・期間内で最初に値が付いた日=100の指数）`;
   }
 
   function renderKPIs(topRanked) {
@@ -871,7 +871,7 @@
   }
 
   /* ------------------------------------------------------------
-   * パネル D: 価格の推移（上位N・期間初日=100の指数）
+   * パネル D: 価格の推移（上位N・期間内で最初に値が付いた日=100の指数）
    * ------------------------------------------------------------ */
   function renderPanelD(topFolders) {
     ensureMetricLoaded("price").then((payload) => {
@@ -883,16 +883,16 @@
       const datasets = topN.map((tf, i) => {
         const idx = payload.folderIndex[tf.folder];
         const row = idx !== undefined ? payload.rows[idx] : null;
+        // 基準＝期間内で最初に価格が 0 より大きい日。上位案件は記録の初日が価格 0 のことが多く、
+        // 「最初に null でない日」を基準にすると 0 除算で全点が消えた（v3.1 項目2）。
+        // 価格 0 以下は「値が付いていない日」として線を途切れさせず飛ばす。
         let base = null;
         const data = [];
         for (let d = ovState.startIdx; d <= ovState.endIdx; d++) {
           const v = row ? row[d] : null;
-          if (v !== null && v !== undefined && base === null) base = v;
-          if (v === null || v === undefined || base === null || base === 0) {
-            data.push(null);
-          } else {
-            data.push((v / base) * 100);
-          }
+          const priced = typeof v === "number" && v > 0;
+          if (priced && base === null) base = v;
+          data.push(priced && base !== null ? (v / base) * 100 : null);
         }
         return {
           label: tf.name,

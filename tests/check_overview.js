@@ -329,6 +329,30 @@ async function run() {
     await page.click('#ov-period-group button[data-period="90"]');
     await page.waitForTimeout(300);
 
+    // ---------- v3.1 の受け入れ検査 ----------
+    // A38（v3.1 項目2）: 価格の指数は「期間内で最初に 0 より大きい値の日」が基準。上位10の10系列すべてに null でない点が1つ以上ある（全期間・1年・90日）
+    await page.evaluate(() => document.getElementById("ovPriceChart").scrollIntoView({ block: "center" }));
+    await page.waitForFunction(() => !!window.FinancieOverview._debug.charts.price, { timeout: 15000 });
+    const priceIndex = {};
+    for (const p of ["all", "365", "90"]) {
+      await page.click(`#ov-period-group button[data-period="${p}"]`);
+      await page.waitForFunction(() => {
+        const st = window.FinancieOverview._debug.state;
+        const ch = window.FinancieOverview._debug.charts.price;
+        return ch && ch.data.labels.length === st.endIdx - st.startIdx + 1;
+      }, { timeout: 15000 });
+      await page.waitForTimeout(300);
+      priceIndex[p] = await page.evaluate(() => {
+        const ds = window.FinancieOverview._debug.charts.price.data.datasets;
+        const empty = ds.filter((d) => !d.data.some((v) => v !== null && Number.isFinite(v))).map((d) => d.label);
+        const firstIs100 = ds.filter((d) => { const v = d.data.find((x) => x !== null); return v !== undefined && Math.abs(v - 100) > 1e-9; }).map((d) => d.label);
+        return { n: ds.length, empty, firstIs100Bad: firstIs100 };
+      });
+    }
+    record("A38-price-index-not-empty", ["all", "365", "90"].every((p) => priceIndex[p].n === 10 && priceIndex[p].empty.length === 0 && priceIndex[p].firstIs100Bad.length === 0), JSON.stringify(priceIndex));
+    await page.click('#ov-period-group button[data-period="90"]');
+    await page.waitForTimeout(300);
+
     // ---------- ルク要望3（21:50 決裁）と注記a〜d の受け入れ検査 ----------
     // A34: 名前のリンク＝本家 financie.jp/users/<slug>・新しいタブ・noopener・title に「FiNANCiEで見る」と各案件のデータ取得開始日。名前を押しても個別分析へは飛ばない
     const links = await page.$$eval("#ov-ranking-tbody tr[data-folder] a.ov-pj-link", (as) => as.map((a) => ({
