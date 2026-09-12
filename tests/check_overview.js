@@ -330,7 +330,7 @@ async function run() {
     await page.waitForTimeout(300);
 
     // ---------- v3.1 の受け入れ検査 ----------
-    // A38（v3.1 項目2）: 価格の指数は「期間内で最初に 0 より大きい値の日」が基準。上位10の10系列すべてに null でない点が1つ以上ある（全期間・1年・90日）
+    // A38（v3.1 項目2 → 06:43 ルク指示で絶対値）: 価格は円の絶対値。上位10の10系列すべてに点があり、各点が price.json の生の値と一致（0 以下は null）・縦軸と見出しに「円」（全期間・1年・90日）
     await page.evaluate(() => document.getElementById("ovPriceChart").scrollIntoView({ block: "center" }));
     await page.waitForFunction(() => !!window.FinancieOverview._debug.charts.price, { timeout: 15000 });
     const priceIndex = {};
@@ -343,12 +343,44 @@ async function run() {
       }, { timeout: 15000 });
       await page.waitForTimeout(300);
       priceIndex[p] = await page.evaluate(() => {
-        const ds = window.FinancieOverview._debug.charts.price.data.datasets;
+        const dbg = window.FinancieOverview._debug;
+        const ds = dbg.charts.price.data.datasets;
+        const payload = dbg.data.price;
+        const st = dbg.state;
         const empty = ds.filter((d) => !d.data.some((v) => v !== null && Number.isFinite(v))).map((d) => d.label);
-        const firstIs100 = ds.filter((d) => { const v = d.data.find((x) => x !== null); return v !== undefined && Math.abs(v - 100) > 1e-9; }).map((d) => d.label);
-        return { n: ds.length, empty, firstIs100Bad: firstIs100 };
+        const mismatch = [];
+        ds.forEach((d) => {
+          const p = payload.projects.find((pj) => pj.name === d.label);
+          const row = p ? payload.rows[payload.folderIndex[p.folder]] : null;
+          for (let i = 0; i < d.data.length; i++) {
+            const raw = row ? row[st.startIdx + i] : null;
+            const want = typeof raw === "number" && raw > 0 ? raw : null;
+            if (d.data[i] !== want) { mismatch.push(`${d.label}@${i}:${d.data[i]}!=${want}`); break; }
+          }
+        });
+        const yTick = dbg.charts.price.scales.y.ticks.map((t) => t.label).find((l) => l);
+        const title = document.getElementById("ov-panelD-title").textContent;
+        return { n: ds.length, empty, mismatch: mismatch.slice(0, 3), yTick, yMin: dbg.charts.price.scales.y.min, title };
       });
     }
+    // A42（06:45 ルク指摘）: 全体出来高の棒が天井に触れない＝軸の上限 ≥ いちばん高い積み上げ×1.04（全期間・月）。時系列4枚は1列（横長）＝カードの幅が親の幅の95%以上
+    await page.click('#ov-period-group button[data-period="all"]');
+    await page.click('#ov-granularity-group button[data-granularity="month"]');
+    await page.waitForTimeout(500);
+    const headroom = await page.evaluate(() => {
+      const ch = window.FinancieOverview._debug.charts.volume;
+      const n = ch.data.labels.length;
+      let stackMax = 0;
+      for (let i = 0; i < n; i++) { let s = 0; ch.data.datasets.forEach((d, di) => { if (ch.isDatasetVisible(di)) s += d.data[i] || 0; }); stackMax = Math.max(stackMax, s); }
+      const grid = document.querySelector(".ov-charts-grid");
+      const cards = Array.from(document.querySelectorAll(".ov-chart-card")).map((c) => Math.round(c.getBoundingClientRect().width / grid.getBoundingClientRect().width * 100));
+      return { yMax: ch.scales.y.max, stackMax: Math.round(stackMax), cards };
+    });
+    record("A42-volume-headroom-and-wide", headroom.yMax >= headroom.stackMax * 1.04 && headroom.cards.length === 4 && headroom.cards.every((w) => w >= 95), JSON.stringify(headroom));
+    await page.click('#ov-granularity-group button[data-granularity="day"]');
+    await page.click('#ov-period-group button[data-period="90"]');
+    await page.waitForTimeout(400);
+
     // A39（v3.1 項目6）: 表示文言は「全体市況」。タブ・見出しに出て、画面の文字に「総覧」が残っていない（id・URL・記憶のキーは据え置き）
     const naming = await page.evaluate(() => ({
       tab: document.querySelector('.tab-nav-btn[data-tab="overview-tab"]').textContent.trim(),
@@ -357,7 +389,7 @@ async function run() {
       leftover: document.body.innerText.includes("総覧") || document.title.includes("総覧")
     }));
     record("A39-name-zentai-shikyo", naming.tab === "全体市況" && naming.h2 === "全体市況" && naming.errText.includes("全体市況") && !naming.leftover, JSON.stringify(naming));
-    record("A38-price-index-not-empty", ["all", "365", "90"].every((p) => priceIndex[p].n === 10 && priceIndex[p].empty.length === 0 && priceIndex[p].firstIs100Bad.length === 0), JSON.stringify(priceIndex));
+    record("A38-price-absolute-yen", ["all", "365", "90"].every((p) => priceIndex[p].n === 10 && priceIndex[p].empty.length === 0 && priceIndex[p].mismatch.length === 0 && String(priceIndex[p].yTick).includes("円") && priceIndex[p].yMin === 0 && priceIndex[p].title.includes("円") && !priceIndex[p].title.includes("指数")), JSON.stringify(priceIndex));
     await page.click('#ov-period-group button[data-period="90"]');
     await page.waitForTimeout(300);
 
@@ -732,8 +764,10 @@ async function run() {
     // 同じことを開始日側で（開始に終了より後の日を打つ）
     await page.click('#ov-period-group button[data-period="90"]');
     await page.waitForTimeout(300);
+    // 打つ日＝データの最終日（毎晩データが増えるので直書きしない）
+    const lastDay = await page.evaluate(() => { const d = window.FinancieOverview._debug.data.market.days; return d[d.length - 1]; });
     await page.focus("#ov-start-date");
-    await page.keyboard.type("20260912");
+    await page.keyboard.type(lastDay.replace(/-/g, ""));
     await page.click("#ov-kpi-grid"); // Enter ではなく「別の場所を押す」（フォーカスが外れる）でも確定する
     await page.waitForTimeout(400);
     const tabCommit = await page.evaluate(() => {
@@ -741,7 +775,7 @@ async function run() {
       const d = window.FinancieOverview._debug.data.market.days;
       return { inputs: [document.getElementById("ov-start-date").value, document.getElementById("ov-end-date").value], state: [d[s.startIdx], d[s.endIdx]], nDays: s.endIdx - s.startIdx + 1 };
     });
-    record("A37-blur-commit", tabCommit.inputs[0] === "2026-09-12" && tabCommit.inputs[1] === "2026-09-12" && tabCommit.state[0] === "2026-09-12" && tabCommit.nDays === 1, JSON.stringify(tabCommit));
+    record("A37-blur-commit", tabCommit.inputs[0] === lastDay && tabCommit.inputs[1] === lastDay && tabCommit.state[0] === lastDay && tabCommit.nDays === 1, `lastDay=${lastDay} ${JSON.stringify(tabCommit)}`);
     await context.close();
   }
 

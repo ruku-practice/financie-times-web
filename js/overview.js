@@ -428,7 +428,7 @@
     if (dom.meta) dom.meta.textContent = `非公式・${count}プロジェクト・記録 ${fmtDateJa(first)}〜${fmtDateJa(latest)}（毎日1回）・それ以前のデータは持っていません（FiNANCiE 自体はそれ以前からあるサービスです）`;
     if (dom.kpiTotalLabel) dom.kpiTotalLabel.textContent = `期間の全体出来高（${OVERVIEW_CONFIG.volumeUnitLabel}）`;
     if (dom.kpiShareLabel) dom.kpiShareLabel.textContent = `上位${n}のシェア`;
-    if (dom.panelDTitle) dom.panelDTitle.textContent = `価格の推移（上位${n}・期間内で最初に値が付いた日=100の指数）`;
+    if (dom.panelDTitle) dom.panelDTitle.textContent = `価格の推移（上位${n}・円）`;
   }
 
   function renderKPIs(topRanked) {
@@ -580,7 +580,8 @@
         },
         scales: {
           x: { stacked: true, ticks: xTicksOptions(shortLabels), grid: { color: chartColors().gridX } },
-          y: { stacked: true, ticks: { color: chartColors().tick }, grid: { color: chartColors().gridY } }
+          // grace＝いちばん高い棒の上に余白。最大月 448.4M に対し軸の上限が 450M で、棒が天井に触れて切れて見えた（06:45 ルク指摘）
+          y: { stacked: true, grace: "6%", ticks: { color: chartColors().tick }, grid: { color: chartColors().gridY } }
         }
       }
     });
@@ -872,7 +873,7 @@
   }
 
   /* ------------------------------------------------------------
-   * パネル D: 価格の推移（上位N・期間内で最初に値が付いた日=100の指数）
+   * パネル D: 価格の推移（上位N・円の絶対値）
    * ------------------------------------------------------------ */
   function renderPanelD(topFolders) {
     ensureMetricLoaded("price").then((payload) => {
@@ -884,16 +885,12 @@
       const datasets = topN.map((tf, i) => {
         const idx = payload.folderIndex[tf.folder];
         const row = idx !== undefined ? payload.rows[idx] : null;
-        // 基準＝期間内で最初に価格が 0 より大きい日。上位案件は記録の初日が価格 0 のことが多く、
-        // 「最初に null でない日」を基準にすると 0 除算で全点が消えた（v3.1 項目2）。
-        // 価格 0 以下は「値が付いていない日」として線を途切れさせず飛ばす。
-        let base = null;
+        // 価格の絶対値（円）。指数（期間初日=100）は 2026-09-13 06:43 ルク指示で絶対値へ変更。
+        // 価格 0 以下は「値が付いていない日」として null（線は spanGaps でつなぐ）。桁の違う案件は凡例で出し入れして読む（項目3）。
         const data = [];
         for (let d = ovState.startIdx; d <= ovState.endIdx; d++) {
           const v = row ? row[d] : null;
-          const priced = typeof v === "number" && v > 0;
-          if (priced && base === null) base = v;
-          data.push(priced && base !== null ? (v / base) * 100 : null);
+          data.push(typeof v === "number" && v > 0 ? v : null);
         }
         return {
           label: tf.name,
@@ -917,11 +914,11 @@
           maintainAspectRatio: false,
           plugins: {
             legend: NO_CANVAS_LEGEND,
-            tooltip: { mode: "index", intersect: false }
+            tooltip: { mode: "index", intersect: false, callbacks: { label: (item) => `${item.dataset.label}: ${fmtFloat(item.raw, 2)} 円` } }
           },
           scales: {
             x: { ticks: xTicksOptions(shortLabels), grid: { color: chartColors().gridX } },
-            y: { ticks: { color: chartColors().tick }, grid: { color: chartColors().gridY } }
+            y: { min: 0, grace: "6%", ticks: { color: chartColors().tick, callback: (v) => `${fmtFloat(v, v < 10 ? 2 : 0)} 円` }, grid: { color: chartColors().gridY } }
           }
         }
       });
@@ -1005,7 +1002,7 @@
           },
           scales: {
             x: { stacked: true, ticks: xTicksOptions(shortLabels), grid: { color: chartColors().gridX } },
-            y: { stacked: true, ticks: { color: chartColors().tick }, grid: { color: chartColors().gridY } }
+            y: { stacked: true, grace: "6%", ticks: { color: chartColors().tick }, grid: { color: chartColors().gridY } }
           }
         }
       });
