@@ -157,6 +157,21 @@ def build_reference():
         days = last_n_days(n)
         summ = period_summary(history, folders, days)
         top10 = top_n_share(summ, 10)
+
+        # 前期間比（DBG-1）: 同じ長さの直前の期間の合計と突き合わせるための独立計算。
+        prev_end_date = ymd_to_date(days[0]) - timedelta(days=1)
+        prev_start_date = prev_end_date - timedelta(days=n - 1)
+        prev_days = daterange_inclusive(prev_start_date, prev_end_date)
+        prev_summ = period_summary(history, folders, prev_days)
+        prev_total_map = dict(prev_summ["ranking"])
+        cur_total_map = dict(summ["ranking"])
+        top10_diff_pct = []
+        for folder in top10["top_folders"]:
+            cur = cur_total_map.get(folder, 0.0)
+            prev = prev_total_map.get(folder, 0.0)
+            pct = None if prev == 0 else ((cur - prev) / prev) * 100.0
+            top10_diff_pct.append({"folder": folder, "current": cur, "prev": prev, "pct": pct})
+
         result[label] = {
             "start": days[0],
             "end": days[-1],
@@ -166,6 +181,7 @@ def build_reference():
             "n_projects": summ["n_projects"],
             "top10_folders": top10["top_folders"],
             "top10_share": top10["share"],
+            "top10_diff_pct": top10_diff_pct,
             "week_bucket_total": week_bucket_sum(summ["daily_total"]),
             "month_bucket_total": month_bucket_sum(summ["daily_total"]),
         }

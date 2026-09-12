@@ -60,6 +60,7 @@
     showOthers: true,
     startIdx: 0,
     endIdx: 0,
+    rangeSwapped: false,
     // パネルD/Eは画面に出てくるまでデータを読まない（初回読み込みを market+v24 だけに絞るため）
     panelDReady: false,
     panelEReady: false
@@ -83,6 +84,7 @@
       metricGroup: document.getElementById("ov-metric-group"),
       startInput: document.getElementById("ov-start-date"),
       endInput: document.getElementById("ov-end-date"),
+      rangeNote: document.getElementById("ov-range-note"),
       showOthers: document.getElementById("ov-show-others"),
       kpiTotal: document.getElementById("ov-kpi-total"),
       kpiTotalSub: document.getElementById("ov-kpi-total-sub"),
@@ -103,6 +105,20 @@
   const fmtInt = (n) => (n === null || n === undefined || isNaN(n)) ? "-" : Math.round(n).toLocaleString("ja-JP");
   const fmtFloat = (n, d = 2) => (n === null || n === undefined || isNaN(n)) ? "-" : Number(n).toLocaleString("ja-JP", { minimumFractionDigits: d, maximumFractionDigits: d });
   const fmtPercent = (n, d = 1) => (n === null || n === undefined || isNaN(n)) ? "-" : `${(n * 100).toFixed(d)}%`;
+
+  // 前期間比（出来高ランキング表の4列目）: 現在値と前期間値から ▲/▼ 表示を作る。
+  // 前期間そのものが存在しない/前期間ゼロで今回もゼロ → "—"。前期間ゼロで今回>0 → "新規"（理由が分かる扱い）。
+  function fmtPeriodDiff(current, prevTotal) {
+    if (prevTotal === null || prevTotal === undefined) return { text: "—", cls: "" };
+    if (prevTotal === 0) {
+      if (current > 0) return { text: "新規", cls: "diff-up" };
+      return { text: "—", cls: "" };
+    }
+    const pct = ((current - prevTotal) / prevTotal) * 100;
+    if (pct === 0) return { text: "-", cls: "diff-flat" };
+    const arrow = pct > 0 ? "▲" : "▼";
+    return { text: `${arrow}${Math.abs(pct).toFixed(1)}%`, cls: pct > 0 ? "diff-up" : "diff-down" };
+  }
 
   function fetchOverviewFile(path) {
     window.__ovLoadedFiles.push(path);
@@ -179,24 +195,39 @@
     if (ovState.period === "custom") {
       const startVal = dom.startInput.value;
       const endVal = dom.endInput.value;
+      // 終了日: データの範囲外（過去すぎ）なら最古日ではなく最新日へ丸める（floorIndexが-1を返すのは
+      // 「target未満の日が1つも無い」＝終了日がデータの最初の日より前のケース）。
       let endIdx = endVal ? floorIndex(days, endVal) : latestIdx;
-      if (endIdx < 0) endIdx = latestIdx;
+      if (endIdx < 0) endIdx = 0;
+      // 開始日: データの範囲外（未来すぎ）なら最古日ではなく最新日へ丸める（ceilIndexがdays.lengthを
+      // 返すのは「target以上の日が1つも無い」＝開始日がデータの最後の日より後のケース）。
       let startIdx = startVal ? ceilIndex(days, startVal) : 0;
-      if (startIdx >= days.length) startIdx = 0;
-      if (startIdx > endIdx) startIdx = endIdx;
+      if (startIdx >= days.length) startIdx = latestIdx;
+      // 開始日＞終了日は黙って収束させず、入れ替えて扱う（利用者へ注記を出す）。
+      ovState.rangeSwapped = false;
+      if (startIdx > endIdx) {
+        const tmp = startIdx; startIdx = endIdx; endIdx = tmp;
+        ovState.rangeSwapped = true;
+      }
       ovState.startIdx = startIdx;
       ovState.endIdx = endIdx;
     } else if (ovState.period === "all") {
       ovState.startIdx = 0;
       ovState.endIdx = latestIdx;
+      ovState.rangeSwapped = false;
     } else {
       const n = Number(ovState.period);
       ovState.endIdx = latestIdx;
       ovState.startIdx = Math.max(0, latestIdx - (n - 1));
+      ovState.rangeSwapped = false;
     }
 
     dom.startInput.value = days[ovState.startIdx];
     dom.endInput.value = days[ovState.endIdx];
+    if (dom.rangeNote) {
+      dom.rangeNote.textContent = ovState.rangeSwapped ? "開始日と終了日を入れ替えました" : "";
+      dom.rangeNote.classList.toggle("hidden-element", !ovState.rangeSwapped);
+    }
   }
 
   function autoAdjustGranularity() {
@@ -446,21 +477,24 @@
       const ranked = computeTopNVolumeFolders(); // already sorted desc by period total (全409件)
       const prev = prevPeriodRange();
       let prevRankedMap = {};
+      let prevTotalMap = null; // null=前期間なし。存在すればfolder->前期間合計（データが無ければ0）
       if (prev) {
         const payload = ovData.volume;
+        prevTotalMap = {};
         const prevTotals = payload.projects.map((p, i) => {
           let s = 0;
           const row = payload.rows[i];
           for (let d = prev.startIdx; d <= prev.endIdx; d++) {
             if (row[d] !== null && row[d] !== undefined) s += row[d];
           }
+          prevTotalMap[p.folder] = s;
           return { folder: p.folder, total: s };
         });
         prevTotals.sort((a, b) => b.total - a.total);
         prevTotals.forEach((r, i) => { prevRankedMap[r.folder] = i + 1; });
       }
       const grandTotal = ranked.reduce((s, r) => s + r.total, 0);
-      return { ranked, extra: { prevRankedMap, grandTotal } };
+      return { ranked, extra: { prevRankedMap, prevTotalMap, grandTotal } };
     }
 
     // 出来高以外の指標: 選んだ指標そのものの値で並べ替え
@@ -500,11 +534,13 @@
           const prevRank = extra.prevRankedMap[r.folder];
           const rankChange = prevRank ? prevRank - (i + 1) : null;
           const share = extra.grandTotal > 0 ? r.total / extra.grandTotal : 0;
+          const prevTotal = extra.prevTotalMap ? extra.prevTotalMap[r.folder] : null;
+          const diff = fmtPeriodDiff(r.total, prevTotal);
           rowsHtml += `<tr class="ov-ranking-row" data-folder="${r.folder}">
             <td class="text-center">${i + 1}</td>
             <td class="text-left"><a class="table-pj-link" href="?project=${r.folder}">${r.name}</a></td>
             <td class="text-right">${fmtInt(r.total)}</td>
-            <td class="text-right">-</td>
+            <td class="text-right ${diff.cls}">${diff.text}</td>
             <td class="text-right">${fmtPercent(share)}</td>
             <td class="text-right">${rankChange === null ? "-" : (rankChange > 0 ? `▲${rankChange}` : (rankChange < 0 ? `▼${Math.abs(rankChange)}` : "-"))}</td>
           </tr>`;
@@ -512,8 +548,16 @@
         if (!ovState.showOthers) {
           // 表示切替: その他行を隠す
         } else if (restCount > 0) {
-          const othersSum = ranked.slice(ovState.topN).reduce((s, r) => s + r.total, 0);
-          rowsHtml += `<tr class="ov-ranking-row ov-others-row"><td class="text-center">-</td><td class="text-left">その他（${restCount}件）</td><td class="text-right">${fmtInt(othersSum)}</td><td class="text-right">-</td><td class="text-right">-</td><td class="text-right">-</td></tr>`;
+          const restFolders = ranked.slice(ovState.topN);
+          const othersSum = restFolders.reduce((s, r) => s + r.total, 0);
+          let othersDiff = { text: "-", cls: "" };
+          if (extra.prevTotalMap) {
+            const prevOthersSum = restFolders.reduce((s, r) => s + (extra.prevTotalMap[r.folder] || 0), 0);
+            othersDiff = fmtPeriodDiff(othersSum, prevOthersSum);
+          } else {
+            othersDiff = fmtPeriodDiff(othersSum, null);
+          }
+          rowsHtml += `<tr class="ov-ranking-row ov-others-row"><td class="text-center">-</td><td class="text-left">その他（${restCount}件）</td><td class="text-right">${fmtInt(othersSum)}</td><td class="text-right ${othersDiff.cls}">${othersDiff.text}</td><td class="text-right">-</td><td class="text-right">-</td></tr>`;
         }
       } else if (metric === "price" || metric === "mcap") {
         topN.forEach((r, i) => {

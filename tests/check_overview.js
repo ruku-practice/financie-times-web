@@ -114,6 +114,26 @@ async function run() {
     const match90 = JSON.stringify(top10Folders90) === JSON.stringify(ref.last_90.top10_folders);
     record("A6-90d-top10", match90, `got=${JSON.stringify(top10Folders90)} expect=${JSON.stringify(ref.last_90.top10_folders)}`);
 
+    // A16(旧DBG-1後追い): 90日・上位10の「前期間比」列が reference.py の独立計算(前の90日との比)と一致(±0.1pt)
+    const zenkikanhi90 = await page.$$eval("#ov-ranking-tbody tr.ov-ranking-row[data-folder] td:nth-child(4)", (tds) => tds.map((td) => td.textContent.trim()));
+    const diffRef = ref.last_90.top10_diff_pct || [];
+    const diffMismatches = [];
+    diffRef.forEach((r, i) => {
+      const cellText = zenkikanhi90[i];
+      if (r.pct === null) {
+        // 前期間ゼロ: 現在値>0なら「新規」、現在値も0なら「—」を期待
+        const expected = r.current > 0 ? "新規" : "—";
+        if (cellText !== expected) diffMismatches.push(`${r.folder}: got=${cellText} expect=${expected}`);
+        return;
+      }
+      const m = /^([▲▼])([\d,.]+)%$/.exec(cellText);
+      if (!m) { diffMismatches.push(`${r.folder}: got=${cellText}（形式不一致） expect_pct=${r.pct.toFixed(1)}`); return; }
+      const sign = m[1] === "▲" ? 1 : -1;
+      const val = sign * Number(m[2].replace(/,/g, ""));
+      if (Math.abs(val - r.pct) > 0.1) diffMismatches.push(`${r.folder}: got=${val} expect=${r.pct.toFixed(1)}`);
+    });
+    record("A16-zenkikanhi-90d", diffMismatches.length === 0, `mismatches=${JSON.stringify(diffMismatches)}`);
+
     await page.click('#ov-topn-group button[data-topn="20"]');
     await page.waitForTimeout(300);
     const rowCount20 = await page.$$eval("#ov-ranking-tbody tr", (rows) => rows.length);
@@ -176,6 +196,35 @@ async function run() {
     await page.check("#ov-show-others");
     await page.waitForTimeout(200);
 
+    // A17: 開始日＞終了日を入れると、黙って収束せず入れ替えて注記を出す（DBG-3）
+    // 🔴 page.fill() 自体が type=date の change を発火するため、直後に dispatchEvent を
+    //    重ねると「入れ替え済みの値」に対してもう一度 change が飛び、rangeSwapped が
+    //    偽に戻ってしまう（実機のユーザー操作では起きない・fillのみで1回にする）。
+    await page.fill("#ov-start-date", "2026-08-01");
+    await page.fill("#ov-end-date", "2026-01-01");
+    await page.waitForTimeout(300);
+    const swapped = await page.evaluate(() => {
+      const s = window.FinancieOverview._debug.state;
+      const days = window.FinancieOverview._debug.data.market.days;
+      return {
+        startDate: days[s.startIdx],
+        endDate: days[s.endIdx],
+        rangeSwapped: s.rangeSwapped
+      };
+    });
+    const noteVisible = await page.evaluate(() => {
+      const el = document.getElementById("ov-range-note");
+      return !!el && !el.classList.contains("hidden-element") && el.textContent.includes("入れ替えました");
+    });
+    record(
+      "A17-swap-order",
+      swapped.rangeSwapped === true && swapped.startDate === "2026-01-01" && swapped.endDate === "2026-08-01" && noteVisible,
+      `swapped=${JSON.stringify(swapped)} noteVisible=${noteVisible}`
+    );
+    // 90日に戻す（後続テストへの影響を消す）
+    await page.click('#ov-period-group button[data-period="90"]');
+    await page.waitForTimeout(300);
+
     // A11: フッター文言・煽り語なし
     const footerText = await page.textContent(".ov-footer");
     const hasRequired = ["非公式", "表示値", "保証しません"].every((w) => footerText.includes(w));
@@ -218,6 +267,33 @@ async function run() {
       innerWidth: window.innerWidth
     }));
     record(`A10-${w}`, overflow.scrollWidth <= overflow.innerWidth, JSON.stringify(overflow));
+
+    // A18: 最下部までスクロールし、遅延読み込みのパネルD(価格)・E(メンバー増減)が
+    // 実際に描画される（Chartのデータ系列が1本以上）ことを確認してからスクショを取る。
+    // 🔴 実際にスクロールするのは window ではなく .main-chart-area（overflow-y:auto の
+    //    内側コンテナ、1280幅のPCレイアウトで顕在化）。scrollIntoView はどちらの
+    //    レイアウトでも祖先のスクロール位置を適切に動かすためこちらを使う。
+    await page.evaluate(() => {
+      document.getElementById("ovMembersChart").scrollIntoView({ block: "end" });
+    });
+    await page.waitForFunction(() => {
+      const s = window.FinancieOverview._debug.state;
+      return s.panelDReady && s.panelEReady;
+    }, { timeout: 10000 }).catch(() => {});
+    await page.waitForTimeout(300);
+    const panelDE = await page.evaluate(() => {
+      const s = window.FinancieOverview._debug.state;
+      const charts = window.FinancieOverview._debug.charts;
+      const dSeries = charts.price ? charts.price.data.datasets.length : 0;
+      const eSeries = charts.members ? charts.members.data.datasets.length : 0;
+      return { panelDReady: s.panelDReady, panelEReady: s.panelEReady, dSeries, eSeries };
+    });
+    record(
+      `A18-panelDE-${w}`,
+      panelDE.panelDReady && panelDE.panelEReady && panelDE.dSeries >= 1 && panelDE.eSeries >= 1,
+      JSON.stringify(panelDE)
+    );
+
     await page.screenshot({ path: path.join(OUT_DIR, `overview_${w}.png`), fullPage: true });
     await context.close();
   }

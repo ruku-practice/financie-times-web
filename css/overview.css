@@ -36,6 +36,13 @@
   font-size: 0.8rem;
 }
 
+.ov-range-note {
+  font-size: 0.72rem;
+  color: var(--accent-warning, #f59e0b);
+  white-space: nowrap;
+  padding-left: 0.3rem;
+}
+
 .ov-toggle-label {
   display: flex;
   align-items: center;
