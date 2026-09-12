@@ -1,12 +1,12 @@
 
-  const APP_VERSION = "2.0.0";
+  const APP_VERSION = "3.0.0";
   console.info("FiNANCiE TIMES v" + APP_VERSION);
 
   let projectsList = [];
   let currentProjectFolder = null;
   let currentProjectData = null;
   let currentPeriod = 30; // default 30 days
-  let currentTab = "daily-tab"; // 'single-tab', 'compare-tab', 'daily-tab', 'monthly-tab'
+  let currentTab = "overview-tab"; // 'overview-tab', 'single-tab', 'compare-tab', 'daily-tab', 'monthly-tab'
 
   // 複数比較用の状態
   let selectedCompareFolders = []; // 最大10個
@@ -43,6 +43,7 @@
   const compareView = document.getElementById("compare-view");
   const dailyTravelView = document.getElementById("daily-travel-view");
   const monthlyRankingsView = document.getElementById("monthly-rankings-view");
+  const overviewView = document.getElementById("overview-view");
   const dashboardLayout = document.querySelector(".dashboard-layout");
 
   // タブボタン
@@ -164,7 +165,7 @@
         switchTab("single-tab");
         selectProject(initialProject);
       } else {
-        switchTab("daily-tab");
+        switchTab("overview-tab");
       }
     })
     .catch(error => {
@@ -1158,8 +1159,15 @@
     compareView.classList.add("hidden-element");
     dailyTravelView.classList.add("hidden-element");
     monthlyRankingsView.classList.add("hidden-element");
+    overviewView.classList.add("hidden-element");
 
-    if (tabId === "single-tab") {
+    if (tabId === "overview-tab") {
+      dashboardLayout.classList.add("no-sidebar");
+      overviewView.classList.remove("hidden-element");
+      if (window.FinancieOverview && typeof window.FinancieOverview.onShow === "function") {
+        window.FinancieOverview.onShow();
+      }
+    } else if (tabId === "single-tab") {
       dashboardLayout.classList.remove("no-sidebar");
       compareNotice.classList.add("hidden-element");
       if (currentProjectData) {

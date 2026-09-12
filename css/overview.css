@@ -1,0 +1,108 @@
+/* ============================================================
+   総覧タブ（Dune型ダッシュボード）専用スタイル v3.0.0
+   既存の advanced.css の変数（--bg-*, --accent-*, --text-*）を流用する。
+   ============================================================ */
+
+.overview-controls-bar {
+  align-items: center;
+  row-gap: 0.8rem;
+}
+
+.ov-control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.25rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.ov-control-label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  padding: 0 0.4rem 0 0.6rem;
+  white-space: nowrap;
+}
+
+.ov-date-input {
+  padding: 0.3rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+.ov-control-sep {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.ov-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+}
+
+.ov-toggle-label input {
+  cursor: pointer;
+}
+
+.ov-charts-grid {
+  margin-bottom: 1.5rem;
+}
+
+.ov-ranking-card {
+  margin-bottom: 1.5rem;
+}
+
+.ov-ranking-row {
+  cursor: pointer;
+}
+
+.ov-ranking-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.ov-ranking-row.ov-others-row {
+  cursor: default;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.ov-ranking-row.ov-others-row:hover {
+  background: transparent;
+}
+
+.ov-footer {
+  font-size: 11px;
+  color: var(--text-secondary);
+  padding: 0.8rem 0.2rem 0.2rem;
+  line-height: 1.6;
+}
+
+.ov-note {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 0.3rem;
+}
+
+/* スマホ: 操作帯を横スクロールのチップ列に */
+@media (max-width: 768px) {
+  .overview-controls-bar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.6rem;
+  }
+
+  .ov-control-group {
+    flex-shrink: 0;
+  }
+
+  .ov-charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
