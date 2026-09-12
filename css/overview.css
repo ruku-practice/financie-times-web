@@ -218,7 +218,6 @@
 .ov-ranking-row.ov-others-row {
   cursor: default;
   color: var(--text-secondary);
-  font-style: italic;
 }
 
 .ov-ranking-row.ov-others-row:hover {
@@ -291,10 +290,11 @@
   flex-wrap: wrap;
 }
 
-/* ヘッダー右のテーマ切替 */
+/* ヘッダー右端のテーマ切替 */
 .theme-toggle {
   cursor: pointer;
   font-family: inherit;
+  margin-left: auto;
 }
 
 /* 個別分析：データ取得開始日 */

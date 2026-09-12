@@ -569,6 +569,46 @@ async function run() {
       return { start: d[s.startIdx], end: d[s.endIdx], period: s.period, inputValue: document.getElementById("ov-start-date").value };
     });
     record("A22-date-typing-commit", after.start === "2026-09-10" && after.period === "custom" && after.inputValue === "2026-09-10", JSON.stringify(after));
+
+    // A37（エマ再検収 重1）：終了日を開始日より前に打って Enter → 入れ替え後の値が両方の欄に出て、注記・URL・集計が一致する
+    await page.click('#ov-period-group button[data-period="90"]');
+    await page.waitForTimeout(300);
+    const startShown = await page.inputValue("#ov-start-date"); // 2026-06-15 のはず
+    await page.focus("#ov-end-date");
+    await page.keyboard.type("20260501");
+    await page.keyboard.press("Enter");
+    await page.waitForTimeout(400);
+    const swapEnd = await page.evaluate(() => {
+      const s = window.FinancieOverview._debug.state;
+      const d = window.FinancieOverview._debug.data.market.days;
+      const note = document.getElementById("ov-range-note");
+      const url = new URL(window.location.href);
+      return {
+        inputs: [document.getElementById("ov-start-date").value, document.getElementById("ov-end-date").value],
+        state: [d[s.startIdx], d[s.endIdx]], swapped: s.rangeSwapped,
+        noteVisible: !note.classList.contains("hidden-element") && note.textContent.includes("入れ替え"),
+        url: [url.searchParams.get("ov_s"), url.searchParams.get("ov_e")],
+        nDays: s.endIdx - s.startIdx + 1, focused: document.activeElement.id
+      };
+    });
+    const consistent = swapEnd.inputs[0] === "2026-05-01" && swapEnd.inputs[1] === startShown
+      && swapEnd.state[0] === swapEnd.inputs[0] && swapEnd.state[1] === swapEnd.inputs[1]
+      && swapEnd.url[0] === swapEnd.inputs[0] && swapEnd.url[1] === swapEnd.inputs[1]
+      && swapEnd.swapped && swapEnd.noteVisible && swapEnd.focused === "";
+    record("A37-swap-typed-end", consistent, `startShown=${startShown} ${JSON.stringify(swapEnd)}`);
+    // 同じことを開始日側で（開始に終了より後の日を打つ）
+    await page.click('#ov-period-group button[data-period="90"]');
+    await page.waitForTimeout(300);
+    await page.focus("#ov-start-date");
+    await page.keyboard.type("20260912");
+    await page.click("#ov-kpi-grid"); // Enter ではなく「別の場所を押す」（フォーカスが外れる）でも確定する
+    await page.waitForTimeout(400);
+    const tabCommit = await page.evaluate(() => {
+      const s = window.FinancieOverview._debug.state;
+      const d = window.FinancieOverview._debug.data.market.days;
+      return { inputs: [document.getElementById("ov-start-date").value, document.getElementById("ov-end-date").value], state: [d[s.startIdx], d[s.endIdx]], nDays: s.endIdx - s.startIdx + 1 };
+    });
+    record("A37-blur-commit", tabCommit.inputs[0] === "2026-09-12" && tabCommit.inputs[1] === "2026-09-12" && tabCommit.state[0] === "2026-09-12" && tabCommit.nDays === 1, JSON.stringify(tabCommit));
     await context.close();
   }
 

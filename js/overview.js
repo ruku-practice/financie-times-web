@@ -1170,6 +1170,14 @@
     return /^\d{4}-\d{2}-\d{2}$/.test(v || "") && Number(v.slice(0, 4)) >= 2000;
   }
 
+  // 確定済みの期間を日付欄へ書き戻す（打ちかけの値を捨てる／入れ替え後の値を両方の欄に出す）
+  function restoreDateInputs() {
+    if (!ovData.market) return;
+    const days = ovData.market.days;
+    dom.startInput.value = days[ovState.startIdx];
+    dom.endInput.value = days[ovState.endIdx];
+  }
+
   // 日付欄の確定（重4）：フォーカスが外れた・Enter・または入力が止まって一定時間で再計算する。
   function commitDateInputs() {
     if (dateTimer) { clearTimeout(dateTimer); dateTimer = null; }
@@ -1209,11 +1217,13 @@
       });
       input.addEventListener("blur", () => {
         editingInputs.delete(input);
+        // 🔴 blur では欄の値から再計算しない（入れ替え後に片方の欄だけ古い値が残り、表示と集計がズレた回帰＝エマ再検収 重1）。
+        //    未確定なら確定（両方の欄へ書き戻す）、確定済みなら欄を確定値へ戻すだけ。
         if (ovState.dateDirty) commitDateInputs();
-        else if (ovData.market) computeRange(); // 途中で捨てた入力を、確定済みの値へ戻す
+        else restoreDateInputs();
       });
       input.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") { e.preventDefault(); commitDateInputs(); input.blur(); }
+        if (e.key === "Enter") { e.preventDefault(); input.blur(); } // blur 側で確定する（編集中フラグを外してから書き戻すため）
       });
     });
 
