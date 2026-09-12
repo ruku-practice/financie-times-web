@@ -420,6 +420,27 @@ async function run() {
       JSON.stringify({ sizeBefore, sizeAfter, sizePersist }));
     await page.evaluate(() => { localStorage.removeItem("ft_chart_size"); localStorage.removeItem("ft_theme"); });
 
+    // A36: シェアの円グラフ（ルク一言 21:56）＝切替でドーナツ・上位10＋その他の11切片・合計＝KPIの全体出来高・上位のシェア＝KPI・記憶
+    await page.click('#ov-share-view button[data-view="donut"]');
+    await page.waitForTimeout(400);
+    const donut = await page.evaluate(() => {
+      const c = window.FinancieOverview._debug.charts.share;
+      const data = c.data.datasets[0].data;
+      const sum = data.reduce((a, b) => a + b, 0);
+      const top = data.slice(0, -1).reduce((a, b) => a + b, 0);
+      const kpi = Number(document.getElementById("ov-kpi-total").textContent.replace(/[^0-9.]/g, ""));
+      const kpiShare = parseFloat(document.getElementById("ov-kpi-share").textContent);
+      return { type: c.config.type, n: data.length, labelLast: c.data.labels[data.length - 1], sum: Math.round(sum), kpi, topShare: +((top / sum) * 100).toFixed(1), kpiShare, stored: localStorage.getItem("ft_share_view"), title: document.getElementById("ov-share-title").textContent, legendN: document.querySelectorAll("#ov-legend-share .ov-legend-item").length };
+    });
+    record("A36-share-donut", donut.type === "doughnut" && donut.n === 11 && donut.labelLast === "その他" && Math.abs(donut.sum - donut.kpi) <= 1 && Math.abs(donut.topShare - donut.kpiShare) <= 0.11 && donut.stored === "donut" && donut.title.includes("円") === false && donut.title.includes("期間合計") && donut.legendN === 11, JSON.stringify(donut));
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await waitOverviewReady(page);
+    const donutPersist = await page.evaluate(() => ({ type: window.FinancieOverview._debug.charts.share.config.type, active: document.querySelector("#ov-share-view button.active").getAttribute("data-view") }));
+    await page.click('#ov-share-view button[data-view="stack"]');
+    await page.waitForTimeout(400);
+    const backStack = await page.evaluate(() => window.FinancieOverview._debug.charts.share.config.type + "/" + localStorage.getItem("ft_share_view"));
+    record("A36-share-donut-persist", donutPersist.type === "doughnut" && donutPersist.active === "donut" && backStack === "bar/stack", JSON.stringify({ donutPersist, backStack }));
+
     // A11: フッター文言・煽り語なし
     const footerText = await page.textContent(".ov-footer");
     const hasRequired = ["非公式", "表示値", "保証しません"].every((w) => footerText.includes(w));

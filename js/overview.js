@@ -127,8 +127,12 @@
     panelDReady: false,
     panelEReady: false,
     // 日付欄の未確定の変更（重4）
-    dateDirty: false
+    dateDirty: false,
+    // シェアの見せ方：'stack'（100%積み上げの推移）／'donut'（期間合計の円グラフ・ルク一言 21:56）
+    shareView: "stack"
   };
+  const SHARE_VIEW_KEY = "ft_share_view";
+  try { if (localStorage.getItem(SHARE_VIEW_KEY) === "donut") ovState.shareView = "donut"; } catch (e) { /* 記憶なし */ }
 
   const ovData = {}; // { volume: {days,projects,rows,folderIndex}, market: {...}, ... }
   const ovCharts = { volume: null, share: null, price: null, members: null };
@@ -165,6 +169,8 @@
       kpiShare: document.getElementById("ov-kpi-share"),
       kpiShareSub: document.getElementById("ov-kpi-share-sub"),
       panelDTitle: document.getElementById("ov-panelD-title"),
+      shareTitle: document.getElementById("ov-share-title"),
+      shareView: document.getElementById("ov-share-view"),
       rankingTitle: document.getElementById("ov-ranking-title"),
       rankingNote: document.getElementById("ov-ranking-note"),
       rankingThead: document.getElementById("ov-ranking-thead"),
@@ -488,18 +494,19 @@
     if (!chart || !box) return;
     const items = box.querySelector(".ov-legend-items");
     const summary = box.querySelector("summary");
-    const datasets = chart.data.datasets;
-    if (summary) summary.textContent = `凡例（${datasets.length}）`;
-    items.innerHTML = datasets.map((ds, i) => {
-      const color = ds.backgroundColor === "transparent" ? ds.borderColor : ds.backgroundColor;
-      const visible = chart.isDatasetVisible(i);
-      return `<button type="button" class="ov-legend-item${visible ? "" : " off"}" data-index="${i}" aria-pressed="${visible}"><span class="ov-legend-swatch" style="background:${color}"></span>${escapeHtml(ds.label)}</button>`;
-    }).join("");
+    const isDonut = chart.config.type === "doughnut";
+    // 円グラフは1系列の中のスライスごと、それ以外は系列ごと
+    const entries = isDonut
+      ? chart.data.labels.map((label, i) => ({ label, color: chart.data.datasets[0].backgroundColor[i], visible: chart.getDataVisibility(i) }))
+      : chart.data.datasets.map((ds, i) => ({ label: ds.label, color: ds.backgroundColor === "transparent" ? ds.borderColor : ds.backgroundColor, visible: chart.isDatasetVisible(i) }));
+    if (summary) summary.textContent = `凡例（${entries.length}）`;
+    items.innerHTML = entries.map((en, i) => `<button type="button" class="ov-legend-item${en.visible ? "" : " off"}" data-index="${i}" aria-pressed="${en.visible}"><span class="ov-legend-swatch" style="background:${en.color}"></span>${escapeHtml(en.label)}</button>`).join("");
     items.querySelectorAll(".ov-legend-item").forEach((btn) => {
       btn.addEventListener("click", () => {
         const i = Number(btn.getAttribute("data-index"));
-        const nowVisible = !chart.isDatasetVisible(i);
-        chart.setDatasetVisibility(i, nowVisible);
+        let nowVisible;
+        if (isDonut) { chart.toggleDataVisibility(i); nowVisible = chart.getDataVisibility(i); }
+        else { nowVisible = !chart.isDatasetVisible(i); chart.setDatasetVisibility(i, nowVisible); }
         chart.update();
         btn.classList.toggle("off", !nowVisible);
         btn.setAttribute("aria-pressed", String(nowVisible));
@@ -579,6 +586,12 @@
     });
     renderHtmlLegend("volume");
 
+    if (ovState.shareView === "donut") {
+      renderShareDonut(series, othersData);
+      return;
+    }
+    if (dom.shareTitle) dom.shareTitle.textContent = "出来高シェア（100%積み上げ）";
+
     // シェア（100%積み上げ）: バケツごとの合計（上位N + その他）でパーセント化
     const bucketTotals = labels.map((_, bi) => {
       let t = othersData[bi];
@@ -614,6 +627,45 @@
         scales: {
           x: { stacked: true, ticks: xTicksOptions(shortLabels), grid: { color: chartColors().gridX } },
           y: { stacked: true, min: 0, max: 100, ticks: { color: chartColors().tick, callback: (v) => v + "%" }, grid: { color: chartColors().gridY } }
+        }
+      }
+    });
+    renderHtmlLegend("share");
+  }
+
+  // シェアの円グラフ：期間合計の上位N＋その他（「その他」チェックを外すと上位Nだけで100%）
+  function renderShareDonut(series, othersData) {
+    const totals = series.map((s) => s.data.reduce((a, b) => a + b, 0));
+    const labels = series.map((s) => s.name);
+    const colors = series.map((_, i) => ovColor(i));
+    if (ovState.showOthers) {
+      totals.push(othersData.reduce((a, b) => a + b, 0));
+      labels.push("その他");
+      colors.push(OV_OTHER_COLOR);
+    }
+    const grand = totals.reduce((a, b) => a + b, 0);
+    if (dom.shareTitle) dom.shareTitle.textContent = `出来高シェア（期間合計・上位${ovState.topN}${ovState.showOthers ? "＋その他" : ""}）`;
+
+    if (ovCharts.share) ovCharts.share.destroy();
+    const ctx = document.getElementById("ovShareChart").getContext("2d");
+    ovCharts.share = new Chart(ctx, {
+      type: "doughnut",
+      data: { labels, datasets: [{ data: totals, backgroundColor: colors, borderColor: currentTheme() === "light" ? "#ffffff" : "#131A26", borderWidth: 1 }] },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: "55%",
+        plugins: {
+          legend: NO_CANVAS_LEGEND,
+          tooltip: {
+            callbacks: {
+              label: (item) => {
+                const v = item.parsed;
+                const pct = grand > 0 ? (v / grand) * 100 : 0;
+                return ` ${fmtInt(v)} ${OVERVIEW_CONFIG.volumeUnitLabel}（${pct.toFixed(1)}%）`;
+              }
+            }
+          }
         }
       }
     });
@@ -1077,7 +1129,7 @@
     const wrap = card.querySelector(".chart-wrapper");
     const size = chartSizeOf(key);
     wrap.style.height = `${isMobile() ? CHART_SIZES[size].sp : CHART_SIZES[size].pc}px`;
-    card.querySelectorAll(".ov-size-btn").forEach((b) => {
+    card.querySelectorAll(".ov-size-btn[data-size]").forEach((b) => { // 見せ方の釦（data-view）は触らない
       const on = b.getAttribute("data-size") === size;
       b.classList.toggle("active", on);
       b.setAttribute("aria-pressed", String(on));
@@ -1090,7 +1142,7 @@
       const box = dom.legends[key];
       if (!box) return;
       const card = box.closest(".chart-card");
-      card.querySelectorAll(".ov-size-btn").forEach((b) => {
+      card.querySelectorAll(".ov-size-btn[data-size]").forEach((b) => {
         b.addEventListener("click", () => {
           chartSizes[key] = b.getAttribute("data-size");
           try { localStorage.setItem(SIZE_KEY, JSON.stringify(chartSizes)); } catch (e) { /* 記憶できなくても動く */ }
@@ -1205,6 +1257,19 @@
 
     if (dom.errorReload) {
       dom.errorReload.addEventListener("click", () => window.location.reload());
+    }
+
+    if (dom.shareView) {
+      const syncShareButtons = () => setActive(dom.shareView, "data-view", ovState.shareView);
+      syncShareButtons();
+      dom.shareView.querySelectorAll("button[data-view]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          ovState.shareView = btn.getAttribute("data-view") === "donut" ? "donut" : "stack";
+          try { localStorage.setItem(SHARE_VIEW_KEY, ovState.shareView); } catch (e) { /* 記憶できなくても動く */ }
+          syncShareButtons();
+          if (ovState.initialized) renderPanelAB(computeTopNVolumeFolders());
+        });
+      });
     }
   }
 
