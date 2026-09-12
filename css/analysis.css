@@ -1,0 +1,230 @@
+/* ============================================================
+   「分析」タブ専用スタイル v0.1.0（2026-09-13）
+   advanced.css の変数（--bg-*, --accent-*, --text-*）と overview.css の
+   操作帯（.ov-control-group / .sort-tab-btn）・凡例（.ov-legend-*）を流用する。
+   文字の段は 12（注記）／13（表・ラベル）／14（釦）／20（見出し）の4段。
+   合体時：全体市況の overview.css と重複する所（操作帯・凡例）はそちらへ寄せる。
+   ============================================================ */
+
+.an-section {
+  margin-bottom: 28px;
+}
+
+.an-section-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin: 0 0 10px;
+}
+
+.an-section-head h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.an-section-head .an-section-sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.an-desc {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+
+/* 結論（自動文） */
+.an-conclusion {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.an-conclusion li {
+  font-size: 14px;
+  line-height: 1.7;
+  padding: 10px 14px;
+  border-left: 3px solid var(--accent-color);
+  background: var(--bg-secondary);
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  color: var(--text-primary);
+}
+
+.an-conclusion li strong {
+  font-weight: 700;
+}
+
+/* グラフの高さ（PC 280px・スマホ 220px） */
+.an-chart-wrapper {
+  position: relative;
+  height: 280px;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .an-chart-wrapper {
+    height: 220px;
+  }
+}
+
+.an-note {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 8px 0 0;
+  line-height: 1.6;
+}
+
+/* 凡例（HTML・キャンバスの外） */
+.an-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin-top: 8px;
+}
+
+.an-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-primary);
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 4px 10px;
+  min-height: 28px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.an-legend-item.off {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.an-legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex: 0 0 12px;
+}
+
+.an-legend-swatch.dashed {
+  background: repeating-linear-gradient(90deg, currentColor 0 3px, transparent 3px 5px) !important;
+}
+
+/* 表（上位30・機運の5指標） */
+.an-table-card .table-scroll-container {
+  overflow-x: auto;
+}
+
+.an-table td.num,
+.an-table th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.an-table td.rank {
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.an-table td.def {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  min-width: 220px;
+}
+
+.an-ok {
+  color: var(--accent-success);
+  font-weight: 700;
+}
+
+.an-ng {
+  color: var(--accent-danger);
+  font-weight: 700;
+}
+
+.an-up { color: var(--accent-success); }
+.an-down { color: var(--accent-danger); }
+
+.an-ext-link {
+  color: var(--accent-text);
+  text-decoration: none;
+  margin-left: 6px;
+  font-size: 12px;
+}
+
+.an-ext-link:hover {
+  text-decoration: underline;
+}
+
+/* 判定の帯（機運） */
+.an-verdict {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* 期間の操作帯の追加 */
+#an-apply {
+  min-height: 32px;
+  font-size: 14px;
+}
+
+.an-loading {
+  padding: 24px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* 分析タブのカードは高さ固定（advanced.css の .chart-card 380px）を外し、中身なりにする */
+#analysis-view .chart-card {
+  height: auto;
+}
+
+#analysis-view .metrics-grid {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+@media (max-width: 1024px) {
+  #analysis-view .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  #analysis-view .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* グリッドの中の canvas が親の幅を押し広げないように（Chart.js の responsive の定石） */
+#analysis-view .chart-card,
+#analysis-view .an-chart-wrapper,
+#analysis-view .charts-grid > * {
+  min-width: 0;
+}
+
+/* 表の中のリンク（既定の青はダークで 1.86:1）＝面の上のリンク文字の変数を使う */
+#analysis-view .an-table a {
+  color: var(--accent-text);
+  text-decoration: none;
+}
+
+#analysis-view .an-table a:hover {
+  text-decoration: underline;
+}

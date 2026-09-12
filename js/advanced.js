@@ -48,6 +48,7 @@
   const dailyTravelView = document.getElementById("daily-travel-view");
   const monthlyRankingsView = document.getElementById("monthly-rankings-view");
   const overviewView = document.getElementById("overview-view");
+  const analysisView = document.getElementById("analysis-view"); // 分析タブ（js/analysis.js）
   const dashboardLayout = document.querySelector(".dashboard-layout");
 
   // タブボタン
@@ -171,6 +172,8 @@
       if (initialProject) {
         switchTab("single-tab");
         selectProject(initialProject);
+      } else if (urlParams.get('tab') === 'analysis') {
+        switchTab("analysis-tab");
       } else {
         switchTab("overview-tab");
       }
@@ -1267,8 +1270,15 @@
     dailyTravelView.classList.add("hidden-element");
     monthlyRankingsView.classList.add("hidden-element");
     overviewView.classList.add("hidden-element");
+    if (analysisView) analysisView.classList.add("hidden-element");
 
-    if (tabId === "overview-tab") {
+    if (tabId === "analysis-tab") {
+      dashboardLayout.classList.add("no-sidebar");
+      if (analysisView) analysisView.classList.remove("hidden-element");
+      if (window.FinancieAnalysis && typeof window.FinancieAnalysis.onShow === "function") {
+        window.FinancieAnalysis.onShow();
+      }
+    } else if (tabId === "overview-tab") {
       dashboardLayout.classList.add("no-sidebar");
       overviewView.classList.remove("hidden-element");
       if (window.FinancieOverview && typeof window.FinancieOverview.onShow === "function") {
