@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>分析タブ｜データの流れ</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #f5f5f5; font-family: 'Geist', 'Hiragino Sans', sans-serif; color: #2d3142; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 24px; }
+  h1 { font-family: 'Instrument Serif', 'Hiragino Mincho ProN', serif; font-weight: 400; font-size: 28px; margin: 0 0 4px; }
+  .eyebrow { font-family: 'Geist Mono', 'Hiragino Sans', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #7a8399; }
+  svg { width: 100%; height: auto; display: block; margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">FiNANCiE TIMES Web · 分析タブ · 2026-09-13</div>
+  <h1>データの流れ：夜間バッチ → 静的 JSON → ブラウザで期間切替</h1>
+  <svg viewBox="0 0 728 356" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="df-title df-desc" font-family="'Geist', 'Hiragino Sans', sans-serif">
+    <title id="df-title">分析タブのデータの流れ</title>
+    <desc id="df-desc">夜間バッチが history.json から data/analysis の JSON 5本を作り、静的配信する。ブラウザの js/analysis.js が JSON を読み、期間の計算と11グラフ・表2つ・自動文の描画を行い、読む人が期間ボタンで切り替える。</desc>
+    <defs>
+      <pattern id="df-dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="11" cy="11" r="0.8" fill="#2d3142" fill-opacity="0.10"/></pattern>
+      <marker id="df-arr-muted" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#4f5d75"/></marker>
+      <marker id="df-arr-accent" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#eb6c36"/></marker>
+      <marker id="df-arr-link" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#2e5aa8"/></marker>
+    </defs>
+    <!-- paper + dots -->
+    <rect width="728" height="356" fill="#f5f5f5"/>
+    <rect width="728" height="356" fill="url(#df-dots)"/>
+    <!-- lane tints (odd-indexed: 0, 2) -->
+    <rect x="0" y="36" width="728" height="80" fill="#2d3142" fill-opacity="0.018"/>
+    <rect x="0" y="196" width="728" height="80" fill="#2d3142" fill-opacity="0.018"/>
+    <!-- lane dividers -->
+    <g stroke="#2d3142" stroke-opacity="0.12" stroke-width="0.8">
+      <line x1="0" y1="36" x2="728" y2="36"/><line x1="0" y1="116" x2="728" y2="116"/><line x1="0" y1="196" x2="728" y2="196"/><line x1="0" y1="276" x2="728" y2="276"/>
+      <line x1="140" y1="36" x2="140" y2="276"/>
+    </g>
+    <!-- step header chips -->
+    <g font-family="'Geist Mono', 'Hiragino Sans', monospace" text-anchor="middle">
+      <rect x="180" y="6" width="32" height="16" rx="8" fill="#2d3142" fill-opacity="0.12"/><text x="196" y="17" font-size="8" fill="#2d3142">01</text><text x="196" y="29" font-size="8" fill="#4f5d75">収集</text>
+      <rect x="292" y="6" width="32" height="16" rx="8" fill="#2d3142" fill-opacity="0.12"/><text x="308" y="17" font-size="8" fill="#2d3142">02</text><text x="308" y="29" font-size="8" fill="#4f5d75">集計</text>
+      <rect x="404" y="6" width="32" height="16" rx="8" fill="#2d3142" fill-opacity="0.12"/><text x="420" y="17" font-size="8" fill="#2d3142">03</text><text x="420" y="29" font-size="8" fill="#4f5d75">配信</text>
+      <rect x="516" y="6" width="32" height="16" rx="8" fill="#eb6c36" fill-opacity="0.20"/><text x="532" y="17" font-size="8" fill="#eb6c36">04</text><text x="532" y="29" font-size="8" fill="#eb6c36">期間切替</text>
+      <rect x="628" y="6" width="32" height="16" rx="8" fill="#2d3142" fill-opacity="0.12"/><text x="644" y="17" font-size="8" fill="#2d3142">05</text><text x="644" y="29" font-size="8" fill="#4f5d75">読む</text>
+    </g>
+    <!-- lane labels -->
+    <g font-family="'Geist Mono', 'Hiragino Sans', monospace" font-size="8" fill="#4f5d75" text-anchor="middle" letter-spacing="0.06em">
+      <text x="70" y="72">夜間バッチ</text><text x="70" y="84">GITHUB ACTIONS</text>
+      <text x="70" y="152">ブラウザ</text><text x="70" y="164">JS/ANALYSIS.JS</text>
+      <text x="70" y="232">読む人</text><text x="70" y="244">ルク・読者</text>
+    </g>
+    <!-- arrows (before nodes) -->
+    <g fill="none" stroke-width="1">
+      <path d="M246,76 L258,76" stroke="#4f5d75" marker-end="url(#df-arr-muted)"/>
+      <path d="M358,76 L370,76" stroke="#4f5d75" marker-end="url(#df-arr-muted)"/>
+      <!-- focal: 配信 → ブラウザ 読み込み（cross-lane, cross-step） -->
+      <path d="M470,76 L520,76 Q528,76 528,84 L528,124" stroke="#eb6c36" stroke-width="1.2" marker-end="url(#df-arr-accent)"/>
+      <rect x="486" y="90" width="56" height="12" fill="#f5f5f5"/>
+      <text x="514" y="99" font-family="'Geist Mono', 'Hiragino Sans', monospace" font-size="7" fill="#eb6c36" text-anchor="middle">JSON 5本・3.5MB</text>
+      <path d="M582,156 L594,156" stroke="#4f5d75" marker-end="url(#df-arr-muted)"/>
+      <!-- published: 描画 → 読む人 -->
+      <path d="M644,188 L644,204" stroke="#2e5aa8" marker-end="url(#df-arr-link)"/>
+      <!-- trigger: 読む人の期間ボタン → 期間の計算 -->
+      <path d="M594,236 L560,236 Q552,236 552,228 L552,188" stroke="#4f5d75" stroke-dasharray="4,3" marker-end="url(#df-arr-muted)"/>
+    </g>
+    <!-- nodes -->
+    <g font-family="'Geist', 'Hiragino Sans', sans-serif" text-anchor="middle">
+      <!-- BAT / 01 -->
+      <rect x="146" y="44" width="100" height="64" rx="4" fill="#f5f5f5" stroke="#2d3142" stroke-opacity="0.35"/>
+      <rect x="150" y="48" width="18" height="10" rx="3" fill="#2d3142" fill-opacity="0.12"/><text x="159" y="56" font-size="6" font-weight="600" fill="#2d3142">BAT</text>
+      <text x="196" y="67" font-size="9" font-weight="600" fill="#2d3142">毎晩0:13 収集</text>
+      <text x="196" y="79" font-size="6.5" fill="#4f5d75">409PJ × 価格・出来高・メンバー</text>
+      <text x="196" y="91" font-size="6.5" fill="#7a8399">update_daily.py → history.json</text>
+      <!-- BAT / 02 -->
+      <rect x="258" y="44" width="100" height="64" rx="4" fill="#f5f5f5" stroke="#2d3142" stroke-opacity="0.35"/>
+      <rect x="262" y="48" width="18" height="10" rx="3" fill="#2d3142" fill-opacity="0.12"/><text x="271" y="56" font-size="6" font-weight="600" fill="#2d3142">BAT</text>
+      <text x="308" y="67" font-size="9" font-weight="600" fill="#2d3142">分析用に集計</text>
+      <text x="308" y="79" font-size="6.5" fill="#4f5d75">日次系列・日×PJ・月次・束</text>
+      <text x="308" y="91" font-size="6.5" fill="#7a8399">build_analysis.py（1秒）</text>
+      <!-- BAT / 03 -->
+      <rect x="370" y="44" width="100" height="64" rx="4" fill="#f5f5f5" stroke="#2d3142" stroke-opacity="0.35"/>
+      <rect x="374" y="48" width="18" height="10" rx="3" fill="#2d3142" fill-opacity="0.12"/><text x="383" y="56" font-size="6" font-weight="600" fill="#2d3142">BAT</text>
+      <text x="420" y="67" font-size="9" font-weight="600" fill="#2d3142">静的配信</text>
+      <text x="420" y="79" font-size="6.5" fill="#4f5d75">data/analysis/*.json</text>
+      <text x="420" y="91" font-size="6.5" fill="#7a8399">GitHub Pages / Worker</text>
+      <!-- WEB / 04 (focal) -->
+      <rect x="482" y="124" width="100" height="64" rx="4" fill="#eb6c36" fill-opacity="0.08" stroke="#eb6c36" stroke-width="1.2"/>
+      <rect x="486" y="128" width="18" height="10" rx="3" fill="#eb6c36" fill-opacity="0.18"/><text x="495" y="136" font-size="6" font-weight="600" fill="#eb6c36">WEB</text>
+      <text x="532" y="147" font-size="9" font-weight="600" fill="#2d3142">読み込み・期間の計算</text>
+      <text x="532" y="159" font-size="6.5" fill="#4f5d75">30日/90日/1年/全期間/自由</text>
+      <text x="532" y="171" font-size="6.5" fill="#7a8399">前期間＝同じ長さの直前</text>
+      <!-- WEB / 05 -->
+      <rect x="594" y="124" width="100" height="64" rx="4" fill="#f5f5f5" stroke="#2d3142" stroke-opacity="0.35"/>
+      <rect x="598" y="128" width="18" height="10" rx="3" fill="#2d3142" fill-opacity="0.12"/><text x="607" y="136" font-size="6" font-weight="600" fill="#2d3142">WEB</text>
+      <text x="644" y="147" font-size="9" font-weight="600" fill="#2d3142">集計と描画</text>
+      <text x="644" y="159" font-size="6.5" fill="#4f5d75">11グラフ・表2つ・自動文3行</text>
+      <text x="644" y="171" font-size="6.5" fill="#7a8399">Chart.js・機運5指標は固定窓</text>
+      <!-- USR / 05 -->
+      <rect x="594" y="204" width="100" height="64" rx="4" fill="#f5f5f5" stroke="#2d3142" stroke-opacity="0.35"/>
+      <rect x="598" y="208" width="18" height="10" rx="3" fill="#2d3142" fill-opacity="0.12"/><text x="607" y="216" font-size="6" font-weight="600" fill="#2d3142">USR</text>
+      <text x="644" y="227" font-size="9" font-weight="600" fill="#2d3142">読む・期間を変える</text>
+      <text x="644" y="239" font-size="6.5" fill="#4f5d75">結論3行 → 図 → 表の順</text>
+      <text x="644" y="251" font-size="6.5" fill="#7a8399">URL に期間が残る（共有可）</text>
+    </g>
+    <!-- legend strip -->
+    <g font-family="'Geist Mono', 'Hiragino Sans', monospace" font-size="7" fill="#4f5d75">
+      <line x1="24" y1="292" x2="44" y2="292" stroke="#4f5d75" stroke-width="1" marker-end="url(#df-arr-muted)"/><text x="50" y="295">通常の受け渡し</text>
+      <line x1="150" y1="292" x2="170" y2="292" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#df-arr-muted)"/><text x="176" y="295">操作（期間ボタン・適用）</text>
+      <line x1="320" y1="292" x2="340" y2="292" stroke="#eb6c36" stroke-width="1.2" marker-end="url(#df-arr-accent)"/><text x="346" y="295">焦点＝静的JSONをブラウザが読む</text>
+      <line x1="520" y1="292" x2="540" y2="292" stroke="#2e5aa8" stroke-width="1" marker-end="url(#df-arr-link)"/><text x="546" y="295">画面に出る</text>
+      <text x="24" y="316" fill="#7a8399">本家 financie.jp へはバッチだけが触る。ブラウザは自サイトの静的 JSON しか読まない（ToS 上の線引きは v3.0.0 と同じ）。</text>
+      <text x="24" y="330" fill="#7a8399">全体市況タブ（data/overview）とは別のフォルダ・別のスクリプト＝合体するときに共有化する。</text>
+    </g>
+  </svg>
+</div>
+</body>
+</html>

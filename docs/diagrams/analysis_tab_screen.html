@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>分析タブ｜画面イメージ</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #f5f5f5; font-family: 'Geist', 'Hiragino Sans', sans-serif; color: #2d3142; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 24px; }
+  h1 { font-family: 'Instrument Serif', 'Hiragino Mincho ProN', serif; font-weight: 400; font-size: 28px; margin: 0 0 4px; }
+  .eyebrow { font-family: 'Geist Mono', 'Hiragino Sans', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #7a8399; }
+  svg { width: 100%; height: auto; display: block; margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">FiNANCiE TIMES Web · 分析タブ · 画面イメージ（PC 1280）</div>
+  <h1>上に結論、下に図と表。期間ボタンで全部が描き直る</h1>
+  <svg viewBox="0 0 960 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="sc-title sc-desc" font-family="'Geist', 'Hiragino Sans', sans-serif">
+    <title id="sc-title">分析タブの画面イメージ</title>
+    <desc id="sc-desc">ヘッダーのタブに「分析」が増え、期間の操作帯、結論のKPI5枚と自動文3行、その下に日次・週次・上位8比較・月次・シェア・上位30表・価格指数・メンバー・機運5指標の順に並ぶワイヤーフレーム。</desc>
+    <defs>
+      <pattern id="sc-dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="11" cy="11" r="0.8" fill="#2d3142" fill-opacity="0.10"/></pattern>
+    </defs>
+    <rect width="960" height="600" fill="#f5f5f5"/>
+    <rect width="960" height="600" fill="url(#sc-dots)"/>
+
+    <!-- ブラウザ枠 -->
+    <rect x="40" y="24" width="600" height="536" rx="6" fill="#ffffff" stroke="#bfc0c0"/>
+    <!-- ヘッダー・タブ -->
+    <rect x="40" y="24" width="600" height="40" rx="6" fill="#2d3142" fill-opacity="0.06"/>
+    <text x="56" y="49" font-size="11" font-weight="600" fill="#2d3142">FiNANCiE TIMES</text>
+    <g font-size="8" fill="#4f5d75">
+      <text x="180" y="49">全体市況</text>
+      <rect x="226" y="36" width="34" height="18" rx="9" fill="#eb6c36" fill-opacity="0.18"/><text x="243" y="49" text-anchor="middle" fill="#eb6c36" font-weight="600">分析</text>
+      <text x="272" y="49">個別分析</text><text x="326" y="49">比較</text><text x="356" y="49">日付別</text><text x="400" y="49">月次・累計</text>
+      <text x="600" y="49" text-anchor="end">☀ ライト</text>
+    </g>
+    <!-- 操作帯 -->
+    <rect x="52" y="74" width="576" height="26" rx="4" fill="#2d3142" fill-opacity="0.04" stroke="#2d3142" stroke-opacity="0.12"/>
+    <g font-size="7.5" fill="#4f5d75">
+      <text x="60" y="90">期間</text>
+      <rect x="82" y="79" width="24" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="94" y="90" text-anchor="middle">30日</text>
+      <rect x="110" y="79" width="24" height="16" rx="3" fill="#2e5aa8"/><text x="122" y="90" text-anchor="middle" fill="#ffffff">90日</text>
+      <rect x="138" y="79" width="24" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="150" y="90" text-anchor="middle">1年</text>
+      <rect x="166" y="79" width="30" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="181" y="90" text-anchor="middle">全期間</text>
+      <text x="214" y="90">自由</text>
+      <rect x="236" y="79" width="70" height="16" rx="3" fill="#ffffff" stroke="#bfc0c0"/><text x="271" y="90" text-anchor="middle">2026/06/15</text>
+      <text x="312" y="90">〜</text>
+      <rect x="324" y="79" width="70" height="16" rx="3" fill="#ffffff" stroke="#bfc0c0"/><text x="359" y="90" text-anchor="middle">2026/09/12</text>
+      <rect x="400" y="79" width="30" height="16" rx="3" fill="none" stroke="#2e5aa8"/><text x="415" y="90" text-anchor="middle" fill="#2e5aa8">適用</text>
+    </g>
+    <!-- 結論 -->
+    <text x="52" y="118" font-size="9" font-weight="600" fill="#2d3142">結論</text>
+    <g font-size="7" fill="#4f5d75">
+      <rect x="52" y="124" width="108" height="34" rx="4" fill="#f5f5f5" stroke="#bfc0c0"/><text x="58" y="134">期間の出来高合計</text><text x="58" y="150" font-size="11" font-weight="600" fill="#2d3142">4,856万円</text>
+      <rect x="168" y="124" width="108" height="34" rx="4" fill="#f5f5f5" stroke="#bfc0c0"/><text x="174" y="134">前期間比</text><text x="174" y="150" font-size="11" font-weight="600" fill="#2d3142">−30%</text>
+      <rect x="284" y="124" width="108" height="34" rx="4" fill="#f5f5f5" stroke="#bfc0c0"/><text x="290" y="134">出来高が立ったPJ数</text><text x="290" y="150" font-size="11" font-weight="600" fill="#2d3142">333 PJ</text>
+      <rect x="400" y="124" width="108" height="34" rx="4" fill="#f5f5f5" stroke="#bfc0c0"/><text x="406" y="134">メンバー純増（30日）</text><text x="406" y="150" font-size="11" font-weight="600" fill="#2d3142">+1,517人</text>
+      <rect x="516" y="124" width="112" height="34" rx="4" fill="#eb6c36" fill-opacity="0.08" stroke="#eb6c36"/><text x="522" y="134" fill="#eb6c36">機運の5指標</text><text x="522" y="150" font-size="11" font-weight="600" fill="#2d3142">2 / 5 ＝ 兆しあり</text>
+    </g>
+    <g font-size="6.5" fill="#4f5d75">
+      <rect x="52" y="164" width="576" height="10" rx="2" fill="#2d3142" fill-opacity="0.04"/><rect x="52" y="164" width="2" height="10" fill="#eb6c36"/><text x="60" y="171.5">出来高：期間合計・前期間比・上位1PJのシェア・上位2PJを除いた比（数字だけ）</text>
+      <rect x="52" y="177" width="576" height="10" rx="2" fill="#2d3142" fill-opacity="0.04"/><rect x="52" y="177" width="2" height="10" fill="#eb6c36"/><text x="60" y="184.5">裾野：出来高が立ったPJ数・4週vs4週・直近の完了月3つ</text>
+      <rect x="52" y="190" width="576" height="10" rx="2" fill="#2d3142" fill-opacity="0.04"/><rect x="52" y="190" width="2" height="10" fill="#eb6c36"/><text x="60" y="197.5">判定：n/5 ＝ 帯の名前（ルール：4〜5 あり・2〜3 兆しあり・0〜1 なし）</text>
+    </g>
+    <!-- 図の区画 -->
+    <g font-size="7" fill="#4f5d75">
+      <rect x="52" y="210" width="576" height="52" rx="4" fill="#ffffff" stroke="#bfc0c0"/><text x="58" y="221" font-weight="600" fill="#2d3142">1. 日次出来高（棒）＋7日移動平均（線）</text>
+      <g fill="#2e5aa8" fill-opacity="0.7"><rect x="60" y="248" width="4" height="8"/><rect x="66" y="240" width="4" height="16"/><rect x="72" y="232" width="4" height="24"/><rect x="78" y="246" width="4" height="10"/><rect x="84" y="250" width="4" height="6"/><rect x="90" y="244" width="4" height="12"/><rect x="96" y="238" width="4" height="18"/><rect x="102" y="250" width="4" height="6"/></g>
+      <path d="M60,250 L80,242 L100,246 L120,244 L160,250 L300,252 L420,248 L600,246" fill="none" stroke="#eb6c36" stroke-width="1.2"/>
+
+      <rect x="52" y="268" width="284" height="48" rx="4" fill="#ffffff" stroke="#bfc0c0"/><text x="58" y="279" font-weight="600" fill="#2d3142">2. 週次出来高</text>
+      <g fill="#2e5aa8" fill-opacity="0.7"><rect x="60" y="292" width="12" height="20"/><rect x="76" y="302" width="12" height="10"/><rect x="92" y="300" width="12" height="12"/><rect x="108" y="296" width="12" height="16"/><rect x="124" y="304" width="12" height="8"/></g>
+      <rect x="344" y="268" width="284" height="48" rx="4" fill="#ffffff" stroke="#bfc0c0"/><text x="350" y="279" font-weight="600" fill="#2d3142">2. 出来高が立ったPJ数（2軸にせず別の図）</text>
+      <path d="M352,300 L380,296 L410,302 L440,290 L470,304 L500,298 L540,300 L600,296" fill="none" stroke="#1baf7a" stroke-width="1.2"/>
+
+      <rect x="52" y="322" width="284" height="48" rx="4" fill="#ffffff" stroke="#bfc0c0"/><text x="58" y="333" font-weight="600" fill="#2d3142">3. 上位8：今期間 vs 前期間（横棒2本）</text>
+      <g><rect x="60" y="340" width="90" height="4" fill="#8a8986"/><rect x="60" y="345" width="120" height="4" fill="#eb6834"/><rect x="60" y="352" width="60" height="4" fill="#8a8986"/><rect x="60" y="357" width="70" height="4" fill="#eb6834"/></g>
+      <rect x="344" y="322" width="284" height="48" rx="4" fill="#ffffff" stroke="#bfc0c0"/><text x="350" y="333" font-weight="600" fill="#2d3142">3. 出来高上位2PJの価格指数（最初に0超の日＝100）</text>
+      <path d="M352,356 L400,352 L450,350 L500,344 L560,340 L600,332" fill="none" stroke="#2a78d6" stroke-width="1.2"/><path d="M352,354 L420,356 L500,360 L600,362" fill="none" stroke="#eb6834" stroke-width="1.2"/>
+
+      <rect x="52" y="376" width="576" height="42" rx="4" fill="#ffffff" stroke="#bfc0c0"/><text x="58" y="387" font-weight="600" fill="#2d3142">4. 月次出来高の積み上げ（束3＋単独PJ3＋その他・期間内の完了月）</text>
+      <g><rect x="80" y="396" width="30" height="8" fill="#2a78d6"/><rect x="80" y="404" width="30" height="6" fill="#eb6834"/><rect x="80" y="410" width="30" height="4" fill="#8a8986"/><rect x="140" y="400" width="30" height="6" fill="#2a78d6"/><rect x="140" y="406" width="30" height="4" fill="#eb6834"/><rect x="140" y="410" width="30" height="4" fill="#8a8986"/><rect x="200" y="404" width="30" height="4" fill="#2a78d6"/><rect x="200" y="408" width="30" height="2" fill="#eb6834"/><rect x="200" y="410" width="30" height="4" fill="#8a8986"/></g>
+
+      <rect x="52" y="424" width="284" height="40" rx="4" fill="#ffffff" stroke="#bfc0c0"/><text x="58" y="435" font-weight="600" fill="#2d3142">5. シェア（束＋単独PJ＋その他／上位5＋その他）</text>
+      <circle cx="90" cy="450" r="10" fill="none" stroke="#2a78d6" stroke-width="5"/><circle cx="120" cy="450" r="10" fill="none" stroke="#eb6834" stroke-width="5"/>
+      <rect x="344" y="424" width="284" height="40" rx="4" fill="#ffffff" stroke="#bfc0c0"/><text x="350" y="435" font-weight="600" fill="#2d3142">6. 上位30の表（期間合計・シェア・期末直近30日・前期間比）</text>
+      <g stroke="#bfc0c0" stroke-width="0.6"><line x1="352" y1="444" x2="620" y2="444"/><line x1="352" y1="452" x2="620" y2="452"/><line x1="352" y1="460" x2="620" y2="460"/></g>
+
+      <rect x="52" y="470" width="284" height="40" rx="4" fill="#ffffff" stroke="#bfc0c0"/><text x="58" y="481" font-weight="600" fill="#2d3142">7. 価格上位10の指数（期末時点の上位10）</text>
+      <path d="M60,500 L100,496 L150,498 L200,490 L250,486 L320,480" fill="none" stroke="#2a78d6" stroke-width="1"/><path d="M60,500 L120,502 L200,504 L320,506" fill="none" stroke="#1baf7a" stroke-width="1"/>
+      <rect x="344" y="470" width="284" height="40" rx="4" fill="#ffffff" stroke="#bfc0c0"/><text x="350" y="481" font-weight="600" fill="#2d3142">8. メンバー推移（公式PJ／全PJ合計の2枚）</text>
+      <path d="M352,500 L400,498 L460,494 L520,492 L600,488" fill="none" stroke="#2a78d6" stroke-width="1"/>
+
+      <rect x="52" y="516" width="576" height="36" rx="4" fill="#eb6c36" fill-opacity="0.06" stroke="#eb6c36"/><text x="58" y="527" font-weight="600" fill="#2d3142">9. 機運の5指標の表（定義・閾値・実測・○×）＝期末基準の固定窓・期間ボタンで変わらない</text>
+      <g stroke="#bfc0c0" stroke-width="0.6"><line x1="60" y1="534" x2="620" y2="534"/><line x1="60" y1="541" x2="620" y2="541"/><line x1="60" y1="548" x2="620" y2="548"/></g>
+    </g>
+
+    <!-- 右の注記 -->
+    <g font-size="8" fill="#4f5d75">
+      <text x="664" y="80" font-size="9" font-weight="600" fill="#2d3142">読み方の順番</text>
+      <text x="664" y="96">① 結論の5枚と3行（数十秒）</text>
+      <text x="664" y="110">② 気になった図へ下る</text>
+      <text x="664" y="124">③ 期間を変えて比べる</text>
+      <text x="664" y="150" font-size="9" font-weight="600" fill="#2d3142">期間で変わるもの</text>
+      <text x="664" y="166">図1〜8・上位30・結論の出来高</text>
+      <text x="664" y="186" font-size="9" font-weight="600" fill="#2d3142">期末基準で固定のもの</text>
+      <text x="664" y="202">機運の5指標（30日窓・4週vs4週・</text>
+      <text x="664" y="214">完了月3つ）＝閾値の意味を守る</text>
+      <text x="664" y="240" font-size="9" font-weight="600" fill="#2d3142">全体市況と違う所</text>
+      <text x="664" y="256">・出来高＝生の記録値（欠測を掛けない）</text>
+      <text x="664" y="268">・週＝期末末尾の7日（ISO週でない）</text>
+      <text x="664" y="280">・2軸グラフを使わない（2枚に分ける）</text>
+      <text x="664" y="292">・色＝dataviz 検証済み8色</text>
+      <text x="664" y="318" font-size="9" font-weight="600" fill="#2d3142">スマホ（390）</text>
+      <text x="664" y="334">2列は1列に落ちる・グラフ 220px</text>
+      <text x="664" y="346">操作は同じ（適用ボタン）</text>
+      <rect x="664" y="366" width="256" height="50" rx="4" fill="#eb6c36" fill-opacity="0.08" stroke="#eb6c36"/>
+      <text x="672" y="380" font-size="8" font-weight="600" fill="#eb6c36">合体（ガッチャンコ）の候補</text>
+      <text x="672" y="394">A 分析を全体市況の下に足す</text>
+      <text x="672" y="406">B タブは残し、期間の操作帯だけ共有</text>
+    </g>
+  </svg>
+</div>
+</body>
+</html>
