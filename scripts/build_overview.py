@@ -82,10 +82,14 @@ def build():
         folder = item.get("folder")
         if folder not in history:
             continue
+        # データ取得開始日（その案件の最古の記録日）＝画面の注記に使う
+        rec_days = sorted(history[folder].get("data", {}).keys())
+        first_raw = rec_days[0] if rec_days else None
         projects.append({
             "folder": folder,
             "slug": item.get("slug", folder),
             "name": item.get("name", folder),
+            "first": f"{first_raw[0:4]}-{first_raw[4:6]}-{first_raw[6:8]}" if first_raw else None,
         })
 
     # 全日付の和集合（昇順）。
@@ -182,11 +186,12 @@ def build():
             for i in range(n_days)
         ],
         "latest": days_raw[-1] if days_raw else None,
+        "first_day": days[0] if days else None,
     }
 
     write_json(os.path.join(OUT_DIR, "market.json"), market)
 
-    proj_meta = [{"folder": p["folder"], "slug": p["slug"], "name": p["name"]} for p in projects]
+    proj_meta = [{"folder": p["folder"], "slug": p["slug"], "name": p["name"], "first": p["first"]} for p in projects]
 
     def write_metric(filename, rows):
         write_json(os.path.join(OUT_DIR, filename), {

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FiNANCiE TIMES | 市況ダッシュボード</title>
   <link rel="canonical" href="https://ruku-practice.github.io/financie-times-web/">
+  <script>/* 背景の白黒：記憶があれば最初の描画から反映（ちらつき防止） */try{if(localStorage.getItem("ft_theme")==="light"){document.documentElement.setAttribute("data-theme","light");}}catch(e){}</script>
   <link rel="stylesheet" href="css/advanced.css?v=3.0.0">
   <link rel="stylesheet" href="css/overview.css?v=3.0.0">
   <!-- Lucide Icons -->
@@ -33,6 +34,7 @@
         <a href="https://financie.jp" class="btn-external" target="_blank" rel="noopener">FiNANCiE公式 ↗</a>
         <a href="https://ruku-practice.github.io/cnp-times/advanced.html" class="btn-external">CNP TIMES →</a>
         <a href="https://ruku-practice.github.io/invest_and_crypto_mkt/" class="btn-external">マーケット情報 →</a>
+        <button type="button" class="btn-external theme-toggle" id="theme-toggle" aria-pressed="false" title="背景を白にする">☀️ ライト</button>
       </div>
     </header>
 
@@ -82,6 +84,7 @@
               <div class="detail-title">
                 <h2 id="detail-name">Project Name</h2>
                 <span id="detail-slug" class="slug-badge">slug</span>
+                <span id="detail-first" class="detail-first"></span>
               </div>
             </div>
             <div class="period-selector">
@@ -252,12 +255,12 @@
           <!-- Panel A/B: stacked volume + share -->
           <div class="charts-grid ov-charts-grid">
             <div class="chart-card ov-chart-card">
-              <div class="chart-card-header"><h3 class="chart-card-title">全体出来高（上位＋その他の積み上げ）</h3></div>
+              <div class="chart-card-header"><h3 class="chart-card-title">全体出来高（上位＋その他の積み上げ）</h3><div class="ov-size-group" role="group" aria-label="グラフの高さ"><button type="button" class="ov-size-btn" data-size="s">小</button><button type="button" class="ov-size-btn" data-size="m">中</button><button type="button" class="ov-size-btn" data-size="l">大</button></div></div>
               <div class="chart-wrapper"><canvas id="ovVolumeChart"></canvas></div>
               <details class="ov-legend" id="ov-legend-volume"><summary>凡例</summary><div class="ov-legend-items"></div></details>
             </div>
             <div class="chart-card ov-chart-card">
-              <div class="chart-card-header"><h3 class="chart-card-title">出来高シェア（100%積み上げ）</h3></div>
+              <div class="chart-card-header"><h3 class="chart-card-title">出来高シェア（100%積み上げ）</h3><div class="ov-size-group" role="group" aria-label="グラフの高さ"><button type="button" class="ov-size-btn" data-size="s">小</button><button type="button" class="ov-size-btn" data-size="m">中</button><button type="button" class="ov-size-btn" data-size="l">大</button></div></div>
               <div class="chart-wrapper"><canvas id="ovShareChart"></canvas></div>
               <details class="ov-legend" id="ov-legend-share"><summary>凡例</summary><div class="ov-legend-items"></div></details>
             </div>
@@ -290,19 +293,21 @@
           <!-- Panel D/E -->
           <div class="charts-grid ov-charts-grid">
             <div class="chart-card ov-chart-card">
-              <div class="chart-card-header"><h3 class="chart-card-title" id="ov-panelD-title">価格の推移（上位10・期間初日=100の指数）</h3></div>
+              <div class="chart-card-header"><h3 class="chart-card-title" id="ov-panelD-title">価格の推移（上位10・期間初日=100の指数）</h3><div class="ov-size-group" role="group" aria-label="グラフの高さ"><button type="button" class="ov-size-btn" data-size="s">小</button><button type="button" class="ov-size-btn" data-size="m">中</button><button type="button" class="ov-size-btn" data-size="l">大</button></div></div>
               <div class="chart-wrapper"><canvas id="ovPriceChart"></canvas></div>
               <details class="ov-legend" id="ov-legend-price"><summary>凡例</summary><div class="ov-legend-items"></div></details>
             </div>
             <div class="chart-card ov-chart-card">
-              <div class="chart-card-header"><h3 class="chart-card-title">メンバー数の増減（日ごとの純増・購入者数ではない）</h3></div>
+              <div class="chart-card-header"><h3 class="chart-card-title">メンバー数の増減（日ごとの純増・購入者数ではない）</h3><div class="ov-size-group" role="group" aria-label="グラフの高さ"><button type="button" class="ov-size-btn" data-size="s">小</button><button type="button" class="ov-size-btn" data-size="m">中</button><button type="button" class="ov-size-btn" data-size="l">大</button></div></div>
               <div class="chart-wrapper"><canvas id="ovMembersChart"></canvas></div>
               <details class="ov-legend" id="ov-legend-members"><summary>凡例</summary><div class="ov-legend-items"></div></details>
             </div>
           </div>
 
-          <footer class="ov-footer">
-            非公式サイト・FiNANCiE公開ページの表示値を毎日1回記録・正確性は保証しません・出来高の単位は円・24h出来高が取れなかった日（24h＝30日の一致）は欠測扱い・期間合計は毎晩1回の記録の合計で厳密な期間出来高ではありません・v3.0.0
+          <footer class="ov-footer" id="ov-footer">
+            <p>非公式サイトです。FiNANCiE から許可を得て、公開ページの表示値を毎日1回記録しています。</p>
+            <p>全データを取り切れていない可能性があります。参考値としてご覧ください（正確性は保証しません）。</p>
+            <p>24h出来高が取れなかった日（24h＝30日の一致）は欠測扱い・期間合計は毎晩1回の記録の合計で厳密な期間出来高ではありません・出来高の単位は円・v3.0.0</p>
           </footer>
         </div>
 

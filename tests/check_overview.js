@@ -329,6 +329,97 @@ async function run() {
     await page.click('#ov-period-group button[data-period="90"]');
     await page.waitForTimeout(300);
 
+    // ---------- ルク要望3（21:50 決裁）と注記a〜d の受け入れ検査 ----------
+    // A34: 名前のリンク＝本家 financie.jp/users/<slug>・新しいタブ・noopener・title に「FiNANCiEで見る」と各案件のデータ取得開始日。名前を押しても個別分析へは飛ばない
+    const links = await page.$$eval("#ov-ranking-tbody tr[data-folder] a.ov-pj-link", (as) => as.map((a) => ({
+      href: a.getAttribute("href"), target: a.getAttribute("target"), rel: a.getAttribute("rel") || "", title: a.getAttribute("title") || "",
+      folder: a.closest("tr").getAttribute("data-folder"), hasMark: !!a.querySelector(".ov-ext")
+    })));
+    const slugOf = await page.evaluate(() => { const o = {}; window.FinancieOverview._debug.data.volume.projects.forEach((p) => { o[p.folder] = p.slug; }); return o; });
+    const badLinks = links.filter((l) => !(l.href === `https://financie.jp/users/${encodeURIComponent(slugOf[l.folder])}` && l.target === "_blank" && l.rel.includes("noopener") && l.title.includes("FiNANCiEで見る") && /データ取得開始 20\d\d\/\d\d\/\d\d/.test(l.title) && l.hasMark));
+    const urlBeforeClick = page.url();
+    await page.evaluate(() => { const a = document.querySelector("#ov-ranking-tbody tr[data-folder] a.ov-pj-link"); a.addEventListener("click", (e) => e.preventDefault(), { once: true }); a.click(); });
+    await page.waitForTimeout(400);
+    const stayed = page.url() === urlBeforeClick && !page.url().includes("project=");
+    record("A34-financie-link", links.length >= 10 && badLinks.length === 0 && stayed, `n=${links.length} bad=${JSON.stringify(badLinks.slice(0, 2))} stayed=${stayed}`);
+
+    // A35: 注記＝記録の開始日（実測の最古日）と「それ以前は持っていない」・許可・参考値・非公式が13px以上の帯にある
+    const notes = await page.evaluate(() => {
+      const first = window.FinancieOverview._debug.data.market.first_day.replace(/-/g, "/");
+      const meta = document.getElementById("ov-meta").textContent;
+      const f = document.getElementById("ov-footer");
+      return { first, metaOk: meta.includes(first) && meta.includes("それ以前"), footer: f.textContent.replace(/\s+/g, " ").trim(), footerPx: parseFloat(getComputedStyle(f).fontSize) };
+    });
+    const footerOk = ["非公式", "許可を得て", "参考値", "保証しません", "表示値"].every((w) => notes.footer.includes(w)) && notes.footerPx >= 13;
+    record("A35-notes", notes.first === "2023/12/21" && notes.metaOk && footerOk, JSON.stringify({ first: notes.first, metaOk: notes.metaOk, footerPx: notes.footerPx, footerOk }));
+
+    // A32: 背景の白黒＝ヘッダー右のトグルで切替・localStorage に記憶・再読み込みで保たれる・両テーマで文字コントラスト AA
+    const contrastCheck = async () => page.evaluate(() => {
+      const parse = (c) => { const m = /rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?\)/.exec(c); return m ? [+m[1], +m[2], +m[3], m[4] === undefined ? 1 : +m[4]] : null; };
+      const lum = ([r, g, b]) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
+      const bgOf = (el) => { // 祖先をたどり、半透明は重ねる
+        let acc = null; let node = el;
+        while (node && node !== document.documentElement.parentNode) {
+          const c = parse(getComputedStyle(node).backgroundColor);
+          if (c && c[3] > 0) {
+            if (!acc) acc = c;
+            else { const a = acc[3]; acc = [acc[0] * a + c[0] * (1 - a), acc[1] * a + c[1] * (1 - a), acc[2] * a + c[2] * (1 - a), Math.min(1, a + c[3] * (1 - a))]; }
+            if (acc[3] >= 0.999) break;
+          }
+          node = node.parentElement;
+        }
+        if (!acc) return [255, 255, 255, 1];
+        if (acc[3] < 0.999) { const a = acc[3]; acc = [acc[0] * a + 255 * (1 - a), acc[1] * a + 255 * (1 - a), acc[2] * a + 255 * (1 - a), 1]; }
+        return acc;
+      };
+      const sel = "#overview-view .ov-meta, #overview-view .metric-label, #overview-view .metric-value, #overview-view .metric-sub, #overview-view th, #overview-view td, #overview-view td a, #overview-view .diff-up, #overview-view .diff-down, #overview-view .diff-flat, #overview-view .ov-note, #ov-footer p, #overview-view .sort-tab-btn, #overview-view .ov-control-label, #overview-view .ov-legend-item, #overview-view summary, #overview-view .chart-card-title, #overview-view h2, #overview-view #ov-desc, #overview-view .ov-size-btn, #theme-toggle, .app-footer, .tab-nav-btn";
+      const bad = [];
+      let n = 0;
+      document.querySelectorAll(sel).forEach((el) => {
+        if (!el.offsetParent && el.tagName !== "SUMMARY") return; // 非表示は除く
+        const cs = getComputedStyle(el);
+        const fg = parse(cs.color); if (!fg) return;
+        const bg = bgOf(el);
+        const L1 = lum(fg), L2 = lum(bg);
+        const ratio = (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05);
+        const px = parseFloat(cs.fontSize); const bold = parseInt(cs.fontWeight, 10) >= 700;
+        const large = px >= 24 || (px >= 18.66 && bold);
+        const need = large ? 3 : 4.5;
+        n++;
+        if (ratio < need) bad.push(`${el.tagName}.${(el.className || "").toString().split(" ")[0]}:${ratio.toFixed(2)}<${need}(${cs.color} on rgb(${bg.slice(0, 3).map(Math.round)}))`);
+      });
+      return { n, bad: [...new Set(bad)].slice(0, 8), theme: document.documentElement.getAttribute("data-theme") || "dark" };
+    });
+    const darkContrast = await contrastCheck();
+    record("A32-contrast-dark", darkContrast.n > 30 && darkContrast.bad.length === 0, JSON.stringify(darkContrast));
+    await page.click("#theme-toggle");
+    await page.waitForTimeout(500);
+    const lightState = await page.evaluate(() => ({ theme: document.documentElement.getAttribute("data-theme"), stored: localStorage.getItem("ft_theme"), tick: window.FinancieOverview._debug.charts.volume.options.scales.y.ticks.color, bg: getComputedStyle(document.body).backgroundColor }));
+    record("A32-theme-toggle", lightState.theme === "light" && lightState.stored === "light" && lightState.tick === "#4b5563" && lightState.bg === "rgb(243, 244, 246)", JSON.stringify(lightState));
+    const lightContrast = await contrastCheck();
+    record("A32-contrast-light", lightContrast.n > 30 && lightContrast.bad.length === 0, JSON.stringify(lightContrast));
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await waitOverviewReady(page);
+    const persisted = await page.evaluate(() => ({ theme: document.documentElement.getAttribute("data-theme"), label: document.getElementById("theme-toggle").textContent }));
+    record("A32-theme-persist", persisted.theme === "light" && persisted.label.includes("ダーク"), JSON.stringify(persisted));
+    await page.click("#theme-toggle");
+    await page.waitForTimeout(300);
+    const backDark = await page.evaluate(() => (document.documentElement.getAttribute("data-theme") || "dark") + "/" + localStorage.getItem("ft_theme"));
+    record("A32-theme-back", backDark === "dark/dark", backDark);
+
+    // A33: グラフの高さ＝各グラフ右上の小／中／大（既定＝中）・グラフごとに記憶・再読み込みで保たれる・chartArea が実際に増える
+    const sizeBefore = await page.evaluate(() => { const c = window.FinancieOverview._debug.charts.volume; return { area: Math.round(c.chartArea.bottom - c.chartArea.top), h: c.canvas.closest(".chart-wrapper").getBoundingClientRect().height, active: c.canvas.closest(".chart-card").querySelector(".ov-size-btn.active").getAttribute("data-size") }; });
+    await page.click('#ov-legend-volume ~ *, #ovVolumeChart ~ *', { trial: true }).catch(() => {});
+    await page.evaluate(() => document.querySelector("#ovVolumeChart").closest(".chart-card").querySelector('.ov-size-btn[data-size="l"]').click());
+    await page.waitForTimeout(500);
+    const sizeAfter = await page.evaluate(() => { const c = window.FinancieOverview._debug.charts.volume; return { area: Math.round(c.chartArea.bottom - c.chartArea.top), h: c.canvas.closest(".chart-wrapper").getBoundingClientRect().height, stored: localStorage.getItem("ft_chart_size"), shareH: window.FinancieOverview._debug.charts.share.canvas.closest(".chart-wrapper").getBoundingClientRect().height }; });
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await waitOverviewReady(page);
+    const sizePersist = await page.evaluate(() => { const c = window.FinancieOverview._debug.charts.volume; return { h: c.canvas.closest(".chart-wrapper").getBoundingClientRect().height, active: c.canvas.closest(".chart-card").querySelector(".ov-size-btn.active").getAttribute("data-size") }; });
+    record("A33-chart-size", sizeBefore.active === "m" && sizeBefore.h === 260 && sizeAfter.h === 420 && sizeAfter.area > sizeBefore.area + 100 && sizeAfter.shareH === 260 && JSON.parse(sizeAfter.stored).volume === "l" && sizePersist.h === 420 && sizePersist.active === "l",
+      JSON.stringify({ sizeBefore, sizeAfter, sizePersist }));
+    await page.evaluate(() => { localStorage.removeItem("ft_chart_size"); localStorage.removeItem("ft_theme"); });
+
     // A11: フッター文言・煽り語なし
     const footerText = await page.textContent(".ov-footer");
     const hasRequired = ["非公式", "表示値", "保証しません"].every((w) => footerText.includes(w));

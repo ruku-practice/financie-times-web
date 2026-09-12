@@ -11,7 +11,7 @@
 
   const OV_APP_VERSION = "3.0.0";
 
-  // 出来高の単位＝「円」（2026-09-12 19:03 ルク決定・本家 financie.jp が円表示のため）。
+  // 出来高の単位＝「円」（2026-09-12 21:30 ルク決定・本家 financie.jp が円表示のため）。
   // ラベルの定義はここ1か所だけ（A12）。切り替えるときはこの1行だけ直せばよい。
   const OVERVIEW_CONFIG = {
     volumeUnitLabel: "円",
@@ -53,6 +53,60 @@
 
   function isMobile() {
     return window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
+  }
+
+  /* ------------------------------------------------------------
+   * 背景の白黒（ダーク／ライト）：既定＝ダーク・ヘッダー右のトグルで切替・localStorage に記憶（ルク要望1）
+   * ------------------------------------------------------------ */
+  const THEME_KEY = "ft_theme";
+
+  function currentTheme() {
+    return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+  }
+
+  function updateThemeToggle() {
+    const b = document.getElementById("theme-toggle");
+    if (!b) return;
+    const light = currentTheme() === "light";
+    b.textContent = light ? "🌙 ダーク" : "☀️ ライト";
+    b.setAttribute("aria-pressed", String(light));
+    b.title = light ? "背景を黒にする" : "背景を白にする";
+  }
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme === "light" ? "light" : "dark");
+    try { localStorage.setItem(THEME_KEY, theme); } catch (e) { /* 記憶できなくても動く */ }
+    updateThemeToggle();
+    if (ovState.initialized) recomputeAll(); // グラフの文字色をテーマに合わせて描き直す
+  }
+
+  function setupThemeToggle() {
+    const b = document.getElementById("theme-toggle");
+    if (!b) return;
+    updateThemeToggle();
+    b.addEventListener("click", () => applyTheme(currentTheme() === "light" ? "dark" : "light"));
+  }
+
+  // グラフの文字・罫線の色（テーマごと）
+  function chartColors() {
+    const light = currentTheme() === "light";
+    return {
+      tick: light ? "#4b5563" : "#9ca3af",
+      gridX: light ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.03)",
+      gridY: light ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.05)"
+    };
+  }
+
+  /* ------------------------------------------------------------
+   * グラフの高さ：各グラフ右上の「小／中／大」（既定＝中）・グラフごとに localStorage に記憶（ルク要望2）
+   * ------------------------------------------------------------ */
+  const SIZE_KEY = "ft_chart_size";
+  const CHART_SIZES = { s: { pc: 180, sp: 160 }, m: { pc: 260, sp: 240 }, l: { pc: 420, sp: 360 } };
+  let chartSizes = {};
+  try { chartSizes = JSON.parse(localStorage.getItem(SIZE_KEY) || "{}") || {}; } catch (e) { chartSizes = {}; }
+
+  function chartSizeOf(key) {
+    return CHART_SIZES[chartSizes[key]] ? chartSizes[key] : "m";
   }
 
   /* ------------------------------------------------------------
@@ -331,7 +385,7 @@
       for (let d = ovState.startIdx; d <= ovState.endIdx; d++) {
         if (row[d] !== null && row[d] !== undefined) sum += row[d];
       }
-      return { folder: p.folder, slug: p.slug, name: p.name, total: sum };
+      return { folder: p.folder, slug: p.slug, name: p.name, first: p.first, total: sum };
     });
     totals.sort((a, b) => b.total - a.total);
     return totals;
@@ -364,7 +418,8 @@
     const latest = days[days.length - 1];
     const count = ovData.volume.projects.length;
     if (dom.desc) dom.desc.textContent = `全プロジェクトを横断した出来高・価格・メンバー数・在庫・時価総額の推移。上位${n}＋その他で内訳を見られます。`;
-    if (dom.meta) dom.meta.textContent = `非公式・${count}プロジェクト・最終記録 ${fmtDateJa(latest)}・毎日1回の記録`;
+    const first = ovData.market.first_day || days[0];
+    if (dom.meta) dom.meta.textContent = `非公式・${count}プロジェクト・記録 ${fmtDateJa(first)}〜${fmtDateJa(latest)}（毎日1回）・それ以前のデータは持っていません（FiNANCiE 自体はそれ以前からあるサービスです）`;
     if (dom.kpiTotalLabel) dom.kpiTotalLabel.textContent = `期間の全体出来高（${OVERVIEW_CONFIG.volumeUnitLabel}）`;
     if (dom.kpiShareLabel) dom.kpiShareLabel.textContent = `上位${n}のシェア`;
     if (dom.panelDTitle) dom.panelDTitle.textContent = `価格の推移（上位${n}・期間初日=100の指数）`;
@@ -413,7 +468,7 @@
    * ------------------------------------------------------------ */
   function xTicksOptions(shortLabels) {
     return {
-      color: "#9ca3af",
+      color: chartColors().tick,
       maxRotation: 0,
       minRotation: 0,
       autoSkip: true,
@@ -517,8 +572,8 @@
           tooltip: { mode: "index", intersect: false }
         },
         scales: {
-          x: { stacked: true, ticks: xTicksOptions(shortLabels), grid: { color: "rgba(255,255,255,0.03)" } },
-          y: { stacked: true, ticks: { color: "#9ca3af" }, grid: { color: "rgba(255,255,255,0.05)" } }
+          x: { stacked: true, ticks: xTicksOptions(shortLabels), grid: { color: chartColors().gridX } },
+          y: { stacked: true, ticks: { color: chartColors().tick }, grid: { color: chartColors().gridY } }
         }
       }
     });
@@ -557,8 +612,8 @@
           tooltip: { mode: "index", intersect: false }
         },
         scales: {
-          x: { stacked: true, ticks: xTicksOptions(shortLabels), grid: { color: "rgba(255,255,255,0.03)" } },
-          y: { stacked: true, min: 0, max: 100, ticks: { color: "#9ca3af", callback: (v) => v + "%" }, grid: { color: "rgba(255,255,255,0.05)" } }
+          x: { stacked: true, ticks: xTicksOptions(shortLabels), grid: { color: chartColors().gridX } },
+          y: { stacked: true, min: 0, max: 100, ticks: { color: chartColors().tick, callback: (v) => v + "%" }, grid: { color: chartColors().gridY } }
         }
       }
     });
@@ -595,12 +650,13 @@
     return cols[metric] || cols.volume;
   }
 
+  const ROW_HINT = "名前を押すと FiNANCiE のプロジェクトページ（新しいタブ・名前に載せると各案件のデータ取得開始日が出ます）・行のほかの場所を押すと個別分析";
   const RANKING_NOTES = {
-    volume: "並び＝期間合計の多い順。「その他」＝上位以外の全件（期間中に取引の無かった案件も含む）。行を押すと個別分析を開きます",
-    price: "並び＝期間の変化率の高い順。期末値＝期間内で最後に記録された値（終了日より前で止まっている案件は日付を添えています）。行を押すと個別分析を開きます",
-    members: "並び＝期間の増減の多い順。メンバー数の増減は購入者数ではありません。期末値＝期間内で最後に記録された値。行を押すと個別分析を開きます",
-    stock: "並び＝在庫の減りが大きい順。減りは販売数ではありません（売り戻しと差し引き）。期末値＝期間内で最後に記録された値。行を押すと個別分析を開きます",
-    mcap: "並び＝期間の変化率の高い順。期末値＝期間内で最後に記録された値。行を押すと個別分析を開きます"
+    volume: `並び＝期間合計の多い順。「その他」＝上位以外の全件（期間中に取引の無かった案件も含む）。${ROW_HINT}`,
+    price: `並び＝期間の変化率の高い順。期末値＝期間内で最後に記録された値（終了日より前で止まっている案件は日付を添えています）。${ROW_HINT}`,
+    members: `並び＝期間の増減の多い順。メンバー数の増減は購入者数ではありません。期末値＝期間内で最後に記録された値。${ROW_HINT}`,
+    stock: `並び＝在庫の減りが大きい順。減りは販売数ではありません（売り戻しと差し引き）。期末値＝期間内で最後に記録された値。${ROW_HINT}`,
+    mcap: `並び＝期間の変化率の高い順。期末値＝期間内で最後に記録された値。${ROW_HINT}`
   };
 
   function renderRankingHeader(metric) {
@@ -649,7 +705,7 @@
       if (metric === "stock") sortValue = changeAbs === null ? -Infinity : -changeAbs; // 減少(負)ほど大きい正値に
       else if (metric === "members") sortValue = changeAbs === null ? -Infinity : changeAbs;
       else sortValue = changePct === null ? -Infinity : changePct;
-      return { folder: p.folder, name: p.name, first, last, lastIdx, changeAbs, changePct, sortValue };
+      return { folder: p.folder, slug: p.slug, name: p.name, firstDay: p.first, first, last, lastIdx, changeAbs, changePct, sortValue };
     });
     rows.sort((a, b) => b.sortValue - a.sortValue);
     return { ranked: rows, extra: {} };
@@ -663,8 +719,15 @@
     return text;
   }
 
+  // 本家 FiNANCiE のプロジェクトページ（実在を curl で3件確認済み：/users/<slug>）
+  function financieUrl(r) {
+    return `https://financie.jp/users/${encodeURIComponent(r.slug || r.folder)}`;
+  }
+
   function projectCell(r) {
-    return `<td class="text-left"><a class="table-pj-link" href="?project=${encodeURIComponent(r.folder)}">${escapeHtml(r.name)}</a></td>`;
+    const firstDay = r.firstDay || r.first;
+    const title = `FiNANCiEで見る（新しいタブ）${typeof firstDay === "string" ? `・データ取得開始 ${fmtDateJa(firstDay)}` : ""}`;
+    return `<td class="text-left"><a class="table-pj-link ov-pj-link" href="${financieUrl(r)}" target="_blank" rel="noopener" title="${escapeHtml(title)}">${escapeHtml(r.name)}<span class="ov-ext" aria-hidden="true">↗</span></a></td>`;
   }
 
   function renderPanelC() {
@@ -747,7 +810,8 @@
       });
 
       dom.rankingTbody.querySelectorAll(".ov-ranking-row[data-folder]").forEach((tr) => {
-        tr.addEventListener("click", () => {
+        tr.addEventListener("click", (e) => {
+          if (e.target.closest("a")) return; // 名前のリンク（本家へ）はそのまま通す
           window.location.href = `?project=${encodeURIComponent(tr.getAttribute("data-folder"))}`;
         });
       });
@@ -803,8 +867,8 @@
             tooltip: { mode: "index", intersect: false }
           },
           scales: {
-            x: { ticks: xTicksOptions(shortLabels), grid: { color: "rgba(255,255,255,0.03)" } },
-            y: { ticks: { color: "#9ca3af" }, grid: { color: "rgba(255,255,255,0.05)" } }
+            x: { ticks: xTicksOptions(shortLabels), grid: { color: chartColors().gridX } },
+            y: { ticks: { color: chartColors().tick }, grid: { color: chartColors().gridY } }
           }
         }
       });
@@ -887,8 +951,8 @@
             tooltip: { mode: "index", intersect: false }
           },
           scales: {
-            x: { stacked: true, ticks: xTicksOptions(shortLabels), grid: { color: "rgba(255,255,255,0.03)" } },
-            y: { stacked: true, ticks: { color: "#9ca3af" }, grid: { color: "rgba(255,255,255,0.05)" } }
+            x: { stacked: true, ticks: xTicksOptions(shortLabels), grid: { color: chartColors().gridX } },
+            y: { stacked: true, ticks: { color: chartColors().tick }, grid: { color: chartColors().gridY } }
           }
         }
       });
@@ -1004,6 +1068,43 @@
   function setupLegends() {
     const open = !isMobile();
     Object.values(dom.legends).forEach((box) => { if (box) box.open = open; });
+  }
+
+  function applyChartSize(key) {
+    const box = dom.legends[key];
+    if (!box) return;
+    const card = box.closest(".chart-card");
+    const wrap = card.querySelector(".chart-wrapper");
+    const size = chartSizeOf(key);
+    wrap.style.height = `${isMobile() ? CHART_SIZES[size].sp : CHART_SIZES[size].pc}px`;
+    card.querySelectorAll(".ov-size-btn").forEach((b) => {
+      const on = b.getAttribute("data-size") === size;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-pressed", String(on));
+    });
+    if (ovCharts[key]) ovCharts[key].resize();
+  }
+
+  function setupChartSizes() {
+    Object.keys(dom.legends).forEach((key) => {
+      const box = dom.legends[key];
+      if (!box) return;
+      const card = box.closest(".chart-card");
+      card.querySelectorAll(".ov-size-btn").forEach((b) => {
+        b.addEventListener("click", () => {
+          chartSizes[key] = b.getAttribute("data-size");
+          try { localStorage.setItem(SIZE_KEY, JSON.stringify(chartSizes)); } catch (e) { /* 記憶できなくても動く */ }
+          applyChartSize(key);
+        });
+      });
+      applyChartSize(key);
+    });
+    // PC⇄スマホの境目をまたいだら高さを取り直す
+    if (window.matchMedia) {
+      const mq = window.matchMedia("(max-width: 768px)");
+      const onChange = () => Object.keys(dom.legends).forEach(applyChartSize);
+      if (mq.addEventListener) mq.addEventListener("change", onChange); else if (mq.addListener) mq.addListener(onChange);
+    }
   }
 
   /* ------------------------------------------------------------
@@ -1123,6 +1224,7 @@
     bindDom();
     attachEvents();
     setupLegends();
+    setupChartSizes();
     setupLazyPanels();
     restoreStateFromUrl();
 
@@ -1147,10 +1249,11 @@
   }
 
   console.info("FiNANCiE TIMES overview v" + OV_APP_VERSION);
+  setupThemeToggle(); // ヘッダーのトグルは総覧タブに関係なく効かせる
   window.FinancieOverview = {
     onShow,
     OVERVIEW_CONFIG,
     // 検査用（tests/check_overview.js から参照）。本番の見た目には影響しない。
-    _debug: { state: ovState, charts: ovCharts, data: ovData, ovColor, isMobile }
+    _debug: { state: ovState, charts: ovCharts, data: ovData, ovColor, isMobile, applyTheme, currentTheme, chartSizeOf, CHART_SIZES }
   };
 })();

@@ -135,6 +135,9 @@
     return `${arrow}${val}${suffix}`;
   };
 
+  // グラフの文字色（背景の白黒に合わせる。トグルは overview.js）
+  const chartTextColor = () => (document.documentElement.getAttribute("data-theme") === "light" ? "#4b5563" : "#9ca3af");
+
   const getDiffClass = (diff) => {
     if (!diff || diff === 0) return "diff-flat";
     return diff > 0 ? "diff-up" : "diff-down";
@@ -347,6 +350,12 @@
         detailLogo.onerror = () => { detailLogo.src = defaultLogo; };
         detailName.textContent = data.name;
         detailSlug.textContent = `@${data.slug}`;
+        // データ取得開始日（その案件の最古の記録日）＝それ以前のデータは持っていない
+        const detailFirst = document.getElementById("detail-first");
+        if (detailFirst) {
+          const firstRec = (data.history || []).reduce((m, r) => (r && r.date && (!m || r.date < m)) ? r.date : m, null);
+          detailFirst.textContent = firstRec ? `データ取得開始 ${firstRec.slice(0, 4)}/${firstRec.slice(4, 6)}/${firstRec.slice(6, 8)}（それ以前の記録は持っていません）` : "";
+        }
 
         // 指標カードセット
         updateMetrics();
@@ -526,7 +535,7 @@
           legend: {
             position: 'top',
             labels: {
-              color: '#9ca3af',
+              color: chartTextColor(),
               font: { family: 'Outfit, sans-serif' }
             }
           },
@@ -538,7 +547,7 @@
         scales: {
           x: {
             grid: { color: 'rgba(255, 255, 255, 0.05)' },
-            ticks: { color: '#9ca3af', maxTicksLimit: 12 }
+            ticks: { color: chartTextColor(), maxTicksLimit: 12 }
           },
           'y-members': {
             type: 'linear',
@@ -588,11 +597,11 @@
       scales: {
         x: {
           grid: { color: 'rgba(255, 255, 255, 0.03)' },
-          ticks: { color: '#9ca3af', maxTicksLimit: 12 }
+          ticks: { color: chartTextColor(), maxTicksLimit: 12 }
         },
         y: {
           grid: { color: 'rgba(255, 255, 255, 0.05)' },
-          ticks: { color: '#9ca3af' }
+          ticks: { color: chartTextColor() }
         }
       }
     };
@@ -791,7 +800,7 @@
         legend: {
           position: 'top',
           labels: {
-            color: '#9ca3af',
+            color: chartTextColor(),
             font: { size: 11, family: 'Outfit, sans-serif' },
             boxWidth: 12
           }
@@ -810,15 +819,15 @@
       scales: {
         x: {
           grid: { color: 'rgba(255, 255, 255, 0.03)' },
-          ticks: { color: '#9ca3af', maxTicksLimit: 12 }
+          ticks: { color: chartTextColor(), maxTicksLimit: 12 }
         },
         y: {
           grid: { color: 'rgba(255, 255, 255, 0.05)' },
-          ticks: { color: '#9ca3af' },
+          ticks: { color: chartTextColor() },
           title: {
             display: true,
             text: yTitle,
-            color: '#9ca3af'
+            color: chartTextColor()
           }
         }
       }

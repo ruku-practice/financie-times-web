@@ -20,6 +20,31 @@
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* 背景の白（ライト）：ヘッダー右のトグルで切替・既定はダーク。文字は両テーマで AA（4.5:1）以上 */
+html[data-theme="light"] {
+  --bg-primary: #F3F4F6;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #E9EDF3;
+  --border-color: rgba(15, 23, 42, 0.12);
+  --text-primary: #1F2430;
+  --text-secondary: #55606E; /* 白地で 6.4:1 */
+  --accent-color: #2563EB;
+  --accent-hover: #1D4ED8;
+  --accent-text: #1D4ED8; /* 白地で 6.8:1 */
+  --accent-success: #047857; /* 白地で 5.5:1 */
+  --accent-warning: #B45309; /* 白地で 5.0:1 */
+  --accent-danger: #B3261E; /* 白地で 6.5:1 */
+  --shadow-sm: 0 2px 4px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 6px 12px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 12px 24px rgba(15, 23, 42, 0.10);
+}
+
+html[data-theme="light"] .sort-tab-btn:hover,
+html[data-theme="light"] .action-btn:hover,
+html[data-theme="light"] .btn-external:hover {
+  background: rgba(15, 23, 42, 0.06);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
