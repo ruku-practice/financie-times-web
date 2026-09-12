@@ -194,6 +194,34 @@ async function run() {
       const swapped = await page.evaluate(() => ({ note: document.getElementById("an-range-note").textContent, s: document.getElementById("an-start-date").value, e: document.getElementById("an-end-date").value }));
       record("B9-swap", swapped.note.includes("入れ替え") && swapped.s === "2026-08-01" && swapped.e === "2026-08-31", JSON.stringify(swapped));
 
+      // B17 開始＝終了（1日）：落ちない・週次は空（注記あり）・他は描ける（断の提案1）
+      await page.fill("#an-start-date", "2026-09-10");
+      await page.fill("#an-end-date", "2026-09-10");
+      await page.click("#an-apply");
+      await waitReady(page);
+      const oneDay = await page.evaluate(() => ({ weeks: window.FinancieAnalysis._debug.charts.weeklyVol.data.labels.length, note: document.getElementById("an-weekly-note").textContent, kpi: document.getElementById("an-kpi-total").textContent }));
+      st = await chartsStatus(page);
+      const nonWeekly = st.filter((x) => !x.key.startsWith("weekly"));
+      record("B17-oneday-range", oneDay.weeks === 0 && oneDay.note.includes("7日に満たない") && nonWeekly.every((x) => x.ok) && oneDay.kpi !== "-", JSON.stringify(oneDay));
+
+      // B18 データの範囲外（最古日より前〜最新日より後）→ 丸めて全期間と同じ合計（断の提案2）
+      await page.fill("#an-start-date", "2022-01-01");
+      await page.fill("#an-end-date", "2027-12-31");
+      await page.click("#an-apply");
+      await waitReady(page);
+      last = await readLast(page);
+      const clamped = await page.evaluate(() => ({ s: document.getElementById("an-start-date").value, e: document.getElementById("an-end-date").value }));
+      record("B18-out-of-data-range", Math.abs(last.vNow - ref.all.total) <= Math.max(1, ref.all.total * 1e-7) && clamped.s === ref.first_day && clamped.e === ref.latest, `ui=${last.vNow} ref=${ref.all.total} ${JSON.stringify(clamped)}`);
+
+      // B19 完了月が3つ未満の期末（データ開始の直後）→ 例外なく判定が出る（断の提案3）
+      await page.goto(BASE_ROOT + "&an_p=custom&an_s=2023-12-21&an_e=2024-01-31", { waitUntil: "domcontentloaded" });
+      await waitReady(page);
+      last = await readLast(page);
+      const ind2 = last.indicators.find((x) => x.n === 2);
+      record("B19-zero-completed-months", Number.isInteger(last.count) && ["なし", "兆しあり", "あり"].includes(last.band) && ind2.ok === false && ind2.actual.includes("3つ未満"), `count=${last.count} band=${last.band} ind2=${ind2.actual}`);
+      await page.goto(BASE_ROOT, { waitUntil: "domcontentloaded" });
+      await waitReady(page);
+
       // B10 ダーク（既定）のコントラスト AA
       await page.click('#an-period-group button[data-period="90"]');
       await waitReady(page);
