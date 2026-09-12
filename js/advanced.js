@@ -335,6 +335,7 @@
   // プロジェクト選択処理 (個別モード用)
   function selectProject(folder) {
     currentProjectFolder = folder;
+    volumeFullScale = false; // 「実寸で見る」は案件ごと（別の案件へ移ったら上限つきに戻す・断 v3.1 中1）
     
     // サイドバーのactive切り替え
     const items = projectListContainer.querySelectorAll(".project-item");

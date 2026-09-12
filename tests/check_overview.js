@@ -570,6 +570,16 @@ async function run() {
     await page.click("#volume-cap-toggle");
     await page.waitForTimeout(400);
     const back = await measureVol();
+    // 実寸のまま別の案件へ移り、CNG に戻ると上限つきに戻っている（実寸は案件ごと・断 v3.1 中1）
+    await page.click("#volume-cap-toggle");
+    await page.waitForTimeout(400);
+    await page.click('.project-item[data-folder]:not([data-folder="cryptoninjagames"])');
+    await page.waitForTimeout(800);
+    await page.click('.project-item[data-folder="cryptoninjagames"]');
+    await page.waitForFunction(() => document.getElementById("detail-slug").textContent === "@cryptoninjagames", { timeout: 15000 });
+    await page.waitForTimeout(600);
+    const reset = await measureVol();
+    record("A40-full-scale-resets-per-project", reset.yMax < reset.dataMax && reset.note.includes("▲") && reset.n === vol.all.n, JSON.stringify({ yMax: reset.yMax, n: reset.n, note: reset.note.slice(0, 12) }));
     record("A40-cng-full-scale-toggle", full.yMax >= full.dataMax && full.note.includes("実寸") && back.yMax < back.dataMax && back.note.includes("▲"), JSON.stringify({ full: { yMax: full.yMax, ratio: full.ratio, note: full.note.slice(0, 20) }, back: { yMax: back.yMax, ratio: back.ratio } }));
     // A41（v3.1 項目4）: 個別ページのプロジェクト名の横に本家へのリンク（新しいタブ・noopener・「FiNANCiEで見る」＋印）
     const pjLink = await page.evaluate(() => {
