@@ -228,3 +228,8 @@
 #analysis-view .an-table a:hover {
   text-decoration: underline;
 }
+
+/* 判定のセルは折り返さない（スマホで「当てはまらな／い」と割れる＝エマ軽） */
+#analysis-view .an-table td.verdict {
+  white-space: nowrap;
+}

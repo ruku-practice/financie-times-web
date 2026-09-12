@@ -49,7 +49,8 @@
   const OTHER_COLOR = { light: "#8a8986", dark: "#77766f" };
   const EXTRA_COLOR = { light: "#52514e", dark: "#c3c2b7" }; // 9〜10本目（点線・破線で見分ける）
 
-  const URL_KEYS = { period: "an_p", start: "an_s", end: "an_e" };
+  const URL_KEYS = { period: "an_p", start: "an_s", end: "an_e", window: "an_w" };
+  const WINDOWS = [30, 90, 180];
 
   /* ------------------------------------------------------------
    * 状態
@@ -62,7 +63,8 @@
     endIdx: 0,
     rangeSwapped: false,
     pendingStart: null, // 自由期間（適用前）
-    pendingEnd: null
+    pendingEnd: null,
+    window: 90 // 機運の5指標の窓（日）＝30/90/180・既定90（2026-09-13 06:58 ルク決裁・仕様メモ §5）
   };
   const anData = {};
   const anCharts = {};
@@ -334,67 +336,75 @@
   }
 
   /* ------------------------------------------------------------
-   * 機運の5指標（期末基準の固定窓・期間ボタンに依存しない）
+   * 機運の5指標（期末基準・窓 W 日＝30/90/180・期間ボタンには依存しない）
+   * 定義＝分析タブ仕様メモ §6-2＋§5（docs/analysis_code/window_compare.py と同じ式）
+   *   ① 直近W日の出来高 ÷ 前W日 −1 ≥ +20%
+   *   ② 窓内の後半 ÷ 前半 > 1（出来高）
+   *   ③ 出来高が立ったPJ数 直近W日 ÷ 前W日 −1 ≥ +10%
+   *   ④ メンバー純増 直近W日 > 前W日 かつ > 0
+   *   ⑤ 期末の価格上位10のうち W日前より上昇 ≥ 6
    * ------------------------------------------------------------ */
+  function membersOn(dateStr) {
+    const days = anData.series.days;
+    const idx = floorIndex(days, dateStr);
+    return idx < 0 ? null : anData.series.members_total[idx];
+  }
+
+  // 週ごとの「出来高が立ったPJ数」（期末を末尾にした7日区切り・直近 n 週）＝区画2の注記と結論の参考値
+  function weeklyActiveBack(endDate, n) {
+    const out = [];
+    for (let k = 0; k < n; k++) {
+      const we = addDays(endDate, -7 * k);
+      out.push(activeCount(indicesBetween(addDays(we, -6), we)));
+    }
+    return out;
+  }
+
   function computeIndicators() {
     const S = anData.series;
     const days = S.days;
     const endDate = days[anState.endIdx];
+    const W = anState.window;
     const T = AN_CONFIG.thresholds;
-
-    // 1. 直近30日 vs 前30日（出来高）
-    const last30 = indicesBetween(addDays(endDate, -29), endDate);
-    const prev30 = indicesBetween(addDays(endDate, -59), addDays(endDate, -30));
-    const vLast = sumSeries(S.v24_total, last30);
-    const vPrev = sumSeries(S.v24_total, prev30);
+    const ra = addDays(endDate, -(W - 1)), rb = endDate;
+    const pa = addDays(endDate, -(2 * W - 1)), pb = addDays(endDate, -W);
+    const ha = addDays(endDate, -(Math.floor(W / 2) - 1));
+    const recIdx = indicesBetween(ra, rb), prvIdx = indicesBetween(pa, pb);
+    const vLast = sumSeries(S.v24_total, recIdx);
+    const vPrev = sumSeries(S.v24_total, prvIdx);
     const vChange = pctChange(vLast, vPrev);
+    const h2 = sumSeries(S.v24_total, indicesBetween(ha, rb));
+    const h1 = sumSeries(S.v24_total, indicesBetween(ra, addDays(ha, -1)));
+    const halfChange = pctChange(h2, h1);
+
     // 上位2PJを除いた比較
-    const totLast = projectTotals(last30).sort((a, b) => b.total - a.total);
+    const totLast = projectTotals(recIdx).sort((x, y) => y.total - x.total);
     const top2 = totLast.slice(0, 2);
-    const totPrev = projectTotals(prev30);
-    const prevMap = {}; totPrev.forEach((t) => { prevMap[t.folder] = t.total; });
-    const exLast = vLast - top2.reduce((s, t) => s + t.total, 0);
-    const exPrev = vPrev - top2.reduce((s, t) => s + (prevMap[t.folder] || 0), 0);
+    const prevMap = {}; projectTotals(prvIdx).forEach((t) => { prevMap[t.folder] = t.total; });
+    const exLast = vLast - top2.reduce((acc, t) => acc + t.total, 0);
+    const exPrev = vPrev - top2.reduce((acc, t) => acc + (prevMap[t.folder] || 0), 0);
     const exChange = pctChange(exLast, exPrev);
 
-    // 2. 月次が2か月連続増（直近の完了月3つ）
-    const M = anData.monthly;
-    const endMonth = endDate.slice(0, 7);
-    const usable = [];
-    M.months.forEach((m, j) => { if (m < endMonth && M.picked_days[j] <= endDate) usable.push({ month: m, total: M.totals[j] }); });
-    const m3 = usable.slice(-3);
-    const m2up = m3.length === 3 && m3[0].total < m3[1].total && m3[1].total < m3[2].total;
+    // ③ 出来高が立ったPJ数（窓）
+    const nRec = activeCount(recIdx), nPrv = activeCount(prvIdx);
+    const aChange = pctChange(nRec, nPrv);
+    // 参考＝4週vs4週の平均（レポート v1 の定義）
+    const wk = weeklyActiveBack(endDate, 8);
+    const recent4 = wk.slice(0, 4).reduce((x, y) => x + y, 0) / 4;
+    const prev4 = wk.slice(4, 8).reduce((x, y) => x + y, 0) / 4;
 
-    // 3. 出来高が立ったPJ数：直近4週 vs 前4週
-    const wk = [];
-    for (let k = 0; k < 8; k++) {
-      const we = addDays(endDate, -7 * k);
-      const ws = addDays(we, -6);
-      wk.push(activeCount(indicesBetween(ws, we)));
-    }
-    const recent4 = wk.slice(0, 4).reduce((a, b) => a + b, 0) / 4;
-    const prev4 = wk.slice(4, 8).reduce((a, b) => a + b, 0) / 4;
-    const aChange = pctChange(recent4, prev4);
+    // ④ メンバー純増
+    const mEnd = membersOn(rb), mW = membersOn(pb), m2W = membersOn(addDays(pa, -1));
+    const mLast = mEnd !== null && mW !== null ? mEnd - mW : null;
+    const mPrev = mW !== null && m2W !== null ? mW - m2W : null;
 
-    // 4. メンバー純増：直近30日 vs 前30日
-    function membersOn(dateStr) {
-      const idx = floorIndex(days, dateStr);
-      if (idx < 0) return null;
-      return S.members_total[idx];
-    }
-    const mEnd = membersOn(endDate);
-    const m30 = membersOn(addDays(endDate, -30));
-    const m60 = membersOn(addDays(endDate, -60));
-    const mLast = mEnd !== null && m30 !== null ? mEnd - m30 : null;
-    const mPrev = m30 !== null && m60 !== null ? m30 - m60 : null;
-
-    // 5. 価格上位10（期末時点）のうち30日前より上昇
+    // ⑤ 価格上位10（期末時点）のうち W日前より上昇
     const endIdx = anState.endIdx;
     const priceRank = anData.price.projects.map((p) => ({ folder: p.folder, short: p.short, price: priceAt(p.folder, endIdx) }))
       .filter((x) => x.price !== null && x.price > 0)
-      .sort((a, b) => b.price - a.price)
+      .sort((x, y) => y.price - x.price)
       .slice(0, AN_CONFIG.priceTop);
-    const before = addDays(endDate, -30);
+    const before = addDays(endDate, -W);
     let upCount = 0;
     priceRank.forEach((x) => {
       const base = priceAround(x.folder, before);
@@ -404,25 +414,25 @@
     });
 
     const items = [
-      { n: 1, label: "直近30日出来高の前30日比", def: `全PJの24h出来高合算。${fmtMD(addDays(endDate, -29))}〜${fmtMD(endDate)} ÷ ${fmtMD(addDays(endDate, -59))}〜${fmtMD(addDays(endDate, -30))}`,
+      { n: 1, label: `直近${W}日出来高の前${W}日比`, def: `全PJの24h出来高合算。${fmtMD(ra)}〜${fmtMD(rb)} ÷ ${fmtMD(pa)}〜${fmtMD(pb)}`,
         threshold: `+${T.volumeChangePct}%以上`, actual: `${fmtYen(vLast)} ÷ ${fmtYen(vPrev)} ＝ ${fmtPct(vChange, 0)}（上位2PJを除くと ${fmtPct(exChange, 0)}）`,
         ok: vChange !== null && vChange >= T.volumeChangePct },
-      { n: 2, label: "月次出来高が2か月連続増", def: `30日出来高（翌月1日）の全PJ合計。直近の完了月3つ（${m3.map((x) => x.month.slice(2).replace("-", "/")).join("→") || "-"}）`,
-        threshold: "2か月連続増", actual: m3.length === 3 ? m3.map((x) => (x.total / 1e8).toFixed(2)).join(" → ") + "億円" : "完了月が3つ未満",
-        ok: m2up },
-      { n: 3, label: "出来高が立ったPJ数の広がり", def: "週に出来高＞0 の日があるPJ数。直近4週平均 ÷ 前4週平均（期末を末尾にした7日区切り）",
-        threshold: `+${T.activeChangePct}%以上`, actual: `${recent4.toFixed(1)} ÷ ${prev4.toFixed(1)} ＝ ${fmtPct(aChange, 1)}`,
+      { n: 2, label: `窓内の後半が前半より多い`, def: `${W}日の窓を前半・後半に割り、出来高合算の 後半（${fmtMD(ha)}〜${fmtMD(rb)}）÷ 前半（${fmtMD(ra)}〜${fmtMD(addDays(ha, -1))}）`,
+        threshold: "後半 ＞ 前半", actual: `${fmtYen(h2)} ÷ ${fmtYen(h1)} ＝ ${fmtPct(halfChange, 0)}`,
+        ok: h1 > 0 && h2 > h1 },
+      { n: 3, label: "出来高が立ったPJ数の広がり", def: `窓に出来高＞0 の日があるPJ数。直近${W}日 ÷ 前${W}日`,
+        threshold: `+${T.activeChangePct}%以上`, actual: `${nRec} ÷ ${nPrv} ＝ ${fmtPct(aChange, 1)}`,
         ok: aChange !== null && aChange >= T.activeChangePct },
-      { n: 4, label: "メンバー純増の加速", def: "全PJ合計（停止PJは据え置き）の直近30日純増 vs 前30日純増",
-        threshold: "直近＞前30日 かつ 直近＞0", actual: `${mLast === null ? "-" : (mLast > 0 ? "+" : "") + fmtInt(mLast)}人 vs ${mPrev === null ? "-" : (mPrev > 0 ? "+" : "") + fmtInt(mPrev)}人`,
+      { n: 4, label: "メンバー純増の加速", def: `全PJ合計（停止PJは据え置き・0落ちは前値で埋める）の直近${W}日純増 vs 前${W}日純増`,
+        threshold: `直近＞前${W}日 かつ 直近＞0`, actual: `${mLast === null ? "-" : (mLast > 0 ? "+" : "") + fmtInt(mLast)}人 vs ${mPrev === null ? "-" : (mPrev > 0 ? "+" : "") + fmtInt(mPrev)}人`,
         ok: mLast !== null && mPrev !== null && mLast > mPrev && mLast > 0 },
-      { n: 5, label: "価格上位10PJの反転", def: `${fmtMD(endDate)}時点の価格上位10PJのうち、30日前（${fmtMD(before)}・0なら直前5日）より上昇したPJ数`,
+      { n: 5, label: "価格上位10PJの反転", def: `${fmtMD(endDate)}時点の価格上位10PJのうち、${W}日前（${fmtMD(before)}・0なら直前5日）より上昇したPJ数`,
         threshold: `${T.priceUpCount}PJ以上`, actual: `${upCount} / ${priceRank.length}`,
         ok: upCount >= T.priceUpCount }
     ];
     const count = items.filter((x) => x.ok).length;
     const band = count >= 4 ? "あり" : count >= 2 ? "兆しあり" : "なし";
-    return { items, count, band, vLast, vPrev, vChange, exChange, top2, recent4, prev4, aChange, mLast, mPrev, m3, priceRank, upCount, endDate };
+    return { items, count, band, W, vLast, vPrev, vChange, exChange, h1, h2, halfChange, top2, nRec, nPrv, aChange, recent4, prev4, mLast, mPrev, priceRank, upCount, endDate };
   }
 
   /* ------------------------------------------------------------
@@ -526,9 +536,10 @@
     dom.kpiActiveSub.textContent = activePrev === null ? "期間内に出来高＞0の日があるPJ" : `前期間 ${fmtInt(activePrev)} PJ`;
     dom.kpiMembers.textContent = ind.mLast === null ? "-" : (ind.mLast > 0 ? "+" : "") + fmtInt(ind.mLast) + "人";
     dom.kpiMembers.className = "metric-value " + changeClass(ind.mLast);
-    dom.kpiMembersSub.textContent = ind.mPrev === null ? "前30日のデータなし" : `前30日 ${(ind.mPrev > 0 ? "+" : "") + fmtInt(ind.mPrev)}人`;
+    dom.kpiMembersLabel.textContent = `メンバー純増（期末直近${ind.W}日）`;
+    dom.kpiMembersSub.textContent = ind.mPrev === null ? `前${ind.W}日のデータなし` : `前${ind.W}日 ${(ind.mPrev > 0 ? "+" : "") + fmtInt(ind.mPrev)}人`;
     dom.kpiVerdict.textContent = `${ind.count} / 5`;
-    dom.kpiVerdictSub.textContent = `判定＝${ind.band}（期末 ${fmtYMD(ind.endDate)} 基準）`;
+    dom.kpiVerdictSub.textContent = `判定＝${ind.band}（期末 ${fmtYMD(ind.endDate)}・窓 ${ind.W}日）`;
 
     // 自動文（テンプレ3本固定・数字差し込み・原因や見通しは書かない）
     const top1 = totalsNow[0];
@@ -539,12 +550,12 @@
     const exChange = pctChange(exNow, exPrev);
     const dir = (v) => v === null ? "比較できず" : v >= 5 ? "増" : v <= -5 ? "減" : "横ばい";
     const lines = [];
-    lines.push(`<strong>出来高：</strong>${rangeLabel()}の出来高合計は ${fmtYen(vNow)}。前期間比 ${fmtPct(change, 0)}（${dir(change)}）。` +
-      (top1 ? `上位1PJは ${escapeHtml(top1.short)}（シェア ${share1.toFixed(1)}%）。上位2PJ（${top2now.map((t) => escapeHtml(t.short)).join("・")}）を除くと前期間比 ${fmtPct(exChange, 0)}。` : ""));
-    lines.push(`<strong>裾野：</strong>出来高が立ったPJ数は ${fmtInt(activeN)} PJ` + (activePrev === null ? "。" : `（前期間 ${fmtInt(activePrev)} PJ）。`) +
-      `期末直近4週平均 ${ind.recent4.toFixed(1)} PJ／前4週平均 ${ind.prev4.toFixed(1)} PJ（${fmtPct(ind.aChange, 1)}）。` +
-      (ind.m3.length === 3 ? `直近の完了月3つの月次出来高は ${ind.m3.map((x) => (x.total / 1e8).toFixed(2)).join(" → ")} 億円。` : ""));
-    lines.push(`<strong>判定：</strong>機運の5指標のうち当てはまるのは ${ind.count}/5 ＝「${ind.band}」（ルール：4〜5＝あり・2〜3＝兆しあり・0〜1＝なし）。` +
+    // カードにある数字（合計・前期間比）は繰り返さず、カードに無いこと（集中度・上位2を除いた比）だけ書く（エマ中8）
+    lines.push(`<strong>出来高：</strong>前期間比は${dir(change)}。` +
+      (top1 ? `上位1PJは ${escapeHtml(top1.short)}（シェア ${share1.toFixed(1)}%）。上位2PJ（${top2now.map((t) => escapeHtml(t.short)).join("・")}）を除くと前期間比 ${fmtPct(exChange, 0)}。` : "期間内に出来高のあるPJがありません。"));
+    lines.push(`<strong>裾野：</strong>出来高が立ったPJ数は期間内 ${fmtInt(activeN)} PJ` + (activePrev === null ? "。" : `（前期間 ${fmtInt(activePrev)} PJ）。`) +
+      `窓${ind.W}日では直近 ${ind.nRec} PJ／前 ${ind.nPrv} PJ（${fmtPct(ind.aChange, 1)}）。窓内の後半÷前半（出来高）＝${fmtPct(ind.halfChange, 0)}。`);
+    lines.push(`<strong>判定：</strong>機運の5指標（窓 ${ind.W}日・期末 ${fmtYMD(ind.endDate)} 基準）のうち当てはまるのは ${ind.count}/5 ＝「${ind.band}」（ルール：4〜5＝あり・2〜3＝兆しあり・0〜1＝なし）。` +
       `当てはまった指標＝${ind.items.filter((x) => x.ok).map((x) => x.n).join("・") || "なし"}。`);
     dom.conclusion.innerHTML = lines.map((l) => `<li>${l}</li>`).join("");
   }
@@ -723,7 +734,7 @@
     const totalsShown = cols.map((j) => M.totals[j] || 0);
     const peak = totalsShown.reduce((m, v, k) => (v > m.v ? { v, k } : m), { v: -1, k: -1 });
     dom.monthlySub.textContent = cols.length ? `${labels[0]}〜${labels[labels.length - 1]}（${cols.length}か月）` : "表示できる完了月がありません";
-    dom.monthlyNote.textContent = note + (cols.length ? ` 表示月の合計 ${fmtYen(totalsShown.reduce((a, b) => a + b, 0))}・最大は ${labels[peak.k]} の ${fmtYen(peak.v)}・最新月 ${labels[labels.length - 1]} は ${fmtYen(totalsShown[totalsShown.length - 1])}。` : "") +
+    dom.monthlyNote.textContent = "束＝関連するPJのまとまり（分析レポートの区分：NinjaDAO系・令和の虎系・RED系）。" + note + (cols.length ? ` 表示月の合計 ${fmtYen(totalsShown.reduce((a, b) => a + b, 0))}・最大は ${labels[peak.k]} の ${fmtYen(peak.v)}・最新月 ${labels[labels.length - 1]} は ${fmtYen(totalsShown[totalsShown.length - 1])}。` : "") +
       ` 月次は「翌月1日時点の30日出来高」を前月分とする定義（1日の記録が欠けていれば2〜5日の最初の日）。期末の月は途中のため入れていません。`;
   }
 
@@ -770,10 +781,11 @@
     const top = totalsNow.slice(0, AN_CONFIG.rankingTop);
     dom.top30Tbody.innerHTML = top.map((t, i) => {
       const ch = pctChange(t.total, prevTotalsMap[t.folder]);
-      return `<tr data-folder="${escapeHtml(t.folder)}"><td class="rank">${i + 1}</td>` +
-        `<td><a href="?project=${encodeURIComponent(t.folder)}" title="${escapeHtml(t.name)}">${escapeHtml(t.short)}</a><a class="an-ext-link" href="${financieUrl(t)}" target="_blank" rel="noopener" title="FiNANCiEで見る">↗</a></td>` +
-        `<td class="num">${fmtInt(t.total)}</td><td class="num">${vNow > 0 ? (t.total / vNow * 100).toFixed(1) : "-"}%</td>` +
-        `<td class="num">${fmtInt(last30Map[t.folder] || 0)}</td><td class="num ${changeClass(ch)}">${prevTotalsMap[t.folder] ? fmtPct(ch, 0) : "-"}</td></tr>`;
+      // スマホのカード表示で列名を出すため、全セルに data-label を付ける（全体市況の重2と同じ・エマ重1）
+      return `<tr data-folder="${escapeHtml(t.folder)}"><td class="rank" data-label="順位">${i + 1}</td>` +
+        `<td data-label="プロジェクト"><a href="?project=${encodeURIComponent(t.folder)}" title="${escapeHtml(t.name)}">${escapeHtml(t.short)}</a><a class="an-ext-link" href="${financieUrl(t)}" target="_blank" rel="noopener" title="FiNANCiEで見る">↗</a></td>` +
+        `<td class="num" data-label="期間合計（円）">${fmtInt(t.total)}</td><td class="num" data-label="シェア">${vNow > 0 ? (t.total / vNow * 100).toFixed(1) : "-"}%</td>` +
+        `<td class="num" data-label="期末直近30日（円）">${fmtInt(last30Map[t.folder] || 0)}</td><td class="num ${changeClass(ch)}" data-label="前期間比">${prevTotalsMap[t.folder] ? fmtPct(ch, 0) : "-"}</td></tr>`;
     }).join("") || `<tr><td colspan="6" class="text-center">期間内に出来高のあるPJがありません。</td></tr>`;
     const topShare = vNow > 0 ? top.reduce((s, t) => s + t.total, 0) / vNow * 100 : 0;
     dom.top30Sub.textContent = rangeLabel();
@@ -835,9 +847,10 @@
    * ------------------------------------------------------------ */
   function renderIndicators(ind) {
     dom.indicatorsTbody.innerHTML = ind.items.map((x) =>
-      `<tr><td class="rank">${x.n}</td><td>${escapeHtml(x.label)}</td><td class="def">${escapeHtml(x.def)}</td><td>${escapeHtml(x.threshold)}</td><td class="num">${escapeHtml(x.actual)}</td><td class="${x.ok ? "an-ok" : "an-ng"}">${x.ok ? "○ 当てはまる" : "× 当てはまらない"}</td></tr>`
+      `<tr><td class="rank" data-label="#">${x.n}</td><td data-label="指標">${escapeHtml(x.label)}</td><td class="def" data-label="定義・算出">${escapeHtml(x.def)}</td><td data-label="閾値">${escapeHtml(x.threshold)}</td><td class="num" data-label="実測">${escapeHtml(x.actual)}</td><td class="verdict ${x.ok ? "an-ok" : "an-ng"}" data-label="判定">${x.ok ? "○ 当てはまる" : "× 当てはまらない"}</td></tr>`
     ).join("");
-    dom.indicatorsSub.innerHTML = `期末 ${fmtYMD(ind.endDate)} 基準・当てはまり ${ind.count}/5 ＝ <span class="an-verdict">${escapeHtml(ind.band)}</span>`;
+    dom.indicatorsSub.innerHTML = `期末 ${fmtYMD(ind.endDate)} 基準・窓 ${ind.W}日・当てはまり ${ind.count}/5 ＝ <span class="an-verdict">${escapeHtml(ind.band)}</span>`;
+    dom.windowGroup.querySelectorAll("button").forEach((b) => b.classList.toggle("active", Number(b.getAttribute("data-window")) === ind.W));
   }
 
   /* ------------------------------------------------------------
@@ -869,7 +882,7 @@
 
     // 検査用（tests/check_analysis.js）＝最後に描いた期間の集計値
     anState.last = { vNow, vPrev, activeNow: activeCount(range), topFolders: totalsNow.slice(0, 30).map((t) => t.folder), indicators: ind.items.map((x) => ({ n: x.n, ok: x.ok, actual: x.actual })), count: ind.count, band: ind.band, endDate: ind.endDate,
-      recent4: ind.recent4, prev4: ind.prev4, mLast: ind.mLast, mPrev: ind.mPrev, vLast30: ind.vLast, vPrev30: ind.vPrev, top2: ind.top2.map((t) => t.folder), priceTop10: ind.priceRank.map((x) => x.folder), upCount: ind.upCount,
+      recent4: ind.recent4, prev4: ind.prev4, mLast: ind.mLast, mPrev: ind.mPrev, vLastW: ind.vLast, vPrevW: ind.vPrev, h1: ind.h1, h2: ind.h2, nRec: ind.nRec, nPrv: ind.nPrv, W: ind.W, top2: ind.top2.map((t) => t.folder), priceTop10: ind.priceRank.map((x) => x.folder), upCount: ind.upCount,
       weeks: anCharts.weeklyVol ? anCharts.weeklyVol.data.labels.length : 0, months: anCharts.monthly ? anCharts.monthly.data.labels.length : 0 };
     dom.meta.textContent = `非公式・毎日1回の記録 ／ データ ${fmtYMD(S.first_day)}〜${fmtYMD(S.latest)}（${S.n_projects}PJ）・集計 ${S.built_at || "-"} ／ 表示 ${rangeLabel()}`;
     syncUrl();
@@ -888,6 +901,7 @@
       params.set(URL_KEYS.start, anData.series.days[anState.startIdx]);
       params.set(URL_KEYS.end, anData.series.days[anState.endIdx]);
     }
+    if (anState.window !== 90) params.set(URL_KEYS.window, String(anState.window));
     const qs = params.toString();
     window.history.replaceState(null, "", `${window.location.pathname}${qs ? "?" + qs : ""}${window.location.hash}`);
   }
@@ -902,6 +916,8 @@
     } else if (p === "all" || ["30", "90", "365"].includes(p)) {
       anState.period = p === "all" ? "all" : Number(p);
     }
+    const w = Number(params.get(URL_KEYS.window));
+    if (WINDOWS.includes(w)) anState.window = w;
     setActivePeriod();
   }
 
@@ -933,6 +949,14 @@
       recomputeAll();
     });
     dom.apply.addEventListener("click", applyCustom);
+    dom.windowGroup.addEventListener("click", (ev) => {
+      const b = ev.target.closest("button[data-window]");
+      if (!b) return;
+      const w = Number(b.getAttribute("data-window"));
+      if (!WINDOWS.includes(w)) return;
+      anState.window = w;
+      recomputeAll();
+    });
     [dom.startInput, dom.endInput].forEach((inp) => {
       inp.addEventListener("keydown", (ev) => { if (ev.key === "Enter") { ev.preventDefault(); applyCustom(); } });
     });
@@ -949,7 +973,8 @@
       loading: g("an-loading"), body: g("an-body"),
       periodGroup: g("an-period-group"), startInput: g("an-start-date"), endInput: g("an-end-date"), apply: g("an-apply"), rangeNote: g("an-range-note"),
       kpiTotal: g("an-kpi-total"), kpiTotalSub: g("an-kpi-total-sub"), kpiChange: g("an-kpi-change"), kpiChangeSub: g("an-kpi-change-sub"),
-      kpiActive: g("an-kpi-active"), kpiActiveSub: g("an-kpi-active-sub"), kpiMembers: g("an-kpi-members"), kpiMembersSub: g("an-kpi-members-sub"),
+      kpiActive: g("an-kpi-active"), kpiActiveSub: g("an-kpi-active-sub"), kpiMembers: g("an-kpi-members"), kpiMembersSub: g("an-kpi-members-sub"), kpiMembersLabel: g("an-kpi-members-label"),
+      windowGroup: g("an-window-group"),
       kpiVerdict: g("an-kpi-verdict"), kpiVerdictSub: g("an-kpi-verdict-sub"), conclusion: g("an-conclusion"),
       dailySub: g("an-daily-sub"), dailyNote: g("an-daily-note"),
       weeklySub: g("an-weekly-sub"), weeklyNote: g("an-weekly-note"),

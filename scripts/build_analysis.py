@@ -10,7 +10,7 @@ data/history.json（PJ→日付→生データ）と data/projects_summary.json�
                    （停止PJは最後の値を据え置き）・公式PJのメンバー・時価総額合計）
   - v24.json     : 日×PJの24h出来高（生の volume＝レポート定義。欠測ルールは掛けない）
   - price.json   : 日×PJの価格（current_price・小数2桁）
-  - monthly.json : 月×PJの30日出来高（翌月1日の volume_data・1日が無ければ2〜5日の最初の値）
+  - monthly.json : 月×PJの30日出来高（PJごとに翌月1〜5日のうち最初に volume_data>0 の日の値・無ければ0＝仕様メモ §6）
   - bundles.json : 束（NinjaDAO系・令和の虎系・RED系）と単独表示PJ・短い表示名・名寄せ表
 
 欠測の扱い（🔴全体市況と違う・dev-lead 2026-09-13 06:50 の判断）:
@@ -42,8 +42,8 @@ BUNDLES = [
     {"key": "reiwa", "label": "令和の虎系",
      "folders": ["299_takenouchi_jyuku", "231_minnaka", "241_tsuhan-tora", "313_Dotcon", "229_jigyosaisei"]},
     {"key": "red", "label": "RED系",
-     "folders": ["372_sports_of_heart", "214_red_tokyo_premium", "321_akainu_akaneko", "304_scent_japan_dao",
-                 "221_red_hopes", "404_TEAMRED"]},
+     "folders": ["372_sports_of_heart", "404_TEAMRED", "321_akainu_akaneko", "304_scent_japan_dao",
+                 "221_red_hopes"]},  # 214_red_tokyo_premium は 404_TEAMRED へ名寄せ済み
 ]
 
 # 束に入れず単独で見せるPJ（分析レポートの円グラフ・積み上げの区分に合わせる）
@@ -73,8 +73,15 @@ SHORT_NAMES = {
     "308_tokenplus": "FiNANCiE公式",
 }
 
-# 名寄せ表（別folder → 正のfolder）。分析レポート担当の表が届いたらここへ。
-ALIASES = {}
+# 名寄せ表（前身 folder → 後継 folder）＝分析タブ仕様メモ §3（2026-09-13 06:45・分析レポート担当）。
+#   確定3件＋候補（強）1件（パティスリー・ル・ヴェール → KX：鹿児島タイムズ＝ルク確認待ちだが v2 レポートと揃えて結合）。
+#   同じ日付が両方にあれば後継を優先（仕様メモ §2-2）。
+ALIASES = {
+    "214_red_tokyo_premium": "404_TEAMRED",          # RED° TOKYO PREMIUM → TEAM RED（3/31 メンバー 3,842 が完全一致）
+    "226_yamamotosyoten": "373_yamamotoshoten",      # 山本商店（slug の綴り違い・870 が一致）
+    "383_Otoyume_Panda": "408_g3b5137c8ead142f995528051be2fa72a",  # 音夢パンダ（名前同一）
+    "345_PatisserieLeVert": "380_kagoshima_times",   # 候補（強）＝ルク確認待ち
+}
 
 OFFICIAL_FOLDER = "308_tokenplus"
 
@@ -129,29 +136,31 @@ def build():
     summary = load_json(SUMMARY_PATH)
     os.makedirs(OUT_DIR, exist_ok=True)
 
-    # 名寄せ：別folder の data を正の folder へ日ごとに合算（出来高は足す・価格/メンバーは正の値を優先）
+    # 名寄せ：前身の data を後継へ。同じ日付が両方にあれば後継を優先（仕様メモ §2-2＝window_compare.py と同じ）
     merged = {}
     for folder, pdata in history.items():
-        target = ALIASES.get(folder, folder)
-        bucket = merged.setdefault(target, {"data": {}})
-        for dkey, rec in pdata.get("data", {}).items():
-            cur = bucket["data"].get(dkey)
-            if cur is None or folder == target:
-                if cur is None:
-                    bucket["data"][dkey] = dict(rec)
-                else:
-                    for k in ("volume", "volume_data"):
-                        a, b = to_number(cur.get(k)), to_number(rec.get(k))
-                        if a is not None or b is not None:
-                            cur[k] = (a or 0) + (b or 0)
-                    for k in ("current_price", "num_member", "marketCap", "stock"):
-                        if to_number(rec.get(k)) is not None:
-                            cur[k] = rec[k]
+        if folder in ALIASES:
+            continue
+        merged[folder] = {"data": dict(pdata.get("data", {}))}
+    for src, dst in ALIASES.items():
+        if src not in history or dst not in merged:
+            continue
+        for dkey, rec in history[src].get("data", {}).items():
+            if dkey not in merged[dst]["data"]:
+                merged[dst]["data"][dkey] = rec
+
+    # 欠測補正（仕様メモ §4）：num_member が直前 ≥100 から 0 に落ちた日は欠測＝前の値で埋める
+    for pdata in merged.values():
+        prev = None
+        for dkey in sorted(pdata["data"]):
+            rec = pdata["data"][dkey]
+            m = to_number(rec.get("num_member"))
+            if m == 0 and prev is not None and prev >= 100:
+                rec = dict(rec)
+                rec["num_member"] = prev
+                pdata["data"][dkey] = rec
             else:
-                for k in ("volume", "volume_data"):
-                    a, b = to_number(cur.get(k)), to_number(rec.get(k))
-                    if a is not None or b is not None:
-                        cur[k] = (a or 0) + (b or 0)
+                prev = m
 
     projects = []
     seen = set()
@@ -259,39 +268,34 @@ def build():
         if m == 13:
             y, m = y + 1, 1
     month_keys = []
-    month_pick = []  # 各月に使った「翌月の日付キー」
+    month_cands = []  # 各月の「翌月1〜5日」の候補キー（存在する日だけ）
     for (y, m) in months:
         ny, nm = (y + 1, 1) if m == 12 else (y, m + 1)
-        # 1〜5日のうち、記録件数がその窓の最大の90%以上ある最初の日を採る
-        # （2026-02-01 は 349件＝取得が途中で止まった日。レポートの 26/1＝0.45億円 は 02-03 の値）
-        cands = [f"{ny:04d}{nm:02d}{dd:02d}" for dd in range(1, 6)]
-        counts = {k: record_count[k] for k in cands if k in day_index}
-        pick = None
-        if counts:
-            top = max(counts.values())
-            for k in cands:
-                if k in counts and counts[k] >= 0.9 * top:
-                    pick = k
-                    break
-        if pick is None:
+        cands = [k for k in (f"{ny:04d}{nm:02d}{dd:02d}" for dd in range(1, 6)) if k in day_index]
+        if not cands:
             continue
         month_keys.append(f"{y:04d}-{m:02d}")
-        month_pick.append(pick)
+        month_cands.append(cands)
+    # 仕様メモ §4・§6：PJごとに「翌月1〜5日のうち最初に volume_data > 0 の日」の値。無ければ 0
     monthly_rows = []
     monthly_totals = [0.0] * len(month_keys)
     for p in projects:
         data = merged[p["folder"]]["data"]
         row = []
-        for j, pick in enumerate(month_pick):
-            rec = data.get(pick)
-            v = to_number(rec.get("volume_data")) if rec else None
+        for j, cands in enumerate(month_cands):
+            v = 0
+            for k in cands:
+                rec = data.get(k)
+                x = to_number(rec.get("volume_data")) if rec else None
+                if x is not None and x > 0:
+                    v = x
+                    break
             row.append(compact(v))
-            if v is not None:
-                monthly_totals[j] += v
+            monthly_totals[j] += v
         monthly_rows.append(row)
     write_json(os.path.join(OUT_DIR, "monthly.json"), {
         "months": month_keys,
-        "picked_days": [iso(k) for k in month_pick],
+        "picked_days": [iso(c[0]) for c in month_cands],
         "projects": proj_meta,
         "rows": monthly_rows,
         "totals": [compact(t) for t in monthly_totals],

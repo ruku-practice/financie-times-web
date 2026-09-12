@@ -61,6 +61,28 @@ async function waitReady(page) {
 
 const readLast = (page) => page.evaluate(() => JSON.parse(JSON.stringify(window.FinancieAnalysis._debug.state.last)));
 
+// 画面はページ内の容器（overflow-y:auto）でスクロールするため、fullPage で撮る前に容器を開く（エマ重2）
+async function fullShot(page, file) {
+  await page.evaluate(() => {
+    document.querySelectorAll("*").forEach((el) => {
+      const cs = getComputedStyle(el);
+      if ((cs.overflowY === "auto" || cs.overflowY === "scroll") && el.scrollHeight > el.clientHeight + 4) {
+        el.style.setProperty("overflow", "visible", "important");
+        el.style.setProperty("height", "auto", "important");
+        el.style.setProperty("max-height", "none", "important");
+      }
+    });
+    document.documentElement.style.setProperty("height", "auto", "important");
+    document.body.style.setProperty("height", "auto", "important");
+  });
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: file, fullPage: true });
+  const h = await page.evaluate(() => document.documentElement.scrollHeight);
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await waitReady(page);
+  return h;
+}
+
 // 各グラフが「空でない」＝ dataset が1つ以上あり、null でない点が1つ以上あり、描画域が 160px 以上
 const chartsStatus = (page) => page.evaluate(() => {
   const ch = window.FinancieAnalysis._debug.charts;
@@ -138,7 +160,9 @@ async function run() {
       await waitReady(page);
       last = await readLast(page);
       record("B4-30d-total", Math.abs(last.vNow - ref.last_30.total) <= 1 && last.vNow !== v90, `ui=${last.vNow} ref=${ref.last_30.total} (90d=${v90})`);
-      record("B4-30d-prev", Math.abs(last.vPrev - ref.latest_indicators.prev30_total) <= 1, `ui=${last.vPrev} ref=${ref.latest_indicators.prev30_total}`);
+      record("B4-30d-prev", Math.abs(last.vPrev - ref.latest_indicators.W30.prev_total) <= 1, `ui=${last.vPrev} ref=${ref.latest_indicators.W30.prev_total}`);
+      // 既定の窓＝90日で、最新日の判定が独立計算と一致
+      record("B4-default-window", last.W === 90 && last.count === ref.latest_indicators.W90.count, `W=${last.W} count=${last.count} ref=${ref.latest_indicators.W90.count}`);
       record("B4-url", (await page.evaluate(() => location.search)).includes("an_p=30"), await page.evaluate(() => location.search));
 
       // B5 全期間 → 全グラフ空でない・月次が全月・週が100以上
@@ -162,24 +186,42 @@ async function run() {
       record("B6-custom-top10", JSON.stringify(last.topFolders.slice(0, 10)) === JSON.stringify(rr.top10_folders), `ui=${last.topFolders.slice(0, 10)}`);
       record("B6-custom-url", (await page.evaluate(() => location.search)).includes("an_s=2026-07-01") , await page.evaluate(() => location.search));
 
-      // B7 自由期間（終了 2026-09-11 固定・Enter で確定）→ 機運の5指標がレポートの数字と一致
+      // B7 自由期間（終了 2026-09-11 固定・Enter で確定）＋窓30日 → 機運の5指標が独立計算（仕様メモ §6-2）と一致
       await page.fill("#an-start-date", "2026-06-14");
       await page.fill("#an-end-date", "2026-09-11");
       await page.focus("#an-end-date");
       await page.keyboard.press("Enter");
       await waitReady(page);
+      await page.click('#an-window-group button[data-window="30"]');
+      await waitReady(page);
       last = await readLast(page);
-      const fx = ref.fixed_20260911;
-      record("B7-fixed-end", last.endDate === "2026-09-11", `end=${last.endDate}`);
-      record("B7-ind1-volume", Math.abs(last.vLast30 - fx.last30_total) <= 1 && Math.abs(last.vPrev30 - fx.prev30_total) <= 1, `ui=${last.vLast30}/${last.vPrev30} ref=${fx.last30_total}/${fx.prev30_total}`);
-      record("B7-ind1-top2", JSON.stringify(last.top2) === JSON.stringify(fx.last30_top2), `ui=${last.top2}`);
-      record("B7-ind3-weeks", Math.abs(last.recent4 - fx.weeks_active_recent4_avg) < 0.01 && Math.abs(last.prev4 - fx.weeks_active_prev4_avg) < 0.01, `ui=${last.recent4}/${last.prev4} ref=${fx.weeks_active_recent4_avg}/${fx.weeks_active_prev4_avg}`);
-      record("B7-ind4-members", last.mLast === fx.members_last30_net && last.mPrev === fx.members_prev30_net, `ui=${last.mLast}/${last.mPrev} ref=${fx.members_last30_net}/${fx.members_prev30_net}`);
+      const fx = ref.fixed_20260911.W30;
+      record("B7-fixed-end", last.endDate === "2026-09-11" && last.W === 30, `end=${last.endDate} W=${last.W}`);
+      record("B7-ind1-volume", Math.abs(last.vLastW - fx.recent_total) <= 1 && Math.abs(last.vPrevW - fx.prev_total) <= 1, `ui=${last.vLastW}/${last.vPrevW} ref=${fx.recent_total}/${fx.prev_total}`);
+      record("B7-ind1-top2", JSON.stringify(last.top2) === JSON.stringify(fx.recent_top2), `ui=${last.top2}`);
+      // 日×PJ を整数に丸めた表の合算なので、許容差＝5円（約1.5万セル）
+      record("B7-ind2-half", Math.abs(last.h2 - fx.half2_total) <= 5 && Math.abs(last.h1 - fx.half1_total) <= 5, `ui=${last.h2}/${last.h1} ref=${fx.half2_total}/${fx.half1_total}`);
+      record("B7-ind3-active", last.nRec === fx.active_recent && last.nPrv === fx.active_prev, `ui=${last.nRec}/${last.nPrv} ref=${fx.active_recent}/${fx.active_prev}`);
+      record("B7-weeks-ref", Math.abs(last.recent4 - ref.fixed_20260911.weeks_active_recent4_avg) < 0.01 && Math.abs(last.prev4 - ref.fixed_20260911.weeks_active_prev4_avg) < 0.01, `ui=${last.recent4}/${last.prev4}（レポート v1 の 162.5／163.0）`);
+      record("B7-ind4-members", last.mLast === fx.members_recent_net && last.mPrev === fx.members_prev_net, `ui=${last.mLast}/${last.mPrev} ref=${fx.members_recent_net}/${fx.members_prev_net}`);
       record("B7-ind5-price", JSON.stringify(last.priceTop10) === JSON.stringify(fx.price_top10) && last.upCount === fx.price_up_count, `ui=${last.upCount} ${last.priceTop10} ref=${fx.price_up_count}`);
-      record("B7-verdict", last.count === 2 && last.band === "兆しあり", `count=${last.count} band=${last.band}`);
-      // 指標の判定が表にも同じ○×で出ている
+      record("B7-verdict-30", last.count === fx.count && JSON.stringify(last.indicators.map((x) => x.ok)) === JSON.stringify(fx.ok) && last.band === (fx.count >= 4 ? "あり" : fx.count >= 2 ? "兆しあり" : "なし"), `count=${last.count} band=${last.band} ref=${fx.count}`);
       const marks = await page.$$eval("#an-indicators-tbody tr td:last-child", (tds) => tds.map((t) => t.textContent.trim()[0]));
       record("B7-table-marks", JSON.stringify(marks) === JSON.stringify(last.indicators.map((x) => x.ok ? "○" : "×")), JSON.stringify(marks));
+      // 窓 90日（既定）・180日でも一致し、窓で数字が変わる（仕様メモ：30日 3/5・90日 1/5・180日 0/5）
+      await page.click('#an-window-group button[data-window="90"]');
+      await waitReady(page);
+      last = await readLast(page);
+      const f90 = ref.fixed_20260911.W90;
+      record("B7-verdict-90", last.W === 90 && last.count === f90.count && JSON.stringify(last.indicators.map((x) => x.ok)) === JSON.stringify(f90.ok) && Math.abs(last.vLastW - f90.recent_total) <= 1, `count=${last.count} ref=${f90.count} vLast=${last.vLastW}/${f90.recent_total}`);
+      await page.click('#an-window-group button[data-window="180"]');
+      await waitReady(page);
+      last = await readLast(page);
+      const f180 = ref.fixed_20260911.W180;
+      record("B7-verdict-180", last.W === 180 && last.count === f180.count && JSON.stringify(last.indicators.map((x) => x.ok)) === JSON.stringify(f180.ok), `count=${last.count} ref=${f180.count}`);
+      record("B7-window-url", (await page.evaluate(() => location.search)).includes("an_w=180"), await page.evaluate(() => location.search));
+      await page.click('#an-window-group button[data-window="90"]');
+      await waitReady(page);
 
       // B8 上位30の表＝30行・シェア合計が期間合計以下
       const rows = await page.$$eval("#an-top30-tbody tr[data-folder]", (trs) => trs.map((tr) => ({ f: tr.getAttribute("data-folder"), total: Number(tr.children[2].textContent.replace(/[^0-9]/g, "")), link: tr.querySelector("a") ? tr.querySelector("a").getAttribute("href") : "", ext: tr.querySelector("a.an-ext-link") ? tr.querySelector("a.an-ext-link").getAttribute("href") : "" })));
@@ -217,8 +259,7 @@ async function run() {
       await page.goto(BASE_ROOT + "&an_p=custom&an_s=2023-12-21&an_e=2024-01-31", { waitUntil: "domcontentloaded" });
       await waitReady(page);
       last = await readLast(page);
-      const ind2 = last.indicators.find((x) => x.n === 2);
-      record("B19-zero-completed-months", Number.isInteger(last.count) && ["なし", "兆しあり", "あり"].includes(last.band) && ind2.ok === false && ind2.actual.includes("3つ未満"), `count=${last.count} band=${last.band} ind2=${ind2.actual}`);
+      record("B19-early-end-date", Number.isInteger(last.count) && ["なし", "兆しあり", "あり"].includes(last.band) && last.indicators.every((x) => typeof x.ok === "boolean" && !/NaN|undefined/.test(x.actual)), `count=${last.count} band=${last.band} ${JSON.stringify(last.indicators.map((x) => x.actual))}`);
       await page.goto(BASE_ROOT, { waitUntil: "domcontentloaded" });
       await waitReady(page);
 
@@ -227,7 +268,8 @@ async function run() {
       await waitReady(page);
       let cc = await contrastCheck(page, TEXT_SELECTORS);
       record("B10-contrast-dark", cc.every((c) => c.ok), JSON.stringify(cc.filter((c) => !c.ok)) || "all ok");
-      await page.screenshot({ path: path.join(OUT_DIR, "analysis_1280.png"), fullPage: true });
+      const hDark = await fullShot(page, path.join(OUT_DIR, "analysis_1280.png"));
+      record("B10-fullpage-shot", hDark > 3000, `page height=${hDark}px（1画面 900px より十分に長い＝全区画が写っている）`);
 
       // B11 ライトへ切替 → 描き直され、コントラスト AA
       await page.click("#theme-toggle");
@@ -238,7 +280,8 @@ async function run() {
       const lineColor = await page.evaluate(() => window.FinancieAnalysis._debug.charts.daily.data.datasets[1].backgroundColor);
       record("B11-light-theme", theme === "light" && st.every((s) => s.ok) && lineColor === "#2a78d6", `theme=${theme} bar=${lineColor}`);
       record("B11-contrast-light", cc.every((c) => c.ok), JSON.stringify(cc.filter((c) => !c.ok)) || "all ok");
-      await page.screenshot({ path: path.join(OUT_DIR, "analysis_light_1280.png"), fullPage: true });
+      const hLight = await fullShot(page, path.join(OUT_DIR, "analysis_light_1280.png"));
+      record("B11-fullpage-shot", hLight > 3000, `page height=${hLight}px`);
       await page.click("#theme-toggle");
       await page.waitForTimeout(300);
 
@@ -270,7 +313,14 @@ async function run() {
       record("B15-mobile-no-hscroll", ov.sw <= ov.iw + 1, JSON.stringify(ov));
       const tap = await page.$$eval("#an-period-group button, #an-apply", (bs) => bs.map((b) => Math.round(b.getBoundingClientRect().height)));
       record("B15-mobile-tap", tap.every((h) => h >= 32), JSON.stringify(tap));
-      await page.screenshot({ path: path.join(OUT_DIR, "analysis_390.png"), fullPage: true });
+      // スマホの表に列名（data-label）が出る（エマ重1）
+      const labels = await page.evaluate(() => ({
+        top30: [...document.querySelectorAll("#an-top30-tbody tr:first-child td")].map((td) => td.getAttribute("data-label")),
+        ind: [...document.querySelectorAll("#an-indicators-tbody tr:first-child td")].map((td) => td.getAttribute("data-label")),
+        shown: getComputedStyle(document.querySelector("#an-top30-tbody tr:first-child td:nth-child(3)"), "::before").content
+      }));
+      record("B15-mobile-data-label", labels.top30.every(Boolean) && labels.ind.every(Boolean) && labels.shown.includes("期間合計"), JSON.stringify(labels));
+      await fullShot(page, path.join(OUT_DIR, "analysis_390.png"));
       await context.close();
     }
 

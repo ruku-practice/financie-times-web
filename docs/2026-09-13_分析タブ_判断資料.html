@@ -73,28 +73,26 @@
     <img src="diagrams/analysis_tab_screen.png" alt="分析タブの画面イメージ（PC 1280）">
     <figcaption>画面イメージ。上に結論（KPI 5枚＋自動文3行）、下に図と表。期間ボタン（30日／90日／1年／全期間／自由）で全部が描き直る。</figcaption>
   </figure>
-  <div class="two">
-    <figure>
-      <img src="screenshots/2026-09-13_analysis_1280_dark.png" alt="ステージングの実画面（ダーク・PC 1280・全ページ）">
-      <figcaption>実画面（ダーク・PC 1280・全ページ）</figcaption>
-    </figure>
-    <figure>
-      <img src="screenshots/2026-09-13_analysis_1280_light.png" alt="ステージングの実画面（ライト・PC 1280・全ページ）">
-      <figcaption>実画面（ライト・PC 1280・全ページ）</figcaption>
-    </figure>
-  </div>
+  <figure>
+    <img src="screenshots/2026-09-13_analysis_1280_dark.png" alt="ステージングの実画面（ダーク・PC 1280・全区画）">
+    <figcaption>実画面（ダーク・PC 1280・全区画を1枚に）。既定＝期間90日・機運の窓90日。</figcaption>
+  </figure>
+  <figure>
+    <img src="screenshots/2026-09-13_analysis_1280_light.png" alt="ステージングの実画面（ライト・PC 1280・全区画）">
+    <figcaption>実画面（ライト・PC 1280・全区画を1枚に）</figcaption>
+  </figure>
 
   <h2>期間で変わるもの・変わらないもの</h2>
   <table>
     <tr><th style="width:36%">区画</th><th>期間ボタンで</th><th>定義（1行）</th></tr>
-    <tr><td>結論（KPI 5枚＋自動文3行）</td><td>変わる</td><td>期間合計・前期間比（同じ長さの直前）・出来高が立ったPJ数・メンバー純増（期末直近30日）・機運 n/5。文はテンプレ固定＝解釈は入れない</td></tr>
+    <tr><td>結論（KPI 5枚＋自動文3行）</td><td>変わる</td><td>期間合計・前期間比（同じ長さの直前）・出来高が立ったPJ数・メンバー純増（期末直近＝窓の日数）・機運 n/5。文はテンプレ固定＝解釈は入れない</td></tr>
     <tr><td>1 日次出来高＋7日平均</td><td>変わる</td><td>各日の24h出来高の全PJ合算（生の記録値）</td></tr>
     <tr><td>2 週次出来高・出来高が立ったPJ数</td><td>変わる</td><td>期末を末尾にした7日区切り。2軸にせず2枚</td></tr>
     <tr><td>3 上位8の今期間 vs 前期間・上位2の価格指数</td><td>変わる</td><td>前期間＝同じ長さの直前。指数の基準＝最初に0より大きい日</td></tr>
-    <tr><td>4 月次出来高（束＋単独PJ＋その他）</td><td>変わる</td><td>翌月1日の30日出来高。期間内の完了月が3未満なら直近6か月</td></tr>
+    <tr><td>4 月次出来高（束＋単独PJ＋その他）</td><td>変わる</td><td>PJごとに翌月1〜5日で最初に0より大きい30日出来高。期間内の完了月が3未満なら直近6か月。束＝関連するPJのまとまり</td></tr>
     <tr><td>5 シェア（2つの円）・6 上位30の表</td><td>変わる</td><td>期間合計で割る。名前＝個別ページ・↗＝本家</td></tr>
     <tr><td>7 価格上位10の指数・8 メンバー（2枚）</td><td>変わる</td><td>上位10＝期末時点の価格。メンバーは公式PJと全PJ合計</td></tr>
-    <tr><td class="rec">9 機運の5指標</td><td class="rec">変わらない（期末基準）</td><td>閾値は30日窓で決めた値なので、窓を期間に連動させない。期末（自由期間の終了日）だけが効く</td></tr>
+    <tr><td class="rec">9 機運の5指標</td><td class="rec">変わらない（期末基準・窓 30／90／180日を別に切替・既定90日）</td><td>ルク決裁（06:58）＝既定90日。30日は「直近の兆し」、180日は鈍い。期末（自由期間の終了日）だけが効く。実測（期末 9/11）＝30日 3/5「兆しあり」・90日 1/5「なし」・180日 0/5「なし」</td></tr>
   </table>
 
   <h2>合体（ガッチャンコ）の選択肢</h2>
@@ -115,14 +113,15 @@
   <h2>検収の結果</h2>
   <table>
     <tr><th style="width:24%">段</th><th>結果</th></tr>
-    <tr><td>機械の検査（38項目）</td><td><span class="ok">ALL PASS</span>（06:53）。独立計算と一致・レポートの数字（14.97M／11.15M・162.5／163.0・+1,494／−268・3/10・2/5「兆しあり」）を再現・両テーマ AA・スマホ横はみ出しなし</td></tr>
+    <tr><td>機械の検査（47項目）</td><td><span class="ok">ALL PASS</span>（07:16）。独立計算と一致・レポートの数字（14.97M／11.15M・162.5／163.0）と仕様メモの窓ごとの判定（30日 3/5・90日 1/5・180日 0/5）を再現・両テーマ AA・スマホの表に列名・横はみ出しなし・境界3つ</td></tr>
     <tr><td>断（1回目・作り手の目）</td><td id="dan-result"><span class="ok">通す</span>（07:00）。指摘＝検査項目数の実測ズレ・境界検査3つの追加・月次ピック方式の文言差 → 検査を3つ足して 38項目 ALL PASS（07:03）</td></tr>
-    <tr><td>エマ（2回目・初見の目・PC 1280 主）</td><td id="emma-result">断の後</td></tr>
+    <tr><td>エマ（2回目・初見の目・PC 1280 主）</td><td id="emma-result"><span class="ng">突き返し</span>（07:08）＝スマホの表に列名が無い・スクショが全区画でない・図の文言が実画面と違う・「束」「PJ」の説明・自動文の重複 → すべて直して再検収（結果は完了報告に追記）</td></tr>
   </table>
 
   <h2>やっていないこと（意図して）</h2>
-  <p>本番反映・push・移設・本家への巡回・全体市況との合体・名寄せ（分析レポート担当の名寄せ表が届いたら <code>build_analysis.py</code> の <code>ALIASES</code> に足すだけ）。</p>
-  <p class="small">作業場所＝<code>.claude/worktrees/analysis-tab</code>（ブランチ <code>feature/analysis-tab</code>・起点 6528da66）。設計書＝<code>docs/2026-09-13_分析タブ_設計.md</code>。完了報告＝<code>company/logs/2026-09-13_FiNANCiE-TIMES-Web_分析タブ_完了報告.md</code>。</p>
+  <p>本番反映・push・移設・本家への巡回・全体市況との合体。</p>
+  <p class="small">名寄せは分析レポート担当の仕様メモ（06:45）どおり4件を結合済み（RED° TOKYO PREMIUM→TEAM RED・山本商店・音夢パンダ・<span class="mark">パティスリー・ル・ヴェール→KX：鹿児島タイムズ＝ルク確認待ちの候補</span>）。TEAM RED を RED系に入れるかもルク確認待ち。どちらも <code>build_analysis.py</code> の1行で戻せます。</p>
+  <p class="small">設計書（Obsidian で開く）＝<a href="obsidian://open?path=/Users/kkr/ruku_data/00_products/apps/FiNANCiE-times-web/.claude/worktrees/analysis-tab/docs/2026-09-13_分析タブ_設計.md">/Users/kkr/ruku_data/00_products/apps/FiNANCiE-times-web/.claude/worktrees/analysis-tab/docs/2026-09-13_分析タブ_設計.md</a><br>完了報告（Obsidian で開く）＝<a href="obsidian://open?path=/Users/kkr/ruku_data/company/logs/2026-09-13_FiNANCiE-TIMES-Web_分析タブ_完了報告.md">/Users/kkr/ruku_data/company/logs/2026-09-13_FiNANCiE-TIMES-Web_分析タブ_完了報告.md</a><br>作業場所＝<code>/Users/kkr/ruku_data/00_products/apps/FiNANCiE-times-web/.claude/worktrees/analysis-tab</code>（ブランチ <code>feature/analysis-tab</code>・起点 6528da66）</p>
 </div>
 </body>
 </html>
