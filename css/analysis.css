@@ -245,4 +245,7 @@
   #analysis-view .an-table td.verdict {
     white-space: nowrap;
   }
+  #analysis-view .an-table td.def {
+    min-width: 0;
+  }
 }

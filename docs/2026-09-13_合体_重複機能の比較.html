@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>合体｜全体市況と分析タブの重複機能の比較（2026-09-13）</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --paper: #f5f5f5; --paper2: #ececec; --ink: #2d3142; --muted: #4f5d75; --soft: #7a8399; --rule: rgba(45,49,66,0.12); --accent: #eb6c36; --accent-tint: rgba(235,108,54,0.08); --link: #2e5aa8; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: 'Geist', 'Hiragino Sans', sans-serif; line-height: 1.6; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 32px 24px 64px; }
+  .eyebrow { font-family: 'Geist Mono', 'Hiragino Sans', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--soft); }
+  h1 { font-family: 'Instrument Serif', 'Hiragino Mincho ProN', serif; font-weight: 400; font-size: 32px; margin: 4px 0 8px; }
+  h2 { font-size: 18px; margin: 32px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); }
+  p { margin: 6px 0; font-size: 14px; }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 10px; }
+  .card { background: #fff; border: 1px solid var(--rule); border-radius: 8px; padding: 12px 14px; }
+  .card.rec { border-color: var(--accent); background: var(--accent-tint); }
+  .card h3 { margin: 0 0 6px; font-size: 14px; }
+  .card p { font-size: 13px; color: var(--muted); }
+  .tag { font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--accent); letter-spacing: 0.08em; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; background: #fff; }
+  th, td { border: 1px solid var(--rule); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { background: #2d3142; color: #f5f5f5; font-weight: 600; }
+  .k { display: inline-block; min-width: 22px; text-align: center; border-radius: 4px; font-weight: 700; padding: 0 5px; }
+  .k1 { background: #dbe8f8; color: #1c5cab; }  /* ◎ 同じ */
+  .k2 { background: #fde3d4; color: #b4461a; }  /* ⇄ 反転 */
+  .k3 { background: #e5f4ec; color: #0a7a3a; }  /* ○ 片方 */
+  .k4 { background: #fff3a8; color: #6b5300; }  /* ⚠ 定義 */
+  td.rec { background: var(--accent-tint); }
+  .mark { background: #fff3a8; padding: 0 3px; }
+  .small { font-size: 12px; color: var(--soft); }
+  svg { width: 100%; height: auto; display: block; margin: 8px 0; }
+  code { font-family: 'Geist Mono', monospace; font-size: 11.5px; background: var(--paper2); padding: 1px 4px; border-radius: 3px; }
+  @media (max-width: 800px) { .cards { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">FiNANCiE TIMES Web · 合体（ガッチャンコ） · 2026-09-13 07:25 · 社長室27室目</div>
+  <h1>全体市況と分析タブ、どこが重複していて、合体後はどう反転させるか</h1>
+  <p>比べた現物＝全体市況 v3.1（凡例の出し入れ・欠測を除く切替・価格は円・時系列4枚1列まで）と 分析タブ v0.1.0（ステージング 92aca57c）。①1ペイン（縦1列＋縦／横切替）②ページ全体スクロールは <span class="mark">07:20 に両タブへ反映済み</span>。</p>
+
+  <h2>結論（先に）</h2>
+  <div class="cards">
+    <div class="card"><div class="tag">重複</div><h3>指標6つ・操作5つが重複</h3><p>合体後は「1箱にして見せ方を反転」が6箱、「操作帯を1つに」が5つ。片方にしか無いもの（全体市況6・分析6）はそのまま持ち込む。</p></div>
+    <div class="card rec"><div class="tag">RECOMMENDED</div><h3>案B'＝タブは「全体市況」1つ・分析は当面残す</h3><p>期間帯・欠測切替・縦横・白黒・凡例を共通化。箱は「結論 → 出来高 → シェア → ランキング → 価格 → メンバー → 月次」の1列で、各箱に「見せ方」釦。</p></div>
+    <div class="card"><div class="tag">DECISION</div><h3>先に決めること6つ</h3><p>タブ名／各箱の既定の見せ方／欠測切替の既定／週の定義／機運5指標の置き場／分析タブを消す時期（下の表）。</p></div>
+  </div>
+
+  <h2>合体後の箱の並びと「見せ方」の反転（図）</h2>
+  <svg viewBox="0 0 960 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="mg-title mg-desc" font-family="'Geist', 'Hiragino Sans', sans-serif">
+    <title id="mg-title">合体後の箱の並び</title>
+    <desc id="mg-desc">上に共通の期間帯（期間・自由・粒度・上位N・その他・欠測切替）。その下に箱が縦1列：結論（KPI5枚＋自動文＋機運5指標）、全体出来高（積み上げ⇄合計＋7日平均⇄週次）、出来高シェア（円⇄推移⇄束）、ランキング表＋上位8比較、価格（円⇄指数）、メンバー（純増⇄水準）、月次（束の積み上げ）。右に「縦1列／横2列」の切替。</desc>
+    <rect width="960" height="420" fill="#f5f5f5"/>
+    <!-- header -->
+    <rect x="40" y="16" width="880" height="34" rx="6" fill="#2d3142" fill-opacity="0.06" stroke="#2d3142" stroke-opacity="0.12"/>
+    <text x="52" y="38" font-size="11" font-weight="600" fill="#2d3142">共通の期間帯</text>
+    <g font-size="9" fill="#4f5d75">
+      <text x="150" y="38">期間 7／30／90／1年／全期間　自由〜適用</text>
+      <text x="420" y="38">粒度 日／週／月　上位 10／20／30　その他</text>
+      <rect x="690" y="24" width="150" height="18" rx="9" fill="#fff3a8"/><text x="765" y="37" text-anchor="middle" fill="#6b5300" font-weight="600">欠測を除く（既定）／そのまま</text>
+      <text x="912" y="38" text-anchor="end">⇔ 横2列　☀ ライト</text>
+    </g>
+    <!-- boxes -->
+    <g font-size="10" fill="#2d3142">
+      <rect x="40" y="62" width="880" height="44" rx="5" fill="#ffffff" stroke="#eb6c36" stroke-width="1.2"/>
+      <text x="52" y="80" font-weight="600">結論</text><text x="52" y="96" font-size="9" fill="#4f5d75">KPI 5枚（期間合計・前期間比・取引のあったPJ数・メンバー純増・機運 n/5）＋自動文3行＋機運の5指標（窓 30／90／180）</text>
+      <text x="905" y="88" text-anchor="end" font-size="9" fill="#eb6c36">分析から</text>
+
+      <rect x="40" y="114" width="880" height="40" rx="5" fill="#ffffff" stroke="#bfc0c0"/>
+      <text x="52" y="131" font-weight="600">全体出来高</text><text x="52" y="146" font-size="9" fill="#4f5d75">見せ方：<tspan font-weight="600" fill="#1c5cab">積み上げ（内訳）</tspan> ⇄ 合計＋7日平均 ⇄ 週次（出来高が立ったPJ数つき）</text>
+      <text x="905" y="138" text-anchor="end" font-size="9" fill="#b4461a">反転</text>
+
+      <rect x="40" y="162" width="880" height="40" rx="5" fill="#ffffff" stroke="#bfc0c0"/>
+      <text x="52" y="179" font-weight="600">出来高シェア</text><text x="52" y="194" font-size="9" fill="#4f5d75">見せ方：<tspan font-weight="600" fill="#1c5cab">円（上位N＋その他）</tspan> ⇄ 100%積み上げの推移 ⇄ 束（NinjaDAO系・令和の虎系・RED系）</text>
+      <text x="905" y="186" text-anchor="end" font-size="9" fill="#b4461a">反転</text>
+
+      <rect x="40" y="210" width="880" height="40" rx="5" fill="#ffffff" stroke="#bfc0c0"/>
+      <text x="52" y="227" font-weight="600">ランキング表</text><text x="52" y="242" font-size="9" fill="#4f5d75">指標（出来高／価格／メンバー／在庫／時価総額）＋列＝期間合計・<tspan fill="#0a7a3a">シェア・期末直近30日</tspan>・前期間比。横に「上位8の今期間 vs 前期間」</text>
+      <text x="905" y="234" text-anchor="end" font-size="9" fill="#1c5cab">1つに</text>
+
+      <rect x="40" y="258" width="880" height="40" rx="5" fill="#ffffff" stroke="#bfc0c0"/>
+      <text x="52" y="275" font-weight="600">価格の推移</text><text x="52" y="290" font-size="9" fill="#4f5d75">見せ方：<tspan font-weight="600" fill="#1c5cab">円（実額）</tspan> ⇄ 指数（最初に0より大きい日＝100）。上位10の選び方＝出来高上位（既定）／価格上位</text>
+      <text x="905" y="282" text-anchor="end" font-size="9" fill="#b4461a">反転</text>
+
+      <rect x="40" y="306" width="880" height="40" rx="5" fill="#ffffff" stroke="#bfc0c0"/>
+      <text x="52" y="323" font-weight="600">メンバー</text><text x="52" y="338" font-size="9" fill="#4f5d75">見せ方：<tspan font-weight="600" fill="#1c5cab">日ごとの純増（上位N）</tspan> ⇄ 水準の推移（公式PJ／全PJ合計）。欠測切替は上の帯と連動</text>
+      <text x="905" y="330" text-anchor="end" font-size="9" fill="#b4461a">反転</text>
+
+      <rect x="40" y="354" width="880" height="40" rx="5" fill="#ffffff" stroke="#bfc0c0"/>
+      <text x="52" y="371" font-weight="600">月次</text><text x="52" y="386" font-size="9" fill="#4f5d75">束＋単独PJ＋その他の積み上げ（翌月1日の30日出来高）。粒度「月」の全体出来高と統合してもよい</text>
+      <text x="905" y="378" text-anchor="end" font-size="9" fill="#eb6c36">分析から</text>
+    </g>
+    <text x="40" y="412" font-size="8.5" fill="#7a8399">縦1列が既定。「⇔ 横2列」で2列のグリッドに（記憶）。スクロールはページ全体（内側のスクロール容器は解除済み）。</text>
+  </svg>
+
+  <h2>4区分の比較表</h2>
+  <p class="small"><span class="k k1">◎</span> 同じ指標・同じ操作＝1つにする　<span class="k k2">⇄</span> 同じ指標・見せ方だけ違う＝1箱にして反転　<span class="k k3">○</span> 片方にしか無い＝そのまま持ち込む　<span class="k k4">⚠</span> 定義が違う＝先に決める</p>
+  <table>
+    <tr><th style="width:4%">#</th><th style="width:5%">区分</th><th style="width:12%">機能</th><th style="width:24%">全体市況 v3.1</th><th style="width:24%">分析タブ v0.1.0</th><th>合体後（<b>既定</b> ⇄ 切替）</th></tr>
+    <tr><td>1</td><td><span class="k k1">◎</span></td><td>期間</td><td>7／30／90／1年／全期間＋自由（打ち終わると反映）</td><td>30／90／1年／全期間＋自由（「適用」釦）</td><td>帯1つ＝7／30／90／1年／全期間＋自由。確定は「適用」釦</td></tr>
+    <tr><td>2</td><td><span class="k k1">◎</span></td><td>白黒・高さ</td><td>ヘッダーの白黒・箱ごとに小／中／大</td><td>白黒に追従・高さ固定</td><td>共通（白黒はヘッダー・高さは箱ごと）</td></tr>
+    <tr><td>3</td><td><span class="k k1">◎</span></td><td>凡例の出し入れ</td><td><code>chart-legend.js</code>（押して隠す・縦軸再計算・全部出す・記憶）</td><td>HTML 凡例（押して隠す・記憶なし）</td><td>v3.1 の部品に統一（v3.1 室が提供）</td></tr>
+    <tr><td>4</td><td><span class="k k1">◎</span></td><td>縦横・スクロール</td><td>反映済み</td><td>反映済み</td><td><code>css/layout.css</code>・<code>js/layout.js</code> をそのまま</td></tr>
+    <tr><td>5</td><td><span class="k k1">◎</span></td><td>本家リンク</td><td>名前＝個別・↗＝本家</td><td>同じ（「本家↗」）</td><td>同じ型</td></tr>
+    <tr><td>6</td><td><span class="k k2">⇄</span></td><td>全体出来高</td><td>上位N＋その他の積み上げ（日／週／月）</td><td>合計の棒＋7日移動平均・週次の棒</td><td class="rec"><b>積み上げ</b> ⇄ 合計＋7日平均 ⇄ 週次</td></tr>
+    <tr><td>7</td><td><span class="k k2">⇄</span></td><td>出来高シェア</td><td>100%積み上げ ⇄ 円（上位N）</td><td>円×2（束3＋単独3＋その他／上位5）</td><td class="rec"><b>円（上位N）</b> ⇄ 推移 ⇄ 束</td></tr>
+    <tr><td>8</td><td><span class="k k2">⇄</span></td><td>ランキング表</td><td>指標ランキング（5指標・上位N・前期間比）</td><td>上位30（期間合計・シェア・期末直近30日・前期間比）</td><td class="rec">1表：指標ランキングに「シェア」「期末直近30日」列を足す</td></tr>
+    <tr><td>9</td><td><span class="k k2">⇄</span></td><td>価格の推移</td><td>上位10・円の実額</td><td>上位10・指数（最初に0より大きい日＝100）</td><td class="rec"><b>円</b> ⇄ 指数。上位10の選び方は ⚠16</td></tr>
+    <tr><td>10</td><td><span class="k k2">⇄</span></td><td>メンバー</td><td>日ごとの純増（上位N・欠測を除く切替）</td><td>水準の推移（公式／全PJ合計・2枚）</td><td class="rec"><b>純増</b> ⇄ 水準</td></tr>
+    <tr><td>11</td><td><span class="k k2">⇄</span></td><td>出来高が立ったPJ数</td><td>KPI「取引のあったPJ数」</td><td>KPI＋週次の折れ線</td><td>KPI は共通・折れ線は出来高の箱の「週次」に</td></tr>
+    <tr><td>12</td><td><span class="k k3">○</span></td><td>全体市況だけ</td><td>粒度・上位N・「その他」の表示・在庫／時価総額の指標</td><td>—</td><td>そのまま</td></tr>
+    <tr><td>13</td><td><span class="k k3">○</span></td><td>分析だけ</td><td>—</td><td>自動文3行・上位8の今期間 vs 前期間・上位2PJの指数・月次の束積み上げ・機運の5指標（窓）</td><td>そのまま持ち込む（機運＝結論の直下・月次＝出来高の粒度「月」に束の切替）</td></tr>
+    <tr><td>14</td><td><span class="k k4">⚠</span></td><td>出来高の欠測</td><td>24h＝30日の日を欠測扱い（null）</td><td>生の記録値をそのまま（レポートと同じ数字）</td><td class="rec"><b>共通の切替1つ</b>（期間帯の横）「欠測を除く（既定）／そのまま」。除く＝24h＝30日の日を除く＋メンバーの2本立て（0落ちは前値・20案件以上が同日同方向に100人以上動いた日は増減0）</td></tr>
+    <tr><td>15</td><td><span class="k k4">⚠</span></td><td>週の定義</td><td>ISO週（月曜始まり）</td><td>期末を末尾にした7日</td><td>決める（おすすめ＝期末末尾）</td></tr>
+    <tr><td>16</td><td><span class="k k4">⚠</span></td><td>上位の選び方</td><td>出来高の期間合計で上位N（全箱共通）</td><td>図ごと（価格は価格上位10・上位8は今期間の出来高）</td><td>共通＝出来高上位。価格の箱だけ「価格上位」の切替を残す</td></tr>
+    <tr><td>17</td><td><span class="k k4">⚠</span></td><td>データ</td><td><code>data/overview/</code> 7本（v24 は欠測 null）</td><td><code>data/analysis/</code> 5本（生値・月次・束・名寄せ済み）</td><td>1系統に＝<code>build_overview.py</code> に名寄せ・月次・束を足し、欠測は両方の値を持つ（切替はブラウザ側）</td></tr>
+  </table>
+
+  <h2>ルクに決めてほしいこと（6つ）</h2>
+  <table>
+    <tr><th style="width:5%">#</th><th style="width:26%">決めること</th><th style="width:30%">おすすめ</th><th>理由</th></tr>
+    <tr><td>1</td><td>タブ名</td><td class="rec">「全体市況」（分析は当面残す）</td><td>ルク 07:13「迷ったら全体市況のみでもいい」</td></tr>
+    <tr><td>2</td><td>各箱の既定の見せ方</td><td class="rec">出来高＝積み上げ／シェア＝円（上位N）／価格＝円／メンバー＝純増</td><td>v3.1 でルクが選んだ見せ方を既定に、分析側を切替に</td></tr>
+    <tr><td>3</td><td>欠測切替の既定</td><td class="rec">「除く」</td><td>06/26 の −15,000 のような欠測が既定で消える。「そのまま」で戻せる</td></tr>
+    <tr><td>4</td><td>週の定義</td><td class="rec">期末を末尾にした7日</td><td>最新週が途中で切れない・機運指標③と揃う</td></tr>
+    <tr><td>5</td><td>機運5指標の置き場</td><td class="rec">結論の直下（KPI 5枚の下）</td><td>レポートの読み順（結論→判定）</td></tr>
+    <tr><td>6</td><td>分析タブを消す時期</td><td class="rec">合体がステージングで通ってから</td><td>07:13「分析のページは一旦あってもいい」</td></tr>
+  </table>
+
+  <h2>触るファイルの分担（衝突させない）</h2>
+  <table>
+    <tr><th style="width:18%">担当</th><th>触る</th><th>触らない</th></tr>
+    <tr><td>Fable（<code>feature/analysis-tab</code>）</td><td>新規 <code>js/merged.js</code>（見せ方の反転・共通の期間帯）・<code>css/layout.css</code>・<code>index.html</code>（箱の並び）・<code>scripts/build_overview.py</code>（名寄せ・月次・束・欠測の両値）・<code>tests/check_merged.js</code></td><td><code>js/overview.js</code>・<code>css/overview.css</code>・<code>js/chart-legend.js</code>・<code>js/advanced.js</code></td></tr>
+    <tr><td>v3.1 室（<code>feature/overview-3.0.0</code>）</td><td><code>js/overview.js</code>・<code>css/overview.css</code>・<code>js/chart-legend.js</code>（凡例の部品を公開）・<code>js/advanced.js</code></td><td>上の Fable の担当</td></tr>
+  </table>
+  <p class="small">合体の起点＝本番 <code>origin/main</code>（<code>e5ca5080</code> 以降＝v3.1 の一部が 06:43 に反映済み）。両ブランチを merge してから箱を組み替える。正本（.md）＝<code>/Users/kkr/ruku_data/00_products/apps/FiNANCiE-times-web/.claude/worktrees/analysis-tab/docs/2026-09-13_合体_重複機能の比較.md</code></p>
+</div>
+</body>
+</html>

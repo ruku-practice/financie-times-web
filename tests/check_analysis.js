@@ -392,6 +392,13 @@ async function run() {
         return { inside: b.right <= a.right + 1 && b.bottom <= a.bottom + 1 && b.width > 0, text: td.textContent.trim() };
       });
       record("B15-mobile-indicator1-verdict", ind1.inside && /^[○×]/.test(ind1.text), JSON.stringify(ind1));
+      // 定義セルが tr の内側（min-width:220px がスマホで解除されている・エマ3回目②）
+      const defCell = await page.evaluate(() => {
+        const tr = document.querySelector("#an-indicators-tbody tr"); const td = tr.querySelector("td.def");
+        const a = tr.getBoundingClientRect(), b = td.getBoundingClientRect();
+        return { inside: b.right <= a.right + 1 && b.left >= a.left - 1, minWidth: getComputedStyle(td).minWidth, w: Math.round(b.width) };
+      });
+      record("B15-mobile-def-cell", defCell.inside && defCell.minWidth === "0px", JSON.stringify(defCell));
       await fullShot(page, path.join(OUT_DIR, "analysis_390.png"));
       await context.close();
     }
