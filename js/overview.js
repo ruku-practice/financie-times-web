@@ -38,9 +38,10 @@
   };
 
   // 1〜10位は見分けのつく10色。11位以降は同じ青系で明るさだけ変える（同じ色が2本出ない・中6）。
+  // 10色は色相を離して取る（旧配色はオレンジ2本・緑〜シアン3本が近くて凡例と線が結び付かなかった＝エマ v3.1 中4）
   const OV_COLORS = [
-    "#2563eb", "#10b981", "#f59e0b", "#f87171", "#7c3aed",
-    "#ec4899", "#06b6d4", "#f97316", "#14b8a6", "#a3e635"
+    "#2563eb", "#f97316", "#16a34a", "#dc2626", "#7c3aed",
+    "#db2777", "#0891b2", "#a3e635", "#b45309", "#94a3b8"
   ];
   const OV_OTHER_COLOR = "#6b7280";
 
@@ -101,7 +102,7 @@
    * グラフの高さ：各グラフ右上の「小／中／大」（既定＝中）・グラフごとに localStorage に記憶（ルク要望2）
    * ------------------------------------------------------------ */
   const SIZE_KEY = "ft_chart_size";
-  const CHART_SIZES = { s: { pc: 180, sp: 160 }, m: { pc: 260, sp: 240 }, l: { pc: 420, sp: 360 } };
+  const CHART_SIZES = { s: { pc: 200, sp: 160 }, m: { pc: 320, sp: 240 }, l: { pc: 460, sp: 360 } }; // 中＝320（横長1列で 260 は薄い＝エマ v3.1 軽9）
   let chartSizes = {};
   try { chartSizes = JSON.parse(localStorage.getItem(SIZE_KEY) || "{}") || {}; } catch (e) { chartSizes = {}; }
 
@@ -490,6 +491,15 @@
 
   const NO_CANVAS_LEGEND = { display: false };
 
+  // 縦軸の余白＝表示中の系列で上下限を取ったあとに 6% 足す（grace は目盛りの丸めに飲まれて 3.6% になった＝エマ v3.1 中5）。
+  // 凡例で系列を消したときは Chart.js が残りで上下限を取り直すので、この余白も追随する。
+  function axisHeadroom(scale) {
+    const span = scale.max - scale.min;
+    if (!(span > 0)) return;
+    if (scale.max > 0) scale.max += span * 0.06;
+    if (scale.min < 0) scale.min -= span * 0.06;
+  }
+
   // Chart.js の凡例はキャンバスの描画域を食う（スマホで描画域が9〜22pxに潰れた・重1）。
   // 代わりにカードの下へHTMLの凡例を出す（js/chart-legend.js＝全グラフ共通・v3.1 項目3：
   // 押して出し入れ・縦軸は残った系列で再計算・「全部出す」・消した状態は描き直しても再読み込みしても保つ）。
@@ -568,8 +578,8 @@
         },
         scales: {
           x: { stacked: true, ticks: xTicksOptions(shortLabels), grid: { color: chartColors().gridX } },
-          // grace＝いちばん高い棒の上に余白。最大月 448.4M に対し軸の上限が 450M で、棒が天井に触れて切れて見えた（06:45 ルク指摘）
-          y: { stacked: true, grace: "6%", ticks: { color: chartColors().tick }, grid: { color: chartColors().gridY } }
+          // 余白（afterDataLimits）＝いちばん高い棒の上に 6%。最大月 448.4M に対し軸の上限が 450M で、棒が天井に触れて切れて見えた（06:45 ルク指摘）
+          y: { stacked: true, afterDataLimits: axisHeadroom, ticks: { color: chartColors().tick }, grid: { color: chartColors().gridY } }
         }
       }
     });
@@ -911,7 +921,7 @@
           },
           scales: {
             x: { ticks: xTicksOptions(shortLabels), grid: { color: chartColors().gridX } },
-            y: { min: 0, grace: "6%", ticks: { color: chartColors().tick, callback: (v) => `${fmtFloat(v, v < 10 ? 2 : 0)} 円` }, grid: { color: chartColors().gridY } }
+            y: { min: 0, afterDataLimits: axisHeadroom, ticks: { color: chartColors().tick, callback: (v) => `${fmtFloat(v, Number.isInteger(v) ? 0 : 2)} 円` }, grid: { color: chartColors().gridY } }
           }
         }
       });
@@ -934,11 +944,22 @@
   function membersGapInfo(payload) {
     if (gapCache && gapCache.payload === payload) return gapCache;
     const n = payload.days.length;
+    // ①「0に落ちて後で戻った」区間だけ前の値で埋める。戻らずに終わった（null か 0 のまま最終日）区間は埋めない＝
+    //   案件の終了・追跡終了は本物の減少として残す（断 v3.1 欠測切替 重2：無条件に埋めると361日の0ランまで横ばいになった）
     const filled = payload.rows.map((row) => {
       const out = row.slice();
-      for (let d = 1; d < n; d++) {
+      let d = 1;
+      while (d < n) {
         const prev = out[d - 1];
-        if (out[d] === 0 && typeof prev === "number" && prev >= GAP_ZERO_MIN) out[d] = prev; // ①前の値で埋める（連続する0も埋まる）
+        if (out[d] === 0 && typeof prev === "number" && prev >= GAP_ZERO_MIN) {
+          let e = d;
+          while (e < n && out[e] === 0) e++;
+          const recovered = e < n && typeof out[e] === "number" && out[e] > 0;
+          if (recovered) for (let k = d; k < e; k++) out[k] = prev;
+          d = e;
+        } else {
+          d++;
+        }
       }
       return out;
     });
@@ -957,6 +978,15 @@
     return gapCache;
   }
 
+  // その案件が d 日に、一斉変動と同じ向きへ動いたか（記録の生の値で判定・大きさは問わない）。
+  // 2026-06-24 の再集計は −1〜−2,741 まで連続的（比率で削られている）で、しきい値では切り分けられない
+  // （100人以上だけ 0 にすると −5,468 が残る・実測）。逆向き（本物の増加）は残す。
+  function isMassMove(rawRow, d, sign) {
+    const a = rawRow[d - 1], b = rawRow[d];
+    if (typeof a !== "number" || typeof b !== "number") return false;
+    return sign < 0 ? b - a < 0 : b - a > 0;
+  }
+
   function renderGapNote() {
     const el = document.getElementById("ov-gap-note");
     if (!el || !ovData.members) return;
@@ -967,7 +997,7 @@
     if (ovState.gapMode === "raw") {
       el.textContent = `記録された値の差をそのまま出しています。${inRange.length > 0 ? `期間内の一斉変動の日＝${list}。この日は本家側の再集計やページ消失の跡で、実際の退会・入会ではありません。` : ""}`;
     } else {
-      el.textContent = `欠測を除いています＝0に落ちて後で戻った日は前の値で埋め、多数の案件が同じ日に同じ向きに動いた日は増減0にしています${inRange.length > 0 ? `（期間内 ${inRange.length}日＝${list}）` : "（期間内に該当日なし）"}。「そのまま」で記録どおりの値に切り替えられます。`;
+      el.textContent = `欠測を除いています＝0に落ちて後で戻った日は前の値で埋め、多数の案件が同じ日に同じ向きに動いた日（一斉の再集計）はその向きの増減を0にしています${inRange.length > 0 ? `（期間内 ${inRange.length}日＝${list}）` : "（期間内に該当日なし）"}。「そのまま」で記録どおりの値に切り替えられます。`;
     }
   }
 
@@ -988,8 +1018,8 @@
         for (let d = ovState.startIdx; d <= ovState.endIdx; d++) {
           if (d === 0 || row[d] === null || row[d - 1] === null || row[d] === undefined || row[d - 1] === undefined) {
             net[d] = null;
-          } else if (exclude && gap.massDays[d]) {
-            net[d] = 0; // ②一斉変動の日は増減0
+          } else if (exclude && gap.massDays[d] && isMassMove(payload.rows[idx], d, gap.massDays[d].sign)) {
+            net[d] = 0; // ②一斉変動の日は、その向きの増減を 0（逆向きの本物の増減は残す＝断 重1）
           } else {
             net[d] = row[d] - row[d - 1];
           }
@@ -1052,7 +1082,7 @@
           },
           scales: {
             x: { stacked: true, ticks: xTicksOptions(shortLabels), grid: { color: chartColors().gridX } },
-            y: { stacked: true, grace: "6%", ticks: { color: chartColors().tick }, grid: { color: chartColors().gridY } }
+            y: { stacked: true, afterDataLimits: axisHeadroom, ticks: { color: chartColors().tick }, grid: { color: chartColors().gridY } }
           }
         }
       });
@@ -1393,6 +1423,6 @@
     onShow,
     OVERVIEW_CONFIG,
     // 検査用（tests/check_overview.js から参照）。本番の見た目には影響しない。
-    _debug: { state: ovState, charts: ovCharts, data: ovData, ovColor, isMobile, applyTheme, currentTheme, chartSizeOf, CHART_SIZES }
+    _debug: { state: ovState, charts: ovCharts, data: ovData, membersGapInfo, ovColor, isMobile, applyTheme, currentTheme, chartSizeOf, CHART_SIZES }
   };
 })();

@@ -96,10 +96,11 @@
     const draw = () => {
       const entries = entriesOf(chart);
       const offCount = entries.filter((en) => !en.visible && !en.locked).length;
-      if (summary) summary.textContent = offCount > 0 ? `凡例（${entries.length}・${offCount}件を非表示）` : `凡例（${entries.length}）`;
+      // 押せると分かる手がかり（エマ v3.1 重1）：開閉の印は CSS（::before）・文言に「押すと出し入れ」
+      if (summary) summary.textContent = offCount > 0 ? `凡例（${entries.length}・${offCount}件を非表示）｜押すと出し入れ` : `凡例（${entries.length}）｜押すと出し入れ`;
       items.innerHTML = entries.map((en, i) =>
         `<button type="button" class="ov-legend-item${en.visible ? "" : " off"}" data-index="${i}" aria-pressed="${en.visible}" title="${en.visible ? "押すと隠す" : "押すと出す"}"><span class="ov-legend-swatch" style="background:${escapeHtml(en.color || "#6b7280")}"></span>${escapeHtml(en.label)}</button>`
-      ).join("") + `<button type="button" class="ov-legend-all" data-legend-all="1"${offCount > 0 ? "" : " disabled aria-disabled=\"true\""}>全部出す</button>`;
+      ).join("") + `<button type="button" class="ov-legend-all" data-legend-all="1"${offCount > 0 ? ` title="非表示の${offCount}件を全部出す"` : " disabled aria-disabled=\"true\" title=\"非表示の項目がありません\""}>全部出す</button>`;
 
       items.querySelectorAll(".ov-legend-item").forEach((btn) => {
         btn.addEventListener("click", () => {

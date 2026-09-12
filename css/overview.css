@@ -119,7 +119,7 @@
 
 .ov-chart-card .chart-wrapper {
   flex: none;
-  height: 260px;
+  height: 320px;
 }
 
 .ov-legend {
@@ -134,7 +134,25 @@
   min-height: 32px;
   display: flex;
   align-items: center;
+  gap: 6px;
   user-select: none;
+  list-style: none;
+}
+
+/* 開閉の印（押せると分かる手がかり＝エマ v3.1 重1） */
+.ov-legend summary::-webkit-details-marker {
+  display: none;
+}
+
+.ov-legend summary::before {
+  content: "▸";
+  font-size: 12px;
+  width: 12px;
+  flex: none;
+}
+
+.ov-legend[open] summary::before {
+  content: "▾";
 }
 
 .ov-legend-items {
@@ -144,13 +162,14 @@
   padding-top: 6px;
 }
 
+/* 項目はチップ（薄い枠＋角丸）＝押せる見た目（エマ v3.1 重1） */
 .ov-legend-item {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 4px;
+  background: rgba(127, 127, 127, 0.08);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
   color: var(--text-primary);
   font-family: inherit;
   font-size: 12px;
@@ -160,12 +179,14 @@
 }
 
 .ov-legend-item:hover {
-  border-color: var(--border-color);
+  border-color: var(--text-secondary);
 }
 
+/* 消した項目＝打ち消し線＋薄く。0.45 では名前が読めなかった（ダーク 4.17・ライト 2.73）ので 0.7（エマ 中6） */
 .ov-legend-item.off {
-  opacity: 0.45;
+  opacity: 0.7;
   text-decoration: line-through;
+  background: transparent;
 }
 
 .ov-legend-swatch {
@@ -326,7 +347,7 @@
 }
 
 .ov-legend-all[aria-disabled="true"] {
-  opacity: 0.5;
+  opacity: 0.7;
   cursor: default;
 }
 
@@ -475,6 +496,17 @@
 
   .ov-chart-card .chart-wrapper {
     height: 240px;
+  }
+
+  /* スマホの凡例＝押せる大きさ（28px→40px・エマ v3.1 軽8） */
+  .ov-legend-item,
+  .ov-legend-all {
+    min-height: 40px;
+    padding: 6px 10px;
+  }
+
+  .ov-legend-items {
+    gap: 6px 8px;
   }
 
   .ov-ranking-head .ov-control-group {

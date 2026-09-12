@@ -376,7 +376,7 @@ async function run() {
       const cards = Array.from(document.querySelectorAll(".ov-chart-card")).map((c) => Math.round(c.getBoundingClientRect().width / grid.getBoundingClientRect().width * 100));
       return { yMax: ch.scales.y.max, stackMax: Math.round(stackMax), cards };
     });
-    record("A42-volume-headroom-and-wide", headroom.yMax >= headroom.stackMax * 1.04 && headroom.cards.length === 4 && headroom.cards.every((w) => w >= 95), JSON.stringify(headroom));
+    record("A42-volume-headroom-and-wide", headroom.yMax >= headroom.stackMax * 1.06 && headroom.cards.length === 4 && headroom.cards.every((w) => w >= 95), JSON.stringify(headroom));
     await page.click('#ov-granularity-group button[data-granularity="day"]');
     await page.click('#ov-period-group button[data-period="90"]');
     await page.waitForTimeout(400);
@@ -444,6 +444,22 @@ async function run() {
       return { i, sum: Math.round(sum), mode: window.FinancieOverview._debug.state.gapMode, active: document.querySelector("#ov-gap-mode button.active").getAttribute("data-gap"), note: document.getElementById("ov-gap-note").textContent, yMin: ch.scales.y.min };
     });
     const gapExclude = await gapSum();
+    const gapEdges = await page.evaluate(() => {
+      const dbg = window.FinancieOverview._debug;
+      const p = dbg.data.members;
+      const info = dbg.membersGapInfo(p);
+      const di = (s) => p.days.indexOf(s);
+      const sumAt = (rows, d) => p.projects.reduce((s, _, i) => { const a = rows[i][d - 1], b = rows[i][d]; return (typeof a === "number" && typeof b === "number") ? s + (b - a) : s; }, 0);
+      // 戻らずに終わった0ラン（FinancieWebAuth）は埋めない＝落ちた日の値が 0 のまま
+      const wa = p.projects.findIndex((q) => q.name === "FinancieWebAuth");
+      const waRow = p.rows[wa]; let waDrop = -1;
+      for (let d = 1; d < p.days.length; d++) if (waRow[d] === 0 && typeof waRow[d - 1] === "number" && waRow[d - 1] >= 100) { waDrop = d; break; }
+      return {
+        mass: Object.keys(info.massDays).map((d) => p.days[d]),
+        s0912raw: sumAt(p.rows, di("2024-09-12")), s0912fill: sumAt(info.filled, di("2024-09-12")), s0914fill: sumAt(info.filled, di("2024-09-14")),
+        waDropDay: waDrop > 0 ? p.days[waDrop] : null, waNotFilled: waDrop > 0 && info.filled[wa][waDrop] === 0
+      };
+    });
     await page.click('#ov-gap-mode button[data-gap="raw"]');
     await page.waitForTimeout(500);
     const gapRaw = await gapSum();
@@ -455,6 +471,7 @@ async function run() {
     const gapPersist = await gapSum();
     await page.click('#ov-gap-mode button[data-gap="exclude"]');
     await page.waitForTimeout(400);
+    record("A46b-members-gap-edges", gapEdges.mass.length === 3 && gapEdges.mass.includes("2024-09-12") && gapEdges.mass.includes("2024-09-14") && gapEdges.mass.includes("2026-06-24") && gapEdges.s0912raw <= -40000 && Math.abs(gapEdges.s0912fill) < 2000 && Math.abs(gapEdges.s0914fill) < 2000 && gapEdges.waNotFilled, JSON.stringify(gapEdges));
     record("A46-members-gap-toggle", gapExclude.i >= 0 && gapExclude.mode === "exclude" && gapExclude.active === "exclude" && gapExclude.sum > -1000 && gapExclude.note.includes("2026/06/24") && gapRaw.mode === "raw" && gapRaw.sum <= -15000 && gapRaw.note.includes("2026/06/24") && gapPersist.mode === "raw" && gapPersist.active === "raw" && gapExclude.yMin > gapRaw.yMin, JSON.stringify({ exclude: { sum: gapExclude.sum, yMin: gapExclude.yMin, note: gapExclude.note.slice(0, 60) }, raw: { sum: gapRaw.sum, yMin: gapRaw.yMin }, persist: gapPersist.mode }));
     await page.click('#ov-period-group button[data-period="90"]');
     await page.waitForTimeout(400);
@@ -582,7 +599,7 @@ async function run() {
     await page.reload({ waitUntil: "domcontentloaded" });
     await waitOverviewReady(page);
     const sizePersist = await page.evaluate(() => { const c = window.FinancieOverview._debug.charts.volume; return { h: c.canvas.closest(".chart-wrapper").getBoundingClientRect().height, active: c.canvas.closest(".chart-card").querySelector(".ov-size-btn.active").getAttribute("data-size") }; });
-    record("A33-chart-size", sizeBefore.active === "m" && sizeBefore.h === 260 && sizeAfter.h === 420 && sizeAfter.area > sizeBefore.area + 100 && sizeAfter.shareH === 260 && JSON.parse(sizeAfter.stored).volume === "l" && sizePersist.h === 420 && sizePersist.active === "l",
+    record("A33-chart-size", sizeBefore.active === "m" && sizeBefore.h === 320 && sizeAfter.h === 460 && sizeAfter.area > sizeBefore.area + 100 && sizeAfter.shareH === 320 && JSON.parse(sizeAfter.stored).volume === "l" && sizePersist.h === 460 && sizePersist.active === "l",
       JSON.stringify({ sizeBefore, sizeAfter, sizePersist }));
     await page.evaluate(() => { localStorage.removeItem("ft_chart_size"); localStorage.removeItem("ft_theme"); });
 

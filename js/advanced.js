@@ -416,7 +416,7 @@
     metricVolume.textContent = `${formatFloat(latest.volume, 2)} 円`;
     
     // 累計取引量
-    metricVolumeSub.textContent = `累計取引量: ${formatFloat(latest.volume, 2)} 円`;
+    metricVolumeSub.textContent = `累計出来高: ${formatFloat(latest.volume, 2)} 円`;
 
     // メンバー数
     metricMembers.textContent = `${formatNumber(latest.members)} 人`;
@@ -570,7 +570,7 @@
     const volumeOptions = getCommonOptions();
     volumeOptions.plugins.tooltip.callbacks = {
       title: (items) => (items.length && data[items[0].dataIndex] ? fmtYmd(data[items[0].dataIndex].date) : ""),
-      label: (item) => `24H 取引量: ${formatFloat(item.raw, 2)} 円${capOn && item.raw > volumeCap.cap ? "（縦軸の上限を超えています）" : ""}`
+      label: (item) => `24H 出来高: ${formatFloat(item.raw, 2)} 円${capOn && item.raw > volumeCap.cap ? "（縦軸の上限を超えています）" : ""}`
     };
     if (capOn) {
       volumeOptions.scales.y.min = 0;
@@ -583,7 +583,7 @@
       data: {
         labels: labels,
         datasets: [{
-          label: '24H 取引量',
+          label: '24H 出来高',
           data: volumes,
           backgroundColor: volumeGradient,
           borderRadius: 4,
@@ -1092,7 +1092,7 @@
       const volumeK = Math.round(item.volume_24h / 1000);
       const volumeKDiff = Math.round(item.volume_24h_diff / 1000);
       
-      const tdVolumeVal = `<td class="text-right bold-text" data-label="出来高 24h［千円］">${formatNumber(volumeK)}</td>`;
+      const tdVolumeVal = `<td class="text-right bold-text" data-label="24H 出来高［千円］">${formatNumber(volumeK)}</td>`;
       const tdVolumeDiff = `<td class="text-left ${getDiffClass(volumeKDiff)}" data-label="前日比">${formatDiffText(volumeKDiff)}</td>`;
 
       const basePriceDiffPct = basePrice > 0 ? (item.price_diff / basePrice) * 100 : 0;
@@ -1237,7 +1237,7 @@
             <span>${item.name}</span>
           </a>
         </td>
-        <td class="text-right bold-text" style="font-size: 14px; padding-right: 2rem;" data-label="期間総取引量［円］">${formatFloat(item.total_volume, 2)} 円</td>
+        <td class="text-right bold-text" style="font-size: 14px; padding-right: 2rem;" data-label="期間総出来高［円］">${formatFloat(item.total_volume, 2)} 円</td>
       `;
 
       tr.querySelector(".table-pj-link").addEventListener("click", (e) => {
