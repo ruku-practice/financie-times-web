@@ -845,6 +845,8 @@ async function run() {
 
     if (w <= 768) {
       // A21: 操作帯は横スクロールなしで全グループが画面内・押す部分（釦・日付欄・チェックのラベル）は高さ44px以上（重3）
+      // 合体 v3.2.0（エマ中9）：スマホの操作帯は「絞り込み ▾」でたたんで始まる＝開いてから測る（たたみ方は check_merged.js M19）
+      await page.evaluate(() => { const t = document.getElementById("ov-controls-toggle"); if (t && t.getBoundingClientRect().height > 0 && t.getAttribute("aria-expanded") === "false") t.click(); });
       const tap = await page.evaluate(() => {
         const bar = document.getElementById("overview-controls");
         const els = [...bar.querySelectorAll("button, input[type=date], label")].concat([...document.querySelectorAll("#ov-metric-group button")]);

@@ -220,7 +220,7 @@
     return idx < 0 ? null : series.members_total[idx];
   }
 
-  // 週ごとの「出来高が立ったPJ数」（期末を末尾にした7日区切り・直近 n 週）
+  // 週ごとの「取引のあったPJ数」（期末を末尾にした7日区切り・直近 n 週）
   function weeklyActiveBack(v24, days, endDate, n) {
     const out = [];
     for (let k = 0; k < n; k++) {
@@ -269,7 +269,7 @@
     const exPrev = vPrev - top2.reduce((acc, t) => acc + (prevMap[t.folder] || 0), 0);
     const exChange = pctChange(exLast, exPrev);
 
-    // ③ 出来高が立ったPJ数（窓）
+    // ③ 取引のあったPJ数（窓）
     const nRec = activeCount(v24, recIdx), nPrv = activeCount(v24, prvIdx);
     const aChange = pctChange(nRec, nPrv);
     // 参考＝4週vs4週の平均（レポート v1 の定義）
@@ -304,7 +304,7 @@
       { n: 2, label: `窓内の後半が前半より多い`, def: `${W}日の窓を前半・後半に割り、出来高合算の 後半（${fmtMD(ha)}〜${fmtMD(rb)}）÷ 前半（${fmtMD(ra)}〜${fmtMD(addDays(ha, -1))}）`,
         threshold: "後半 ＞ 前半", actual: `${fmtYen(h2)} ÷ ${fmtYen(h1)} ＝ ${fmtPct(halfChange, 0)}`,
         ok: h1 > 0 && h2 > h1 },
-      { n: 3, label: "出来高が立ったPJ数の広がり", def: `窓に出来高＞0 の日があるPJ数。直近${W}日 ÷ 前${W}日`,
+      { n: 3, label: "取引のあったPJ数の広がり", def: `窓に出来高＞0 の日があるPJ数。直近${W}日 ÷ 前${W}日`,
         threshold: `+${T.activeChangePct}%以上`, actual: `${nRec} ÷ ${nPrv} ＝ ${fmtPct(aChange, 1)}`,
         ok: aChange !== null && aChange >= T.activeChangePct },
       { n: 4, label: "メンバー純増の加速", def: `全PJ合計（停止PJは据え置き・0落ちは前値で埋める）の直近${W}日純増 vs 前${W}日純増`,

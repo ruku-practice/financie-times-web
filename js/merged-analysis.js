@@ -94,7 +94,8 @@
 
   // name＝FtMerged の箱の名前（見せ方の箱なら "volume:bundle" のように「箱:見せ方」）
   // el＝画面に入ったら描く要素／partIds＝この要素で描く分析の箱
-  function register(name, el, partIds) {
+  // after(state, data, ctx)＝部品を描いたあとに合体の画面だけで上書きする処理（任意）
+  function register(name, el, partIds, after) {
     if (!el || !M() || !window.AnalysisParts) return;
     const [viewBox, view] = name.split(":");
     M().registerBox(name, el, (state, ctx) => {
@@ -103,7 +104,37 @@
         if (!ctx.isCurrent()) return;
         const st = partState(state, data.series.days);
         partIds.forEach((b) => getInstance().render(b, st, data));
+        if (after) return after(state, data, ctx);
       });
+    });
+  }
+
+  // KPI「メンバー純増」＝選んだ期間の日ごとの純増の合計（契約 C・エマ v3.2.0 中2）。
+  // 分析の部品は「期末直近W日（窓）」で書くので、合体の画面ではここで期間の値に書き換える。窓の値は機運の5指標の表（④）に残る
+  function renderMembersKpi(state, data, ctx) {
+    return M().load("members").then((members) => {
+      if (!ctx.isCurrent()) return;
+      const core = C();
+      const key = state.gap === "raw" ? "raw" : "smooth";
+      const days = data.series.days;
+      const spec = state.period === "custom" ? { period: "custom", start: state.start, end: state.end } : { period: state.period };
+      const r = core.computeRange(days, spec);
+      const prev = core.prevRange(days, r);
+      const now = core.membersNet(members, key, r.startIdx, r.endIdx);
+      const signed = (v) => `${v > 0 ? "+" : ""}${Math.round(v).toLocaleString("ja-JP")}人`;
+      const valueEl = document.getElementById("mg-kpi-members");
+      const labelEl = document.getElementById("mg-kpi-members-label");
+      const subEl = document.getElementById("mg-kpi-members-sub");
+      if (labelEl) labelEl.textContent = "期間のメンバー純増";
+      if (valueEl) {
+        valueEl.textContent = signed(now);
+        valueEl.className = `metric-value ${now > 0 ? "diff-up" : now < 0 ? "diff-down" : "diff-flat"}`;
+        valueEl.setAttribute("data-members-net", String(now));
+      }
+      if (subEl) {
+        if (!prev) subEl.textContent = "比較できる前期間がありません";
+        else subEl.textContent = `前の${r.calendarDays}日${prev.partial ? "（記録の初日から）" : ""} ${signed(core.membersNet(members, key, prev.startIdx, prev.endIdx))}`;
+      }
     });
   }
 
@@ -113,7 +144,7 @@
     if (!m || !window.AnalysisParts || !document.getElementById("mg-sec-conclusion")) return;
     m.bindViewButtons(document);
     m.syncAllViews();
-    register("conclusion", document.getElementById("mg-sec-conclusion"), ["conclusion"]);
+    register("conclusion", document.getElementById("mg-sec-conclusion"), ["conclusion"], renderMembersKpi);
     register("indicators", document.getElementById("mg-sec-indicators"), ["indicators"]);
     register("volume:bundle", document.getElementById("mg-pane-monthly"), ["monthly"]);
     register("volume:total", document.getElementById("mg-pane-daily"), ["daily"]);

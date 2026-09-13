@@ -107,3 +107,95 @@ html[data-layout="v"] #analysis-view .chart-card.full-width {
   #overview-view .ft-view-group .ov-size-btn,
   #overview-view #ov-share-view .ov-size-btn { min-height: 44px; }
 }
+
+/* ============================================================
+   合体 v3.2.0 の検収（エマ 11:01）の直し
+   ============================================================ */
+
+/* 中3：KPI の見出しを2行分の高さでそろえる（2行に折れたカードだけ数値が下がっていた）・KPI の下に 24px */
+#overview-view #ov-kpi-grid {
+  margin-bottom: 24px;
+}
+#overview-view #ov-kpi-grid .metric-label {
+  line-height: 1.4;
+  min-height: calc(1.4em * 2);
+}
+
+/* 軽11：期間の注記は複数の文になるので折り返す（1行に収めると操作帯の横にはみ出す） */
+#overview-view #ov-range-note {
+  white-space: normal;
+  flex: 1 1 100%;
+  line-height: 1.5;
+}
+
+/* 日付別ランキング：並べ替え中の列の見出しに ▼（エマ 日付別 軽3） */
+#daily-travel-view th[aria-sort="descending"]::after {
+  content: " ▼";
+  font-size: 0.75em;
+}
+
+/* 中9：スマホの操作帯＝「期間」だけ見せ、残りは「絞り込み ▾」でたたむ（設計書どおり）。PC では釦を出さない */
+.ov-controls-toggle {
+  display: none;
+}
+@media (max-width: 768px) {
+  .ov-controls-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    min-height: 44px;
+    padding: 6px 12px;
+    background: var(--overlay-03);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+  }
+  .ov-controls-toggle .ov-controls-summary {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-secondary);
+  }
+  #overview-controls.is-collapsed > .ov-control-group:not(#ov-period-group) {
+    display: none;
+  }
+
+  /* 重1：見せ方の釦の組は左寄せ・幅いっぱいで折り返す（右寄せのまま溢れて、左の「上位＋その他」が画面外に出ていた） */
+  #overview-view .ov-chart-card .chart-card-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  #overview-view .ov-header-tools {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  #overview-view .ft-view-group,
+  #overview-view #ov-share-view {
+    display: flex;
+    flex: 1 1 100%;
+    width: 100%;
+    margin-right: 0;
+  }
+  #overview-view .ft-view-group .ov-size-btn,
+  #overview-view #ov-share-view .ov-size-btn {
+    flex: 1 1 auto;
+  }
+
+  /* 軽12：小中大も 44px（他の箱の釦と同じ） */
+  #overview-view .ov-size-btn[data-size] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* 軽13：日付別ランキングの並べ替え釦も 44px */
+  #daily-travel-view .sort-criteria-group .sort-tab-btn {
+    min-height: 44px;
+    flex: 1 1 auto;
+  }
+}

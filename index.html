@@ -6,10 +6,10 @@
   <title>FiNANCiE TIMES | 市況ダッシュボード</title>
   <link rel="canonical" href="https://ruku-practice.github.io/financie-times-web/">
   <script>/* 背景の白黒：既定はライト（白）・記憶が dark のときだけダーク（OS に追従しない）。ちらつき防止のため最初に。JS 側は data-theme を見るので属性は必ず付ける */(function(){var t="light";try{if(localStorage.getItem("ft_theme")==="dark"){t="dark";}}catch(e){}document.documentElement.setAttribute("data-theme",t);})();</script>
-  <link rel="stylesheet" href="css/advanced.css?v=3.2.0">
-  <link rel="stylesheet" href="css/overview.css?v=3.2.0">
-  <link rel="stylesheet" href="css/analysis.css?v=3.2.0">
-  <link rel="stylesheet" href="css/layout.css?v=3.2.0">
+  <link rel="stylesheet" href="css/advanced.css?v=3.2.1">
+  <link rel="stylesheet" href="css/overview.css?v=3.2.1">
+  <link rel="stylesheet" href="css/analysis.css?v=3.2.1">
+  <link rel="stylesheet" href="css/layout.css?v=3.2.1">
   <script>/* 箱の並び：記憶があれば最初の描画から反映 */try{document.documentElement.setAttribute("data-layout",localStorage.getItem("ft_layout")==="h"?"h":"v");}catch(e){document.documentElement.setAttribute("data-layout","v");}</script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -204,7 +204,7 @@
           </div>
 
           <!-- 共通の操作帯（合体 v3.2.0：全部の図に効く＝期間・開始〜終了・粒度・上位・その他・欠測／指標の切り替えはランキングの見出しの横） -->
-          <div class="travel-controls-bar overview-controls-bar" id="overview-controls">
+          <div class="travel-controls-bar overview-controls-bar is-collapsed" id="overview-controls">
             <div class="ov-control-group" id="ov-period-group">
               <span class="ov-control-label">期間</span>
               <button class="sort-tab-btn" data-period="7">7日</button>
@@ -213,6 +213,10 @@
               <button class="sort-tab-btn" data-period="365">1年</button>
               <button class="sort-tab-btn" data-period="all">全期間</button>
             </div>
+            <!-- スマホだけ：残りの操作をたたむ（PC では出さない＝css/layout.css） -->
+            <button type="button" class="ov-controls-toggle" id="ov-controls-toggle" aria-expanded="false">
+              <span>絞り込み ▾</span><span class="ov-controls-summary" id="ov-controls-summary"></span>
+            </button>
             <div class="ov-control-group" id="ov-range-group">
               <span class="ov-control-label">開始〜終了（打ち終わると反映）</span>
               <input type="date" id="ov-start-date" class="travel-date-picker-input ov-date-input" aria-label="開始日">
@@ -240,7 +244,7 @@
             </div>
             <div class="ov-control-group ov-gap-group" id="ov-gap-mode" role="group" aria-label="欠測・一斉変動の日の扱い（全部の図に効く）">
               <span class="ov-control-label">欠測・一斉変動の日</span>
-              <button type="button" class="sort-tab-btn active" data-gap="smooth" aria-pressed="true" title="24H＝30日で取れなかった日と、0に落ちて後で戻った日を除き、多数の案件が同じ日に同じ向きに動いた日はその向きの増減を0にします">ならす</button>
+              <button type="button" class="sort-tab-btn active" data-gap="smooth" aria-pressed="true" title="出来高は 24H＝30日で取れなかった日を除きます。メンバーは 0に落ちて後で戻った日を前の値で埋め、多数のPJが同じ日に同じ向きに動いた日はその向きの増減を0にします">ならす</button>
               <button type="button" class="sort-tab-btn" data-gap="raw" aria-pressed="false" title="記録された値をそのまま使います（出来高は分析レポートと同じ数字）">記録どおり</button>
             </div>
           </div>
@@ -258,7 +262,7 @@
               <span class="metric-sub">期間合計 ÷ 暦日の日数</span>
             </div>
             <div class="metric-card">
-              <span class="metric-label">取引のあったプロジェクト数</span>
+              <span class="metric-label">取引のあったPJ数</span>
               <div class="metric-value" id="ov-kpi-active">-</div>
               <span class="metric-sub" id="ov-kpi-active-sub">-</span>
             </div>
@@ -268,7 +272,7 @@
               <span class="metric-sub" id="ov-kpi-share-sub">-</span>
             </div>
             <div class="metric-card">
-              <span class="metric-label" id="mg-kpi-members-label">メンバー純増</span>
+              <span class="metric-label" id="mg-kpi-members-label">期間のメンバー純増</span>
               <div class="metric-value" id="mg-kpi-members">-</div>
               <span class="metric-sub" id="mg-kpi-members-sub">-</span>
             </div>
@@ -370,7 +374,7 @@
           <footer class="ov-footer" id="ov-footer">
             <p>非公式サイトです。FiNANCiE から許可を得て、公開ページの表示値を毎日1回記録しています。</p>
             <p>全データを取り切れていない可能性があります。参考値としてご覧ください（正確性は保証しません）。</p>
-            <p>「ならす」は 24H 出来高が取れなかった日（24H＝30日の一致）を除きます（「記録どおり」で元の値）・期間は暦日で数え、週は期末を末尾にした7日です・期間合計は毎晩1回の記録の合計で厳密な期間出来高ではありません・出来高の単位は円・v3.2.0</p>
+            <p>「ならす」は 24H 出来高が取れなかった日（24H＝30日の一致）を除きます（「記録どおり」で元の値）・期間は暦日で数え、週は期末を末尾にした7日です・期間合計は毎晩1回の記録の合計で厳密な期間出来高ではありません・出来高の単位は円・v3.2.1</p>
           </footer>
         </div>
 
@@ -414,7 +418,7 @@
             <div class="metrics-grid" id="an-kpi-grid">
               <div class="metric-card"><span class="metric-label" id="an-kpi-total-label">期間の出来高合計</span><div class="metric-value" id="an-kpi-total">-</div><span class="metric-sub" id="an-kpi-total-sub">-</span></div>
               <div class="metric-card"><span class="metric-label">前期間比（同じ長さ）</span><div class="metric-value" id="an-kpi-change">-</div><span class="metric-sub" id="an-kpi-change-sub">-</span></div>
-              <div class="metric-card"><span class="metric-label">出来高が立ったPJ数</span><div class="metric-value" id="an-kpi-active">-</div><span class="metric-sub" id="an-kpi-active-sub">-</span></div>
+              <div class="metric-card"><span class="metric-label">取引のあったPJ数</span><div class="metric-value" id="an-kpi-active">-</div><span class="metric-sub" id="an-kpi-active-sub">-</span></div>
               <div class="metric-card"><span class="metric-label" id="an-kpi-members-label">メンバー純増（期末直近90日）</span><div class="metric-value" id="an-kpi-members">-</div><span class="metric-sub" id="an-kpi-members-sub">-</span></div>
               <div class="metric-card"><span class="metric-label">機運の5指標</span><div class="metric-value" id="an-kpi-verdict">-</div><span class="metric-sub" id="an-kpi-verdict-sub">-</span></div>
             </div>
@@ -434,14 +438,14 @@
 
           <!-- 2. 週次 -->
           <section class="an-section" id="an-sec-weekly">
-            <div class="an-section-head"><h3>2. 週次出来高と、出来高が立ったPJ数</h3><span class="an-section-sub" id="an-weekly-sub"></span></div>
+            <div class="an-section-head"><h3>2. 週次出来高と、取引のあったPJ数</h3><span class="an-section-sub" id="an-weekly-sub"></span></div>
             <div class="charts-grid ov-charts-grid">
               <div class="chart-card ov-chart-card">
                 <div class="chart-card-header"><h3 class="chart-card-title">週次出来高（期末を末尾にした7日区切り）</h3></div>
                 <div class="an-chart-wrapper"><canvas id="anWeeklyVolChart"></canvas></div>
               </div>
               <div class="chart-card ov-chart-card">
-                <div class="chart-card-header"><h3 class="chart-card-title">出来高が立ったPJ数（週に1日でも出来高＞0）</h3></div>
+                <div class="chart-card-header"><h3 class="chart-card-title">取引のあったPJ数（週に1日でも出来高＞0）</h3></div>
                 <div class="an-chart-wrapper"><canvas id="anWeeklyActiveChart"></canvas></div>
               </div>
             </div>
@@ -553,7 +557,7 @@
 
           <footer class="ov-footer" id="an-footer">
             <p>非公式サイトです。FiNANCiE から許可を得て、公開ページの表示値を毎日1回記録しています。</p>
-            <p>出来高は各日の24H 出来高（記録値）の合算で、全体市況タブと欠測の扱いが違います（分析＝生の記録値をそのまま・全体市況＝24H＝30日の日を欠測扱い）。単位は円・v3.2.0</p>
+            <p>出来高は各日の24H 出来高（記録値）の合算で、全体市況タブと欠測の扱いが違います（分析＝生の記録値をそのまま・全体市況＝24H＝30日の日を欠測扱い）。単位は円・v3.2.1</p>
           </footer>
           </div>
         </div>
@@ -596,14 +600,14 @@
                   <tr>
                     <th style="width: 5%;">順位</th>
                     <th style="width: 22%; text-align: left;">プロジェクト</th>
-                    <th>24H 出来高［千円］</th>
+                    <th data-sort-col="volume" aria-sort="descending">24H 出来高［千円］</th>
                     <th>前日比</th>
                     <th>前日価格［円］</th>
                     <th>前日比</th>
                     <th>現在価格［円］</th>
                     <th>前日比</th>
                     <th>メンバー数［人］</th>
-                    <th>前日比</th>
+                    <th data-sort-col="members">前日比</th>
                     <th>トークン在庫［個］</th>
                     <th>前日比</th>
                   </tr>
@@ -666,18 +670,18 @@
 
     </div>
 
-    <footer class="app-footer">FiNANCiE TIMES v3.2.0（非公式） ・ 毎晩自動更新 ・ <a href="https://financie.jp">FiNANCiE公式</a></footer>
+    <footer class="app-footer">FiNANCiE TIMES v3.2.1（非公式） ・ 毎晩自動更新 ・ <a href="https://financie.jp">FiNANCiE公式</a></footer>
   </div>
 
-  <script src="js/theme.js?v=3.2.0"></script>
-  <script src="js/merged-core.js?v=3.2.0"></script>
-  <script src="js/merged.js?v=3.2.0"></script>
-  <script src="js/chart-legend.js?v=3.2.0"></script>
-  <script src="js/advanced.js?v=3.2.0"></script>
-  <script src="js/overview.js?v=3.2.0"></script>
-  <script src="js/analysis-core.js?v=3.2.0"></script>
-  <script src="js/analysis.js?v=3.2.0"></script>
-  <script src="js/merged-analysis.js?v=3.2.0"></script>
-  <script src="js/layout.js?v=3.2.0"></script>
+  <script src="js/theme.js?v=3.2.1"></script>
+  <script src="js/merged-core.js?v=3.2.1"></script>
+  <script src="js/merged.js?v=3.2.1"></script>
+  <script src="js/chart-legend.js?v=3.2.1"></script>
+  <script src="js/advanced.js?v=3.2.1"></script>
+  <script src="js/overview.js?v=3.2.1"></script>
+  <script src="js/analysis-core.js?v=3.2.1"></script>
+  <script src="js/analysis.js?v=3.2.1"></script>
+  <script src="js/merged-analysis.js?v=3.2.1"></script>
+  <script src="js/layout.js?v=3.2.1"></script>
 </body>
 </html>

@@ -42,6 +42,9 @@
   --series-6: #008300;
   --series-7: #4a3aa7;
   --series-8: #e34948;
+  /* 9・10位（エマ v3.2.0 中4＝上位10まで検証済みの色）：validate_palette.js で10色 --mode light --surface #FFFFFF の必須の関門を PASS（隣どうし CVD 最小 9.1・通常視 19.6） */
+  --series-9: #0e8fa8;
+  --series-10: #a0522d;
   --series-other: #6b7280;
   --legend-chip-border: #7b8794; /* 白地で約3.7:1＝凡例チップの枠（エマ v3.1 中5） */
   --legend-off-opacity: 0.7;
@@ -99,6 +102,9 @@ html[data-theme="dark"] {
   --series-6: #008300;
   --series-7: #9085e9;
   --series-8: #e66767;
+  /* 9・10位：validate_palette.js で10色 --mode dark --surface #131A26 ALL PASS（エマ v3.2.0 中4） */
+  --series-9: #118fa6;
+  --series-10: #c0703a;
   --series-other: #9ca3af;
   --legend-chip-border: #6b7686; /* 暗い地で約3.8:1 */
   --legend-off-opacity: 0.7;

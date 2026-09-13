@@ -9,7 +9,7 @@
 (function () {
   "use strict";
 
-  const OV_APP_VERSION = "3.2.0";
+  const OV_APP_VERSION = "3.2.1";
 
   // 出来高の単位＝「円」（2026-09-12 21:30 ルク決定・本家 financie.jp が円表示のため）。
   // ラベルの定義はここ1か所だけ（A12）。切り替えるときはこの1行だけ直せばよい。
@@ -37,18 +37,20 @@
     mcap: "時価総額"
   };
 
-  // 系列の色（v3.2.0）：1〜8位は dataviz スキルの検証済み8色（テーマごとに段を変える＝CSS 変数 --series-1..8）。
-  // 9位以降は同じ青系の明るさ違い（凡例と表で識別）。「その他」は灰（--series-other）＋凡例は斜線の見本。
-  // 旧10色は灰青 #94a3b8 が「その他」と近かった（ΔE 19＝エマ v3.1 中4）・検査で明度帯と CVD が FAIL だった。
+  // 系列の色（v3.2.0）：1〜10位は検証済みの10色（dataviz の8色＋9・10位を validate_palette.js で10色として通したもの・
+  // テーマごとに段を変える＝CSS 変数 --series-1..10）。11位以降は同じ青系の明るさ違い（凡例と表で識別）。
+  // 「その他」は灰（--series-other）＋凡例は斜線の見本。
+  // 旧：9位以降を青系にしていたため上位10の9位と10位が ΔE 2.1 で見分けられなかった（エマ v3.2.0 中4）。
   const OV_FALLBACK_COLORS = {
-    light: ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948"],
-    dark: ["#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#008300", "#9085e9", "#e66767"]
+    light: ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948", "#0e8fa8", "#a0522d"],
+    dark: ["#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#008300", "#9085e9", "#e66767", "#118fa6", "#c0703a"]
   };
+  const OV_VALIDATED_COLORS = 10;
 
   function ovColor(i) {
     const t = currentTheme();
-    if (i < 8) return tc(`--series-${i + 1}`, OV_FALLBACK_COLORS[t][i]);
-    const k = i - 8; // 0..21（上位30まで）
+    if (i < OV_VALIDATED_COLORS) return tc(`--series-${i + 1}`, OV_FALLBACK_COLORS[t][i]);
+    const k = i - OV_VALIDATED_COLORS; // 0..19（上位30まで）
     const l = (t === "light" ? 70 : 62) - (k % 22) * 1.6;
     return `hsl(214, 45%, ${l.toFixed(1)}%)`;
   }
@@ -469,7 +471,7 @@
       return s > 0;
     }).length;
     dom.kpiActive.textContent = `${activeCount}`;
-    dom.kpiActiveSub.textContent = `/ 全${ovData.volume.projects.length}プロジェクト`;
+    dom.kpiActiveSub.textContent = `/ 全${ovData.volume.projects.length} PJ`; // 見出し「取引のあったPJ数」と呼び名をそろえる（エマ v3.2.0 中8）
 
     const topN = topRanked.slice(0, ovState.topN);
     const topSum = topN.reduce((s, x) => s + x.total, 0);
@@ -589,7 +591,10 @@
     });
     renderHtmlLegend("volume");
 
-    if (ovState.shareView === "bundle") return; // 束の円は分析の部品が描く（見せ方の切替）
+    if (ovState.shareView === "bundle") { // 束の円は分析の部品が描く（見せ方の切替）・見出しは見せ方ごとに替える（エマ v3.2.0 中5）
+      if (dom.shareTitle) dom.shareTitle.textContent = "出来高シェア（期間合計・束＋単独PJ＋その他）";
+      return;
+    }
     if (ovState.shareView === "donut") {
       renderShareDonut(series, othersData);
       return;
@@ -643,7 +648,7 @@
   function renderShareDonut(series, othersData) {
     const totals = series.map((s) => s.data.reduce((a, b) => a + b, 0));
     const labels = series.map((s) => s.name);
-    const ids = series.map((s) => s.folder); // 凡例の記憶の識別子（棒グラフと共通＝同じ案件を同じ記憶で出し入れ）
+    const ids = series.map((s) => s.folder); // 凡例の記憶の識別子（棒グラフと共通＝同じPJを同じ記憶で出し入れ）
     const colors = series.map((_, i) => ovColor(i));
     if (ovState.showOthers) {
       totals.push(othersData.reduce((a, b) => a + b, 0));
@@ -710,10 +715,10 @@
     return cols[metric] || cols.volume;
   }
 
-  const ROW_HINT = "名前を押すと個別分析・名前の右の ↗ で FiNANCiE のプロジェクトページ（新しいタブ）。名前に載せると各案件のデータ取得開始日が出ます";
+  const ROW_HINT = "名前を押すと個別分析・名前の右の ↗ で FiNANCiE のプロジェクトページ（新しいタブ）。名前に載せると各PJのデータ取得開始日が出ます";
   const RANKING_NOTES = {
-    volume: `並び＝期間合計の多い順。「その他」＝上位以外の全件（期間中に取引の無かった案件も含む）。${ROW_HINT}`,
-    price: `並び＝期間の変化率の高い順。期末値＝期間内で最後に記録された値（終了日より前で止まっている案件は日付を添えています）。${ROW_HINT}`,
+    volume: `並び＝期間合計の多い順。「その他」＝上位以外の全件（期間中に取引の無かったPJも含む）。${ROW_HINT}`,
+    price: `並び＝期間の変化率の高い順。期末値＝期間内で最後に記録された値（終了日より前で止まっているPJは日付を添えています）。${ROW_HINT}`,
     members: `並び＝期間の増減の多い順。メンバー数の増減は購入者数ではありません。期末値＝期間内で最後に記録された値。${ROW_HINT}`,
     stock: `並び＝在庫の減りが大きい順。減りは販売数ではありません（売り戻しと差し引き）。期末値＝期間内で最後に記録された値。${ROW_HINT}`,
     mcap: `並び＝期間の変化率の高い順。期末値＝期間内で最後に記録された値。${ROW_HINT}`
@@ -772,7 +777,7 @@
     return { ranked: rows, extra: {} };
   }
 
-  // 期末値：終了日より前で記録が止まっている案件は「（MM/DD時点）」を添える（軽1）
+  // 期末値：終了日より前で記録が止まっているPJは「（MM/DD時点）」を添える（軽1）
   function lastValueCell(text, lastIdx) {
     if (lastIdx >= 0 && lastIdx < ovState.endIdx) {
       return `${text}<span class="ov-asof">（${fmtMD(ovData.market.days[lastIdx])}時点）</span>`;
@@ -945,8 +950,8 @@
    * ------------------------------------------------------------ */
   // 欠測・一斉変動の日（2026-09-13 ルク指摘＝06/24 に「その他」が −15,611 で縦軸が潰れた）。
   //  ①0落ち：直前が GAP_ZERO_MIN 以上で 0 になった日は欠測＝前の値で埋める（分析タブ仕様メモ §4）
-  //  ②一斉変動：GAP_MASS_MIN 以上の案件が同じ日に同じ向きへ GAP_MASS_STEP 以上動いた日（本家側の再集計の跡・
-  //    実測＝2026-06-24 は45案件がそろって約−100・2024-09-12 は211案件が0→09-14 に復帰）は、その日の増減を全案件 0 にする
+  //  ②一斉変動：GAP_MASS_MIN 以上のPJが同じ日に同じ向きへ GAP_MASS_STEP 以上動いた日（本家側の再集計の跡・
+  //    実測＝2026-06-24 は45PJがそろって約−100・2024-09-12 は211PJが0→09-14 に復帰）は、その日の増減を全PJ 0 にする
   const GAP_ZERO_MIN = 100;
   const GAP_MASS_MIN = 20;
   const GAP_MASS_STEP = 100;
@@ -957,7 +962,7 @@
     return core().membersInfo(payload);
   }
 
-  // その案件が d 日に、一斉変動と同じ向きへ動いたか（記録の生の値で判定・大きさは問わない）。
+  // そのPJが d 日に、一斉変動と同じ向きへ動いたか（記録の生の値で判定・大きさは問わない）。
   // 2026-06-24 の再集計は −1〜−2,741 まで連続的（比率で削られている）で、しきい値では切り分けられない
   // （100人以上だけ 0 にすると −5,468 が残る・実測）。逆向き（本物の増加）は残す。
   function isMassMove(rawRow, d, sign) {
@@ -1121,8 +1126,51 @@
     window.history.replaceState(null, "", url);
   }
 
+  // 選択中の釦に active と aria-pressed（シェアの見せ方の組だけ aria-pressed が無かった＝エマ v3.2.0 中5）
   function setActive(group, attr, value) {
-    group.querySelectorAll("button").forEach((b) => b.classList.toggle("active", b.getAttribute(attr) === String(value)));
+    group.querySelectorAll("button").forEach((b) => {
+      const on = b.getAttribute(attr) === String(value);
+      b.classList.toggle("active", on);
+      if (b.hasAttribute(attr)) b.setAttribute("aria-pressed", String(on));
+    });
+  }
+
+  // 期間の注記（操作帯の開始〜終了の横）：入れ替え・粒度を自動で週にした・週の端数を捨てた（エマ v3.2.0 軽11）
+  function renderRangeNote() {
+    if (!dom.rangeNote) return;
+    const lines = [];
+    if (ovState.rangeSwapped) lines.push("開始日と終了日を入れ替えました");
+    if (ovState.granularity === "week" && !ovState.granularityManual) lines.push("期間が1年を超えるので、粒度を「週」にしました（粒度の釦で変えられます）");
+    if (ovState.granularity === "week" && ovState.bucketDropped > 0) lines.push(`週は期末を末尾にした7日区切りのため、先頭の${ovState.bucketDropped}日は週の図に入れていません`);
+    dom.rangeNote.textContent = lines.join("。");
+    dom.rangeNote.classList.toggle("hidden-element", lines.length === 0);
+  }
+
+  // スマホの「絞り込み ▾」：たたんでいても今の選び方が分かるように要約を出す（エマ v3.2.0 中9）
+  const GRANULARITY_LABELS = { day: "日", week: "週", month: "月" };
+  function updateControlsSummary() {
+    const el = document.getElementById("ov-controls-summary");
+    if (!el || !ovData.market) return;
+    const days = ovData.market.days;
+    const parts = [];
+    if (ovState.period === "custom") parts.push(`${fmtMD(days[ovState.startIdx])}〜${fmtMD(days[ovState.endIdx])}`);
+    parts.push(`${GRANULARITY_LABELS[ovState.granularity] || ""}${ovState.granularityManual ? "" : "（自動）"}`);
+    parts.push(`上位${ovState.topN}`);
+    parts.push(ovState.showOthers ? "その他あり" : "その他なし");
+    parts.push(gapMode() === "raw" ? "記録どおり" : "ならす");
+    el.textContent = parts.join("・");
+  }
+
+  function setupControlsToggle() {
+    const btn = document.getElementById("ov-controls-toggle");
+    const bar = document.getElementById("overview-controls");
+    if (!btn || !bar || btn.dataset.bound) return;
+    btn.dataset.bound = "1";
+    btn.addEventListener("click", () => {
+      const collapsed = bar.classList.toggle("is-collapsed");
+      btn.setAttribute("aria-expanded", String(!collapsed));
+      if (btn.firstElementChild) btn.firstElementChild.textContent = collapsed ? "絞り込み ▾" : "絞り込み ▴";
+    });
   }
 
   // 共通の状態（js/merged.js）を、このファイルの状態と釦の見た目へ写す
@@ -1212,6 +1260,8 @@
     const topFolders = computeTopNVolumeFolders();
     renderKPIs(topFolders);
     renderPanelAB(topFolders);
+    renderRangeNote(); // 週の端数（bucketDropped）は renderPanelAB の中で決まる
+    updateControlsSummary();
     renderPanelC();
     // パネルD/Eは、画面に一度出てくるまでは描画（＝price.json/members.jsonの取得）を遅らせる。
     // （初回読み込みを market.json + v24.json だけに絞るため。一度出たら以降は追随する）
@@ -1463,6 +1513,7 @@
   function init() {
     bindDom();
     attachEvents();
+    setupControlsToggle();
     setupLegends();
     setupChartSizes();
     setupLazyPanels();

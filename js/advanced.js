@@ -1,5 +1,5 @@
 
-  const APP_VERSION = "3.2.0";
+  const APP_VERSION = "3.2.1";
   console.info("FiNANCiE TIMES v" + APP_VERSION);
 
   let projectsList = [];
@@ -1062,7 +1062,16 @@
       });
   }
 
+  // 並べ替え中の列の見出しに印（aria-sort＝descending・▼は CSS）＝どの列で並んでいるか表から分かる（エマ 日付別 軽3）
+  function syncSortHeader() {
+    document.querySelectorAll("#daily-travel-view th[data-sort-col]").forEach(th => {
+      if (th.getAttribute("data-sort-col") === travelSort) th.setAttribute("aria-sort", "descending");
+      else th.removeAttribute("aria-sort");
+    });
+  }
+
   function renderDailyTable() {
+    syncSortHeader();
     historicRankingTbody.innerHTML = "";
     
     if (dailyData.length === 0) {
@@ -1374,7 +1383,12 @@
     btn.addEventListener("click", () => {
       // 押した釦そのもの（e.target は中の要素になりうる）・値は2つだけ受け付ける
       travelSort = btn.getAttribute("data-sort") === "members" ? "members" : "volume";
-      sortTabButtons.forEach(b => b.classList.toggle("active", b.getAttribute("data-sort") === travelSort));
+      sortTabButtons.forEach(b => {
+        const on = b.getAttribute("data-sort") === travelSort;
+        b.classList.toggle("active", on);
+        b.setAttribute("aria-pressed", String(on));
+      });
+      syncSortHeader();
       renderDailyTable();
     });
   });

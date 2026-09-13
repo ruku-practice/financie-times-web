@@ -24,7 +24,7 @@
 (function () {
   "use strict";
 
-  const AN_VERSION = "3.2.0";
+  const AN_VERSION = "3.2.1";
   const C = window.FtAnalysisCore;
 
   const AN_CONFIG = {
@@ -230,12 +230,14 @@
       const dir = (v) => v === null ? "比較できず" : v >= 5 ? "増" : v <= -5 ? "減" : "横ばい";
       const lines = [];
       // カードにある数字（合計・前期間比）は繰り返さず、カードに無いこと（集中度・上位2を除いた比）だけ書く（エマ中8）
+      // 前期間が無い（全期間など）ときは「上位2PJを除くと前期間比」の節ごと出さない（値なしの「-」で終わっていた＝エマ v3.2.0 中7）
+      const exClause = exChange === null ? "" : `上位2PJ（${top2now.map((t) => C.escapeHtml(t.short)).join("・")}）を除くと前期間比 ${C.fmtPct(exChange, 0)}。`;
       lines.push(`<strong>出来高：</strong>前期間比は${dir(change)}。` +
-        (top1 ? `上位1PJは ${C.escapeHtml(top1.short)}（シェア ${share1.toFixed(1)}%）。上位2PJ（${top2now.map((t) => C.escapeHtml(t.short)).join("・")}）を除くと前期間比 ${C.fmtPct(exChange, 0)}。` : "期間内に出来高のあるPJがありません。"));
+        (top1 ? `上位1PJは ${C.escapeHtml(top1.short)}（シェア ${share1.toFixed(1)}%）。${exClause}` : "期間内に出来高のあるPJがありません。"));
       // 期間と窓が同じ日数なら同じ数字を2回言わない（エマ中2）
       const periodDays = C.daysBetween(days[state.startIdx], days[state.endIdx]) + 1;
       const sameAsWindow = periodDays === ind.W && state.period !== "custom";
-      lines.push(`<strong>裾野：</strong>出来高が立ったPJ数は期間内 ${C.fmtInt(activeN)} PJ` + (activePrev === null ? "。" : `（前期間 ${C.fmtInt(activePrev)} PJ・${C.fmtPct(C.pctChange(activeN, activePrev), 1)}）。`) +
+      lines.push(`<strong>裾野：</strong>取引のあったPJ数は期間内 ${C.fmtInt(activeN)} PJ` + (activePrev === null ? "。" : `（前期間 ${C.fmtInt(activePrev)} PJ・${C.fmtPct(C.pctChange(activeN, activePrev), 1)}）。`) +
         (sameAsWindow ? "" : `窓${ind.W}日では直近 ${ind.nRec} PJ／前 ${ind.nPrv} PJ（${C.fmtPct(ind.aChange, 1)}）。`) +
         `窓内の後半÷前半（出来高）＝${C.fmtPct(ind.halfChange, 0)}。`);
       lines.push(`<strong>判定：</strong>機運の5指標（窓 ${ind.W}日・期末 ${C.fmtYMD(ind.endDate)} 基準）のうち当てはまるのは ${ind.count}/5 ＝「${ind.band}」（ルール：4〜5＝あり・2〜3＝兆しあり・0〜1＝なし）。` +
@@ -283,7 +285,7 @@
       getEl("an-daily-note").textContent = max.v === null ? "" : `期間内の最大は ${C.fmtYMD(labels[max.k])} の ${C.fmtYen(max.v)}。7日平均の底は ${C.fmtYen(Math.min.apply(null, avg.filter((v) => v !== null)))}。`;
     }
 
-    /* ---- 2. 週次出来高（箱：weeklyVol）／出来高が立ったPJ数（箱：weeklyActive） ---- */
+    /* ---- 2. 週次出来高（箱：weeklyVol）／取引のあったPJ数（箱：weeklyActive） ---- */
     function renderWeeklyVol(state, data) {
       const S = data.series;
       const days = S.days;
@@ -306,8 +308,7 @@
       const last4 = actives.slice(-4), prev4 = actives.slice(-8, -4);
       const avg = (a) => a.length ? (a.reduce((x, y) => x + y, 0) / a.length).toFixed(1) : "-";
       getEl("an-weekly-note").textContent = (dropped > 0 ? `期間の先頭 ${dropped} 日は7日に満たないため週に入れていません。` : "") +
-        (weeks.length >= 8 ? ` 直近4週平均 ${avg(last4)} PJ／その前4週平均 ${avg(prev4)} PJ。` : "") +
-        " 全体市況タブの「週」は ISO 週（月曜始まり）なので区切りが違います。";
+        (weeks.length >= 8 ? ` 直近4週平均 ${avg(last4)} PJ／その前4週平均 ${avg(prev4)} PJ。` : "");
     }
 
     function renderWeeklyActive(state, data) {
@@ -321,10 +322,10 @@
       const many = weeks.length > 60;
       makeChart("weeklyActive", "anWeeklyActiveChart", {
         type: "line",
-        data: { labels, datasets: [{ label: "出来高が立ったPJ数", data: actives, borderColor: pal[2], backgroundColor: "transparent", borderWidth: 2, pointRadius: many ? 0 : 3, tension: 0.2 }] },
+        data: { labels, datasets: [{ label: "取引のあったPJ数", data: actives, borderColor: pal[2], backgroundColor: "transparent", borderWidth: 2, pointRadius: many ? 0 : 3, tension: 0.2 }] },
         options: baseOptions({
           scales: { x: { ticks: xTicks(shortLabels), grid: { color: chartInk().gridX } }, y: { beginAtZero: true, ticks: { color: chartInk().tick, font: { size: 11 }, precision: 0 }, grid: { color: chartInk().gridY } } },
-          plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => `出来高が立ったPJ数: ${c.parsed.y} PJ` } } }
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => `取引のあったPJ数: ${c.parsed.y} PJ` } } }
         })
       });
     }
