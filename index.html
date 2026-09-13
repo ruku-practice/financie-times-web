@@ -6,8 +6,8 @@
   <title>FiNANCiE TIMES | 市況ダッシュボード</title>
   <link rel="canonical" href="https://ruku-practice.github.io/financie-times-web/">
   <script>/* 背景の白黒：記憶があれば最初の描画から反映（ちらつき防止） */try{if(localStorage.getItem("ft_theme")==="light"){document.documentElement.setAttribute("data-theme","light");}}catch(e){}</script>
-  <link rel="stylesheet" href="css/advanced.css?v=3.0.0">
-  <link rel="stylesheet" href="css/overview.css?v=3.0.0">
+  <link rel="stylesheet" href="css/advanced.css?v=3.1.1">
+  <link rel="stylesheet" href="css/overview.css?v=3.1.1">
   <link rel="stylesheet" href="css/analysis.css?v=0.1.0">
   <link rel="stylesheet" href="css/layout.css?v=0.1.0">
   <script>/* 箱の並び：記憶があれば最初の描画から反映 */try{document.documentElement.setAttribute("data-layout",localStorage.getItem("ft_layout")==="h"?"h":"v");}catch(e){document.documentElement.setAttribute("data-layout","v");}</script>
@@ -139,6 +139,7 @@
             <div class="chart-card full-width">
               <div class="chart-card-header"><h3 class="chart-card-title">メンバー数 & トークン在庫の長期推移</h3></div>
               <div class="chart-wrapper"><canvas id="combinedChart"></canvas></div>
+              <details class="ov-legend" id="legend-combined"><summary>凡例</summary><div class="ov-legend-items"></div></details>
             </div>
           </div>
         </div>
@@ -168,18 +169,22 @@
             <div class="chart-card">
               <div class="chart-card-header"><h3 class="chart-card-title">現在価格の比較 (円)</h3></div>
               <div class="chart-wrapper"><canvas id="comparePriceChart"></canvas></div>
+              <details class="ov-legend" id="legend-comparePriceChart"><summary>凡例</summary><div class="ov-legend-items"></div></details>
             </div>
             <div class="chart-card">
               <div class="chart-card-header"><h3 class="chart-card-title">24H 取引量の比較 (円)</h3></div>
               <div class="chart-wrapper"><canvas id="compareVolumeChart"></canvas></div>
+              <details class="ov-legend" id="legend-compareVolumeChart"><summary>凡例</summary><div class="ov-legend-items"></div></details>
             </div>
             <div class="chart-card">
               <div class="chart-card-header"><h3 class="chart-card-title">メンバー数の比較 (人)</h3></div>
               <div class="chart-wrapper"><canvas id="compareMembersChart"></canvas></div>
+              <details class="ov-legend" id="legend-compareMembersChart"><summary>凡例</summary><div class="ov-legend-items"></div></details>
             </div>
             <div class="chart-card">
               <div class="chart-card-header"><h3 class="chart-card-title">トークン在庫の比較 (個)</h3></div>
               <div class="chart-wrapper"><canvas id="compareStockChart"></canvas></div>
+              <details class="ov-legend" id="legend-compareStockChart"><summary>凡例</summary><div class="ov-legend-items"></div></details>
             </div>
           </div>
         </div>
@@ -300,13 +305,14 @@
           <!-- Panel D/E -->
           <div class="charts-grid ov-charts-grid">
             <div class="chart-card ov-chart-card">
-              <div class="chart-card-header"><h3 class="chart-card-title" id="ov-panelD-title">価格の推移（上位10・期間内で最初に値が付いた日=100の指数）</h3><div class="ov-size-group" role="group" aria-label="グラフの高さ"><button type="button" class="ov-size-btn" data-size="s">小</button><button type="button" class="ov-size-btn" data-size="m">中</button><button type="button" class="ov-size-btn" data-size="l">大</button></div></div>
+              <div class="chart-card-header"><h3 class="chart-card-title" id="ov-panelD-title">価格の推移（上位10・円）</h3><div class="ov-size-group" role="group" aria-label="グラフの高さ"><button type="button" class="ov-size-btn" data-size="s">小</button><button type="button" class="ov-size-btn" data-size="m">中</button><button type="button" class="ov-size-btn" data-size="l">大</button></div></div>
               <div class="chart-wrapper"><canvas id="ovPriceChart"></canvas></div>
               <details class="ov-legend" id="ov-legend-price"><summary>凡例</summary><div class="ov-legend-items"></div></details>
             </div>
             <div class="chart-card ov-chart-card">
-              <div class="chart-card-header"><h3 class="chart-card-title">メンバー数の増減（日ごとの純増・購入者数ではない）</h3><div class="ov-size-group" role="group" aria-label="グラフの高さ"><button type="button" class="ov-size-btn" data-size="s">小</button><button type="button" class="ov-size-btn" data-size="m">中</button><button type="button" class="ov-size-btn" data-size="l">大</button></div></div>
+              <div class="chart-card-header"><h3 class="chart-card-title">メンバー数の増減（日ごとの純増・購入者数ではない）</h3><div class="ov-header-tools"><div class="ov-size-group ov-view-group" id="ov-gap-mode" role="group" aria-label="欠測・一斉変動の日の扱い"><button type="button" class="ov-size-btn" data-gap="exclude" title="0に落ちて後で戻った日は前の値で埋め、多数の案件が同じ日に同じ向きに動いた日（一斉の再集計）は増減0にします">欠測を除く</button><button type="button" class="ov-size-btn" data-gap="raw" title="記録された値の差をそのまま出します">そのまま</button></div><div class="ov-size-group" role="group" aria-label="グラフの高さ"><button type="button" class="ov-size-btn" data-size="s">小</button><button type="button" class="ov-size-btn" data-size="m">中</button><button type="button" class="ov-size-btn" data-size="l">大</button></div></div></div>
               <div class="chart-wrapper"><canvas id="ovMembersChart"></canvas></div>
+              <p class="ov-gap-note" id="ov-gap-note"></p>
               <details class="ov-legend" id="ov-legend-members"><summary>凡例</summary><div class="ov-legend-items"></div></details>
             </div>
           </div>
@@ -314,7 +320,7 @@
           <footer class="ov-footer" id="ov-footer">
             <p>非公式サイトです。FiNANCiE から許可を得て、公開ページの表示値を毎日1回記録しています。</p>
             <p>全データを取り切れていない可能性があります。参考値としてご覧ください（正確性は保証しません）。</p>
-            <p>24h出来高が取れなかった日（24h＝30日の一致）は欠測扱い・期間合計は毎晩1回の記録の合計で厳密な期間出来高ではありません・出来高の単位は円・v3.0.0</p>
+            <p>24h出来高が取れなかった日（24h＝30日の一致）は欠測扱い・期間合計は毎晩1回の記録の合計で厳密な期間出来高ではありません・出来高の単位は円・v3.1.1</p>
           </footer>
         </div>
 
@@ -610,11 +616,12 @@
 
     </div>
 
-    <footer class="app-footer">FiNANCiE TIMES v3.0.0（非公式） ・ 毎晩自動更新 ・ <a href="https://financie.jp">FiNANCiE公式</a></footer>
+    <footer class="app-footer">FiNANCiE TIMES v3.1.1（非公式） ・ 毎晩自動更新 ・ <a href="https://financie.jp">FiNANCiE公式</a></footer>
   </div>
 
-  <script src="js/advanced.js?v=3.0.0"></script>
-  <script src="js/overview.js?v=3.0.0"></script>
+  <script src="js/chart-legend.js?v=3.1.1"></script>
+  <script src="js/advanced.js?v=3.1.1"></script>
+  <script src="js/overview.js?v=3.1.1"></script>
   <script src="js/analysis.js?v=0.1.0"></script>
   <script src="js/layout.js?v=0.1.0"></script>
 </body>

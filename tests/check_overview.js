@@ -330,7 +330,7 @@ async function run() {
     await page.waitForTimeout(300);
 
     // ---------- v3.1 の受け入れ検査 ----------
-    // A38（v3.1 項目2）: 価格の指数は「期間内で最初に 0 より大きい値の日」が基準。上位10の10系列すべてに null でない点が1つ以上ある（全期間・1年・90日）
+    // A38（v3.1 項目2 → 06:43 ルク指示で絶対値）: 価格は円の絶対値。上位10の10系列すべてに点があり、各点が price.json の生の値と一致（0 以下は null）・縦軸と見出しに「円」（全期間・1年・90日）
     await page.evaluate(() => document.getElementById("ovPriceChart").scrollIntoView({ block: "center" }));
     await page.waitForFunction(() => !!window.FinancieOverview._debug.charts.price, { timeout: 15000 });
     const priceIndex = {};
@@ -343,12 +343,139 @@ async function run() {
       }, { timeout: 15000 });
       await page.waitForTimeout(300);
       priceIndex[p] = await page.evaluate(() => {
-        const ds = window.FinancieOverview._debug.charts.price.data.datasets;
+        const dbg = window.FinancieOverview._debug;
+        const ds = dbg.charts.price.data.datasets;
+        const payload = dbg.data.price;
+        const st = dbg.state;
         const empty = ds.filter((d) => !d.data.some((v) => v !== null && Number.isFinite(v))).map((d) => d.label);
-        const firstIs100 = ds.filter((d) => { const v = d.data.find((x) => x !== null); return v !== undefined && Math.abs(v - 100) > 1e-9; }).map((d) => d.label);
-        return { n: ds.length, empty, firstIs100Bad: firstIs100 };
+        const mismatch = [];
+        ds.forEach((d) => {
+          const p = payload.projects.find((pj) => pj.name === d.label);
+          const row = p ? payload.rows[payload.folderIndex[p.folder]] : null;
+          for (let i = 0; i < d.data.length; i++) {
+            const raw = row ? row[st.startIdx + i] : null;
+            const want = typeof raw === "number" && raw > 0 ? raw : null;
+            if (d.data[i] !== want) { mismatch.push(`${d.label}@${i}:${d.data[i]}!=${want}`); break; }
+          }
+        });
+        const yTick = dbg.charts.price.scales.y.ticks.map((t) => t.label).find((l) => l);
+        const title = document.getElementById("ov-panelD-title").textContent;
+        return { n: ds.length, empty, mismatch: mismatch.slice(0, 3), yTick, yMin: dbg.charts.price.scales.y.min, title };
       });
     }
+    // A42（06:45 ルク指摘）: 全体出来高の棒が天井に触れない＝軸の上限 ≥ いちばん高い積み上げ×1.04（全期間・月）。時系列4枚は1列（横長）＝カードの幅が親の幅の95%以上
+    await page.click('#ov-period-group button[data-period="all"]');
+    await page.click('#ov-granularity-group button[data-granularity="month"]');
+    await page.waitForTimeout(500);
+    const headroom = await page.evaluate(() => {
+      const ch = window.FinancieOverview._debug.charts.volume;
+      const n = ch.data.labels.length;
+      let stackMax = 0;
+      for (let i = 0; i < n; i++) { let s = 0; ch.data.datasets.forEach((d, di) => { if (ch.isDatasetVisible(di)) s += d.data[i] || 0; }); stackMax = Math.max(stackMax, s); }
+      const grid = document.querySelector(".ov-charts-grid");
+      const cards = Array.from(document.querySelectorAll(".ov-chart-card")).map((c) => Math.round(c.getBoundingClientRect().width / grid.getBoundingClientRect().width * 100));
+      return { yMax: ch.scales.y.max, stackMax: Math.round(stackMax), cards };
+    });
+    record("A42-volume-headroom-and-wide", headroom.yMax >= headroom.stackMax * 1.06 && headroom.cards.length === 4 && headroom.cards.every((w) => w >= 95), JSON.stringify(headroom));
+    await page.click('#ov-granularity-group button[data-granularity="day"]');
+    await page.click('#ov-period-group button[data-period="90"]');
+    await page.waitForTimeout(400);
+
+    // A43（v3.1 項目3）: 凡例で系列の出し入れ＝1位を消すと縦軸の最大が下がり、戻すと戻る・「全部出す」がある・
+    // 消した状態は期間を変えて描き直しても、再読み込みしても保たれる・「全部出す」で全部戻り記憶も消える
+    await page.evaluate(() => document.getElementById("ovVolumeChart").scrollIntoView({ block: "center" }));
+    const legendBefore = await page.evaluate(() => ({ yMax: window.FinancieOverview._debug.charts.volume.scales.y.max, items: document.querySelectorAll("#ov-legend-volume .ov-legend-item").length, all: !!document.querySelector("#ov-legend-volume .ov-legend-all") }));
+    await page.click('#ov-legend-volume .ov-legend-item[data-index="0"]');
+    await page.waitForTimeout(400);
+    const legendOff = await page.evaluate(() => {
+      const ch = window.FinancieOverview._debug.charts.volume;
+      const btn = document.querySelector('#ov-legend-volume .ov-legend-item[data-index="0"]');
+      return { yMax: ch.scales.y.max, visible: ch.isDatasetVisible(0), off: btn.classList.contains("off"), lineThrough: getComputedStyle(btn).textDecorationLine.includes("line-through"), stored: JSON.parse(localStorage.getItem("ft_legend_hidden") || "{}") };
+    });
+    await page.click('#ov-period-group button[data-period="30"]');
+    await page.waitForTimeout(500);
+    const legendAfterRedraw = await page.evaluate(() => ({ visible: window.FinancieOverview._debug.charts.volume.isDatasetVisible(0), off: document.querySelector('#ov-legend-volume .ov-legend-item[data-index="0"]').classList.contains("off") }));
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await waitOverviewReady(page);
+    await page.waitForTimeout(400);
+    const legendAfterReload = await page.evaluate(() => ({ visible: window.FinancieOverview._debug.charts.volume.isDatasetVisible(0), off: document.querySelector('#ov-legend-volume .ov-legend-item[data-index="0"]').classList.contains("off") }));
+    await page.click('#ov-legend-volume .ov-legend-item[data-index="0"]');
+    await page.waitForTimeout(400);
+    const legendBack = await page.evaluate(() => ({ yMax: window.FinancieOverview._debug.charts.volume.scales.y.max, visible: window.FinancieOverview._debug.charts.volume.isDatasetVisible(0) }));
+    await page.click('#ov-legend-volume .ov-legend-item[data-index="1"]');
+    await page.click('#ov-legend-volume .ov-legend-item[data-index="2"]');
+    await page.waitForTimeout(300);
+    await page.click("#ov-legend-volume .ov-legend-all");
+    await page.waitForTimeout(400);
+    const legendAll = await page.evaluate(() => {
+      const ch = window.FinancieOverview._debug.charts.volume;
+      return { allVisible: ch.data.datasets.every((_, i) => ch.isDatasetVisible(i)), stored: localStorage.getItem("ft_legend_hidden"), offCount: document.querySelectorAll("#ov-legend-volume .ov-legend-item.off").length };
+    });
+    const legendOk = legendBefore.items >= 11 && legendBefore.all
+      && legendOff.visible === false && legendOff.off && legendOff.lineThrough && legendOff.yMax < legendBefore.yMax && Array.isArray(legendOff.stored["ov:volume"]) && legendOff.stored["ov:volume"].length === 1
+      && legendAfterRedraw.visible === false && legendAfterRedraw.off
+      && legendAfterReload.visible === false && legendAfterReload.off
+      && legendBack.visible === true
+      && legendAll.allVisible && legendAll.offCount === 0 && !(JSON.parse(legendAll.stored || "{}")["ov:volume"]);
+    // A45（断 v3.1 重1・重2）: 凡例で「その他」を消す→「その他を表示」を OFF→ON で「その他」が出る＝記憶が消えている／記憶の識別子は名前でなく folder
+    await page.evaluate(() => { const b = Array.from(document.querySelectorAll("#ov-legend-volume .ov-legend-item")).find((x) => x.textContent.trim() === "その他"); b.click(); });
+    await page.waitForTimeout(300);
+    const othersHiddenByLegend = await page.evaluate(() => { const ch = window.FinancieOverview._debug.charts.volume; const i = ch.data.datasets.findIndex((d) => d.label === "その他"); return { hidden: !ch.isDatasetVisible(i), stored: (JSON.parse(localStorage.getItem("ft_legend_hidden") || "{}")["ov:volume"] || []) }; });
+    await page.uncheck("#ov-show-others");
+    await page.waitForTimeout(300);
+    await page.check("#ov-show-others");
+    await page.waitForTimeout(500);
+    const othersBack = await page.evaluate(() => { const ch = window.FinancieOverview._debug.charts.volume; const i = ch.data.datasets.findIndex((d) => d.label === "その他"); const st = JSON.parse(localStorage.getItem("ft_legend_hidden") || "{}"); return { visible: ch.isDatasetVisible(i), stored: st["ov:volume"] || [], ids: ch.data.datasets.slice(0, 2).map((d) => d.ftId) }; });
+    record("A45-legend-others-checkbox-and-folder-id", othersHiddenByLegend.hidden && othersHiddenByLegend.stored.includes("その他") && othersBack.visible && !othersBack.stored.includes("その他") && othersBack.ids.every((id) => id && !/[｜（]/.test(id) && id !== "その他"), JSON.stringify({ othersHiddenByLegend, othersBack }));
+    record("A43-legend-toggle-persist-all", legendOk, JSON.stringify({ legendBefore, legendOff: { ...legendOff, stored: undefined }, legendAfterRedraw, legendAfterReload, legendBack, legendAll }));
+    await page.click('#ov-period-group button[data-period="90"]');
+    await page.waitForTimeout(400);
+
+    // A46（07:10 ルク指摘）: メンバー数の増減＝「欠測を除く」（既定）で 2026-06-24 の合計が −1,000 以内・「そのまま」で −15,000 以下・注記に日付・切替を記憶
+    await page.click('#ov-period-group button[data-period="all"]');
+    await page.click('#ov-granularity-group button[data-granularity="day"]');
+    await page.evaluate(() => document.getElementById("ovMembersChart").scrollIntoView({ block: "center" }));
+    await page.waitForFunction(() => { const ch = window.FinancieOverview._debug.charts.members; const st = window.FinancieOverview._debug.state; return ch && ch.data.labels.length === st.endIdx - st.startIdx + 1; }, { timeout: 15000 });
+    await page.waitForTimeout(400);
+    const gapSum = () => page.evaluate(() => {
+      const ch = window.FinancieOverview._debug.charts.members;
+      const i = ch.data.labels.indexOf("2026-06-24");
+      const sum = ch.data.datasets.reduce((s, d) => s + (d.data[i] || 0), 0);
+      return { i, sum: Math.round(sum), mode: window.FinancieOverview._debug.state.gapMode, active: document.querySelector("#ov-gap-mode button.active").getAttribute("data-gap"), note: document.getElementById("ov-gap-note").textContent, yMin: ch.scales.y.min };
+    });
+    const gapExclude = await gapSum();
+    const gapEdges = await page.evaluate(() => {
+      const dbg = window.FinancieOverview._debug;
+      const p = dbg.data.members;
+      const info = dbg.membersGapInfo(p);
+      const di = (s) => p.days.indexOf(s);
+      const sumAt = (rows, d) => p.projects.reduce((s, _, i) => { const a = rows[i][d - 1], b = rows[i][d]; return (typeof a === "number" && typeof b === "number") ? s + (b - a) : s; }, 0);
+      // 戻らずに終わった0ラン（FinancieWebAuth）は埋めない＝落ちた日の値が 0 のまま
+      const wa = p.projects.findIndex((q) => q.name === "FinancieWebAuth");
+      const waRow = p.rows[wa]; let waDrop = -1;
+      for (let d = 1; d < p.days.length; d++) if (waRow[d] === 0 && typeof waRow[d - 1] === "number" && waRow[d - 1] >= 100) { waDrop = d; break; }
+      return {
+        mass: Object.keys(info.massDays).map((d) => p.days[d]),
+        s0912raw: sumAt(p.rows, di("2024-09-12")), s0912fill: sumAt(info.filled, di("2024-09-12")), s0914fill: sumAt(info.filled, di("2024-09-14")),
+        waDropDay: waDrop > 0 ? p.days[waDrop] : null, waNotFilled: waDrop > 0 && info.filled[wa][waDrop] === 0
+      };
+    });
+    await page.click('#ov-gap-mode button[data-gap="raw"]');
+    await page.waitForTimeout(500);
+    const gapRaw = await gapSum();
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await waitOverviewReady(page);
+    await page.evaluate(() => document.getElementById("ovMembersChart").scrollIntoView({ block: "center" }));
+    await page.waitForFunction(() => !!window.FinancieOverview._debug.charts.members, { timeout: 15000 });
+    await page.waitForTimeout(400);
+    const gapPersist = await gapSum();
+    await page.click('#ov-gap-mode button[data-gap="exclude"]');
+    await page.waitForTimeout(400);
+    record("A46b-members-gap-edges", gapEdges.mass.length === 3 && gapEdges.mass.includes("2024-09-12") && gapEdges.mass.includes("2024-09-14") && gapEdges.mass.includes("2026-06-24") && gapEdges.s0912raw <= -40000 && Math.abs(gapEdges.s0912fill) < 2000 && Math.abs(gapEdges.s0914fill) < 2000 && gapEdges.waNotFilled, JSON.stringify(gapEdges));
+    record("A46-members-gap-toggle", gapExclude.i >= 0 && gapExclude.mode === "exclude" && gapExclude.active === "exclude" && gapExclude.sum > -1000 && gapExclude.note.includes("2026/06/24") && gapRaw.mode === "raw" && gapRaw.sum <= -15000 && gapRaw.note.includes("2026/06/24") && gapPersist.mode === "raw" && gapPersist.active === "raw" && gapExclude.yMin > gapRaw.yMin, JSON.stringify({ exclude: { sum: gapExclude.sum, yMin: gapExclude.yMin, note: gapExclude.note.slice(0, 60) }, raw: { sum: gapRaw.sum, yMin: gapRaw.yMin }, persist: gapPersist.mode }));
+    await page.click('#ov-period-group button[data-period="90"]');
+    await page.waitForTimeout(400);
+
     // A39（v3.1 項目6）: 表示文言は「全体市況」。タブ・見出しに出て、画面の文字に「総覧」が残っていない（id・URL・記憶のキーは据え置き）
     const naming = await page.evaluate(() => ({
       tab: document.querySelector('.tab-nav-btn[data-tab="overview-tab"]').textContent.trim(),
@@ -357,7 +484,7 @@ async function run() {
       leftover: document.body.innerText.includes("総覧") || document.title.includes("総覧")
     }));
     record("A39-name-zentai-shikyo", naming.tab === "全体市況" && naming.h2 === "全体市況" && naming.errText.includes("全体市況") && !naming.leftover, JSON.stringify(naming));
-    record("A38-price-index-not-empty", ["all", "365", "90"].every((p) => priceIndex[p].n === 10 && priceIndex[p].empty.length === 0 && priceIndex[p].firstIs100Bad.length === 0), JSON.stringify(priceIndex));
+    record("A38-price-absolute-yen", ["all", "365", "90"].every((p) => priceIndex[p].n === 10 && priceIndex[p].empty.length === 0 && priceIndex[p].mismatch.length === 0 && String(priceIndex[p].yTick).includes("円") && priceIndex[p].yMin === 0 && priceIndex[p].title.includes("円") && !priceIndex[p].title.includes("指数")), JSON.stringify(priceIndex));
     await page.click('#ov-period-group button[data-period="90"]');
     await page.waitForTimeout(300);
 
@@ -472,7 +599,7 @@ async function run() {
     await page.reload({ waitUntil: "domcontentloaded" });
     await waitOverviewReady(page);
     const sizePersist = await page.evaluate(() => { const c = window.FinancieOverview._debug.charts.volume; return { h: c.canvas.closest(".chart-wrapper").getBoundingClientRect().height, active: c.canvas.closest(".chart-card").querySelector(".ov-size-btn.active").getAttribute("data-size") }; });
-    record("A33-chart-size", sizeBefore.active === "m" && sizeBefore.h === 260 && sizeAfter.h === 420 && sizeAfter.area > sizeBefore.area + 100 && sizeAfter.shareH === 260 && JSON.parse(sizeAfter.stored).volume === "l" && sizePersist.h === 420 && sizePersist.active === "l",
+    record("A33-chart-size", sizeBefore.active === "m" && sizeBefore.h === 320 && sizeAfter.h === 460 && sizeAfter.area > sizeBefore.area + 100 && sizeAfter.shareH === 320 && JSON.parse(sizeAfter.stored).volume === "l" && sizePersist.h === 460 && sizePersist.active === "l",
       JSON.stringify({ sizeBefore, sizeAfter, sizePersist }));
     await page.evaluate(() => { localStorage.removeItem("ft_chart_size"); localStorage.removeItem("ft_theme"); });
 
@@ -570,7 +697,50 @@ async function run() {
     await page.click("#volume-cap-toggle");
     await page.waitForTimeout(400);
     const back = await measureVol();
+    // 実寸のまま別の案件へ移り、CNG に戻ると上限つきに戻っている（実寸は案件ごと・断 v3.1 中1）
+    await page.click("#volume-cap-toggle");
+    await page.waitForTimeout(400);
+    await page.click('.project-item[data-folder]:not([data-folder="cryptoninjagames"])');
+    await page.waitForTimeout(800);
+    await page.click('.project-item[data-folder="cryptoninjagames"]');
+    await page.waitForFunction(() => document.getElementById("detail-slug").textContent === "@cryptoninjagames", { timeout: 15000 });
+    await page.waitForTimeout(600);
+    const reset = await measureVol();
+    record("A40-full-scale-resets-per-project", reset.yMax < reset.dataMax && reset.note.includes("▲") && reset.n === vol.all.n, JSON.stringify({ yMax: reset.yMax, n: reset.n, note: reset.note.slice(0, 12) }));
     record("A40-cng-full-scale-toggle", full.yMax >= full.dataMax && full.note.includes("実寸") && back.yMax < back.dataMax && back.note.includes("▲"), JSON.stringify({ full: { yMax: full.yMax, ratio: full.ratio, note: full.note.slice(0, 20) }, back: { yMax: back.yMax, ratio: back.ratio } }));
+    // A44（v3.1 項目3）: 個別ページの「メンバー数＆在庫」と比較ページの4枚もHTMLの凡例＝Chart.js の凡例は出ない・押すと消える・比較は1枚で消すと4枚とも消える
+    const combinedLegend = await page.evaluate(() => {
+      const ch = window.FinancieAdvanced._debug.charts().combined;
+      return { canvasLegend: ch.options.plugins.legend.display, items: document.querySelectorAll("#legend-combined .ov-legend-item").length, all: !!document.querySelector("#legend-combined .ov-legend-all") };
+    });
+    await page.click('#legend-combined .ov-legend-item[data-index="1"]');
+    await page.waitForTimeout(300);
+    const combinedOff = await page.evaluate(() => window.FinancieAdvanced._debug.charts().combined.isDatasetVisible(1));
+    await page.click("#legend-combined .ov-legend-all");
+    await page.waitForTimeout(300);
+    await page.click('.tab-nav-btn[data-tab="compare-tab"]');
+    await page.waitForTimeout(400);
+    const compareItems = await page.$$('.project-item[data-folder]');
+    await compareItems[0].click();
+    await compareItems[1].click();
+    await page.waitForFunction(() => window.FinancieAdvanced._debug.charts().compareVolume && document.querySelectorAll("#legend-compareVolumeChart .ov-legend-item").length === 2, { timeout: 15000 });
+    await page.click('#legend-comparePriceChart .ov-legend-item[data-index="0"]');
+    await page.waitForTimeout(400);
+    const compareOff = await page.evaluate(() => ({
+      volumeHidden: window.FinancieAdvanced._debug.charts().compareVolume.isDatasetVisible(0) === false,
+      offMarks: ["comparePriceChart", "compareVolumeChart", "compareMembersChart", "compareStockChart"].map((id) => document.querySelector(`#legend-${id} .ov-legend-item[data-index="0"]`).classList.contains("off")),
+      canvasLegend: window.FinancieAdvanced._debug.charts().compareVolume.options.plugins.legend.display
+    }));
+    await page.click("#legend-compareVolumeChart .ov-legend-all");
+    await page.waitForTimeout(300);
+    const compareBack = await page.evaluate(() => ["comparePriceChart", "compareStockChart"].every((id) => document.querySelectorAll(`#legend-${id} .ov-legend-item.off`).length === 0));
+    record("A44-legend-single-compare", combinedLegend.canvasLegend === false && combinedLegend.items === 2 && combinedLegend.all && combinedOff === false && compareOff.volumeHidden && compareOff.offMarks.every(Boolean) && compareOff.canvasLegend === false && compareBack, JSON.stringify({ combinedLegend, combinedOff, compareOff, compareBack }));
+    await page.click('.tab-nav-btn[data-tab="single-tab"]');
+    await page.waitForTimeout(300);
+    await page.click('.project-item[data-folder="cryptoninjagames"]');
+    await page.waitForFunction(() => document.getElementById("detail-slug").textContent === "@cryptoninjagames", { timeout: 15000 });
+    await page.waitForTimeout(400);
+
     // A41（v3.1 項目4）: 個別ページのプロジェクト名の横に本家へのリンク（新しいタブ・noopener・「FiNANCiEで見る」＋印）
     const pjLink = await page.evaluate(() => {
       const a = document.getElementById("detail-financie-link");
@@ -722,8 +892,10 @@ async function run() {
     // 同じことを開始日側で（開始に終了より後の日を打つ）
     await page.click('#ov-period-group button[data-period="90"]');
     await page.waitForTimeout(300);
+    // 打つ日＝データの最終日（毎晩データが増えるので直書きしない）
+    const lastDay = await page.evaluate(() => { const d = window.FinancieOverview._debug.data.market.days; return d[d.length - 1]; });
     await page.focus("#ov-start-date");
-    await page.keyboard.type("20260912");
+    await page.keyboard.type(lastDay.replace(/-/g, ""));
     await page.click("#ov-kpi-grid"); // Enter ではなく「別の場所を押す」（フォーカスが外れる）でも確定する
     await page.waitForTimeout(400);
     const tabCommit = await page.evaluate(() => {
@@ -731,7 +903,7 @@ async function run() {
       const d = window.FinancieOverview._debug.data.market.days;
       return { inputs: [document.getElementById("ov-start-date").value, document.getElementById("ov-end-date").value], state: [d[s.startIdx], d[s.endIdx]], nDays: s.endIdx - s.startIdx + 1 };
     });
-    record("A37-blur-commit", tabCommit.inputs[0] === "2026-09-12" && tabCommit.inputs[1] === "2026-09-12" && tabCommit.state[0] === "2026-09-12" && tabCommit.nDays === 1, JSON.stringify(tabCommit));
+    record("A37-blur-commit", tabCommit.inputs[0] === lastDay && tabCommit.inputs[1] === lastDay && tabCommit.state[0] === lastDay && tabCommit.nDays === 1, `lastDay=${lastDay} ${JSON.stringify(tabCommit)}`);
     await context.close();
   }
 

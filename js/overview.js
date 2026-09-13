@@ -1,5 +1,5 @@
 /* ============================================================
- * FiNANCiE TIMES 総覧タブ（Dune型ダッシュボード） v3.0.0
+ * FiNANCiE TIMES 全体市況タブ（Dune型ダッシュボード） v3.1.1
  *
  * advanced.js が読み込まれたあとに読み込まれる想定（同じドキュメント内の
  * 別スクリプトなので、トップレベルの let/const は共有される）。
@@ -9,7 +9,7 @@
 (function () {
   "use strict";
 
-  const OV_APP_VERSION = "3.0.0";
+  const OV_APP_VERSION = "3.1.1";
 
   // 出来高の単位＝「円」（2026-09-12 21:30 ルク決定・本家 financie.jp が円表示のため）。
   // ラベルの定義はここ1か所だけ（A12）。切り替えるときはこの1行だけ直せばよい。
@@ -38,9 +38,10 @@
   };
 
   // 1〜10位は見分けのつく10色。11位以降は同じ青系で明るさだけ変える（同じ色が2本出ない・中6）。
+  // 10色は色相を離して取る（旧配色はオレンジ2本・緑〜シアン3本が近くて凡例と線が結び付かなかった＝エマ v3.1 中4）
   const OV_COLORS = [
-    "#2563eb", "#10b981", "#f59e0b", "#f87171", "#7c3aed",
-    "#ec4899", "#06b6d4", "#f97316", "#14b8a6", "#a3e635"
+    "#2563eb", "#f97316", "#16a34a", "#dc2626", "#7c3aed",
+    "#db2777", "#0891b2", "#a3e635", "#b45309", "#94a3b8"
   ];
   const OV_OTHER_COLOR = "#6b7280";
 
@@ -101,7 +102,7 @@
    * グラフの高さ：各グラフ右上の「小／中／大」（既定＝中）・グラフごとに localStorage に記憶（ルク要望2）
    * ------------------------------------------------------------ */
   const SIZE_KEY = "ft_chart_size";
-  const CHART_SIZES = { s: { pc: 180, sp: 160 }, m: { pc: 260, sp: 240 }, l: { pc: 420, sp: 360 } };
+  const CHART_SIZES = { s: { pc: 200, sp: 160 }, m: { pc: 320, sp: 240 }, l: { pc: 460, sp: 360 } }; // 中＝320（横長1列で 260 は薄い＝エマ v3.1 軽9）
   let chartSizes = {};
   try { chartSizes = JSON.parse(localStorage.getItem(SIZE_KEY) || "{}") || {}; } catch (e) { chartSizes = {}; }
 
@@ -133,6 +134,10 @@
   };
   const SHARE_VIEW_KEY = "ft_share_view";
   try { if (localStorage.getItem(SHARE_VIEW_KEY) === "donut") ovState.shareView = "donut"; } catch (e) { /* 記憶なし */ }
+  // メンバー数の増減：欠測・一斉変動の日の扱い 'exclude'（既定・除く）／'raw'（そのまま）＝2026-09-13 07:10 ルク指摘
+  ovState.gapMode = "exclude";
+  const GAP_MODE_KEY = "ft_gap_mode";
+  try { if (localStorage.getItem(GAP_MODE_KEY) === "raw") ovState.gapMode = "raw"; } catch (e) { /* 記憶なし */ }
 
   const ovData = {}; // { volume: {days,projects,rows,folderIndex}, market: {...}, ... }
   const ovCharts = { volume: null, share: null, price: null, members: null };
@@ -428,7 +433,7 @@
     if (dom.meta) dom.meta.textContent = `非公式・${count}プロジェクト・記録 ${fmtDateJa(first)}〜${fmtDateJa(latest)}（毎日1回）・それ以前のデータは持っていません（FiNANCiE 自体はそれ以前からあるサービスです）`;
     if (dom.kpiTotalLabel) dom.kpiTotalLabel.textContent = `期間の全体出来高（${OVERVIEW_CONFIG.volumeUnitLabel}）`;
     if (dom.kpiShareLabel) dom.kpiShareLabel.textContent = `上位${n}のシェア`;
-    if (dom.panelDTitle) dom.panelDTitle.textContent = `価格の推移（上位${n}・期間内で最初に値が付いた日=100の指数）`;
+    if (dom.panelDTitle) dom.panelDTitle.textContent = `価格の推移（上位${n}・円）`;
   }
 
   function renderKPIs(topRanked) {
@@ -486,32 +491,23 @@
 
   const NO_CANVAS_LEGEND = { display: false };
 
+  // 縦軸の余白＝表示中の系列で上下限を取ったあとに 6% 足す（grace は目盛りの丸めに飲まれて 3.6% になった＝エマ v3.1 中5）。
+  // 凡例で系列を消したときは Chart.js が残りで上下限を取り直すので、この余白も追随する。
+  function axisHeadroom(scale) {
+    const span = scale.max - scale.min;
+    if (!(span > 0)) return;
+    if (scale.max > 0) scale.max += span * 0.06;
+    if (scale.min < 0) scale.min -= span * 0.06;
+  }
+
   // Chart.js の凡例はキャンバスの描画域を食う（スマホで描画域が9〜22pxに潰れた・重1）。
-  // 代わりにカードの下へHTMLの凡例を出す。項目を押すと系列の表示/非表示を切り替える。
+  // 代わりにカードの下へHTMLの凡例を出す（js/chart-legend.js＝全グラフ共通・v3.1 項目3：
+  // 押して出し入れ・縦軸は残った系列で再計算・「全部出す」・消した状態は描き直しても再読み込みしても保つ）。
   function renderHtmlLegend(chartKey) {
     const chart = ovCharts[chartKey];
     const box = dom.legends[chartKey];
-    if (!chart || !box) return;
-    const items = box.querySelector(".ov-legend-items");
-    const summary = box.querySelector("summary");
-    const isDonut = chart.config.type === "doughnut";
-    // 円グラフは1系列の中のスライスごと、それ以外は系列ごと
-    const entries = isDonut
-      ? chart.data.labels.map((label, i) => ({ label, color: chart.data.datasets[0].backgroundColor[i], visible: chart.getDataVisibility(i) }))
-      : chart.data.datasets.map((ds, i) => ({ label: ds.label, color: ds.backgroundColor === "transparent" ? ds.borderColor : ds.backgroundColor, visible: chart.isDatasetVisible(i) }));
-    if (summary) summary.textContent = `凡例（${entries.length}）`;
-    items.innerHTML = entries.map((en, i) => `<button type="button" class="ov-legend-item${en.visible ? "" : " off"}" data-index="${i}" aria-pressed="${en.visible}"><span class="ov-legend-swatch" style="background:${en.color}"></span>${escapeHtml(en.label)}</button>`).join("");
-    items.querySelectorAll(".ov-legend-item").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const i = Number(btn.getAttribute("data-index"));
-        let nowVisible;
-        if (isDonut) { chart.toggleDataVisibility(i); nowVisible = chart.getDataVisibility(i); }
-        else { nowVisible = !chart.isDatasetVisible(i); chart.setDatasetVisibility(i, nowVisible); }
-        chart.update();
-        btn.classList.toggle("off", !nowVisible);
-        btn.setAttribute("aria-pressed", String(nowVisible));
-      });
-    });
+    if (!chart || !box || !window.FtLegend) return;
+    window.FtLegend.render(chart, box, `ov:${chartKey}`);
   }
 
   /* ------------------------------------------------------------
@@ -554,6 +550,7 @@
 
     const datasetsA = series.map((s, i) => ({
       label: s.name,
+      ftId: s.folder,
       data: s.data,
       backgroundColor: ovColor(i),
       stack: "vol"
@@ -563,7 +560,8 @@
       data: othersData,
       backgroundColor: OV_OTHER_COLOR,
       stack: "vol",
-      hidden: !ovState.showOthers
+      hidden: !ovState.showOthers,
+      ftLocked: !ovState.showOthers // 「その他を表示」で隠したときは凡例の記憶・「全部出す」の対象にしない
     });
 
     if (ovCharts.volume) ovCharts.volume.destroy();
@@ -580,7 +578,8 @@
         },
         scales: {
           x: { stacked: true, ticks: xTicksOptions(shortLabels), grid: { color: chartColors().gridX } },
-          y: { stacked: true, ticks: { color: chartColors().tick }, grid: { color: chartColors().gridY } }
+          // 余白（afterDataLimits）＝いちばん高い棒の上に 6%。最大月 448.4M に対し軸の上限が 450M で、棒が天井に触れて切れて見えた（06:45 ルク指摘）
+          y: { stacked: true, afterDataLimits: axisHeadroom, ticks: { color: chartColors().tick }, grid: { color: chartColors().gridY } }
         }
       }
     });
@@ -600,6 +599,7 @@
     });
     const shareDatasets = series.map((s, i) => ({
       label: s.name,
+      ftId: s.folder,
       data: s.data.map((v, bi) => bucketTotals[bi] > 0 ? (v / bucketTotals[bi]) * 100 : 0),
       backgroundColor: ovColor(i),
       stack: "share"
@@ -609,7 +609,8 @@
       data: othersData.map((v, bi) => bucketTotals[bi] > 0 ? (v / bucketTotals[bi]) * 100 : 0),
       backgroundColor: OV_OTHER_COLOR,
       stack: "share",
-      hidden: !ovState.showOthers
+      hidden: !ovState.showOthers,
+      ftLocked: !ovState.showOthers // 「その他を表示」で隠したときは凡例の記憶・「全部出す」の対象にしない
     });
 
     if (ovCharts.share) ovCharts.share.destroy();
@@ -637,10 +638,12 @@
   function renderShareDonut(series, othersData) {
     const totals = series.map((s) => s.data.reduce((a, b) => a + b, 0));
     const labels = series.map((s) => s.name);
+    const ids = series.map((s) => s.folder); // 凡例の記憶の識別子（棒グラフと共通＝同じ案件を同じ記憶で出し入れ）
     const colors = series.map((_, i) => ovColor(i));
     if (ovState.showOthers) {
       totals.push(othersData.reduce((a, b) => a + b, 0));
       labels.push("その他");
+      ids.push("その他");
       colors.push(OV_OTHER_COLOR);
     }
     const grand = totals.reduce((a, b) => a + b, 0);
@@ -650,7 +653,7 @@
     const ctx = document.getElementById("ovShareChart").getContext("2d");
     ovCharts.share = new Chart(ctx, {
       type: "doughnut",
-      data: { labels, datasets: [{ data: totals, backgroundColor: colors, borderColor: currentTheme() === "light" ? "#ffffff" : "#131A26", borderWidth: 1 }] },
+      data: { labels, datasets: [{ data: totals, ftIds: ids, backgroundColor: colors, borderColor: currentTheme() === "light" ? "#ffffff" : "#131A26", borderWidth: 1 }] },
       options: {
         responsive: true,
         maintainAspectRatio: false,
@@ -872,7 +875,7 @@
   }
 
   /* ------------------------------------------------------------
-   * パネル D: 価格の推移（上位N・期間内で最初に値が付いた日=100の指数）
+   * パネル D: 価格の推移（上位N・円の絶対値）
    * ------------------------------------------------------------ */
   function renderPanelD(topFolders) {
     ensureMetricLoaded("price").then((payload) => {
@@ -884,19 +887,16 @@
       const datasets = topN.map((tf, i) => {
         const idx = payload.folderIndex[tf.folder];
         const row = idx !== undefined ? payload.rows[idx] : null;
-        // 基準＝期間内で最初に価格が 0 より大きい日。上位案件は記録の初日が価格 0 のことが多く、
-        // 「最初に null でない日」を基準にすると 0 除算で全点が消えた（v3.1 項目2）。
-        // 価格 0 以下は「値が付いていない日」として線を途切れさせず飛ばす。
-        let base = null;
+        // 価格の絶対値（円）。指数（期間初日=100）は 2026-09-13 06:43 ルク指示で絶対値へ変更。
+        // 価格 0 以下は「値が付いていない日」として null（線は spanGaps でつなぐ）。桁の違う案件は凡例で出し入れして読む（項目3）。
         const data = [];
         for (let d = ovState.startIdx; d <= ovState.endIdx; d++) {
           const v = row ? row[d] : null;
-          const priced = typeof v === "number" && v > 0;
-          if (priced && base === null) base = v;
-          data.push(priced && base !== null ? (v / base) * 100 : null);
+          data.push(typeof v === "number" && v > 0 ? v : null);
         }
         return {
           label: tf.name,
+          ftId: tf.folder,
           data,
           borderColor: ovColor(i),
           backgroundColor: "transparent",
@@ -917,11 +917,11 @@
           maintainAspectRatio: false,
           plugins: {
             legend: NO_CANVAS_LEGEND,
-            tooltip: { mode: "index", intersect: false }
+            tooltip: { mode: "index", intersect: false, callbacks: { label: (item) => `${item.dataset.label}: ${fmtFloat(item.raw, 2)} 円` } }
           },
           scales: {
             x: { ticks: xTicksOptions(shortLabels), grid: { color: chartColors().gridX } },
-            y: { ticks: { color: chartColors().tick }, grid: { color: chartColors().gridY } }
+            y: { min: 0, afterDataLimits: axisHeadroom, ticks: { color: chartColors().tick, callback: (v) => `${fmtFloat(v, Number.isInteger(v) ? 0 : 2)} 円` }, grid: { color: chartColors().gridY } }
           }
         }
       });
@@ -932,20 +932,94 @@
   /* ------------------------------------------------------------
    * パネル E: メンバー数の増減（日ごとの純増・上位N＋その他の積み上げ）
    * ------------------------------------------------------------ */
+  // 欠測・一斉変動の日（2026-09-13 ルク指摘＝06/24 に「その他」が −15,611 で縦軸が潰れた）。
+  //  ①0落ち：直前が GAP_ZERO_MIN 以上で 0 になった日は欠測＝前の値で埋める（分析タブ仕様メモ §4）
+  //  ②一斉変動：GAP_MASS_MIN 以上の案件が同じ日に同じ向きへ GAP_MASS_STEP 以上動いた日（本家側の再集計の跡・
+  //    実測＝2026-06-24 は45案件がそろって約−100・2024-09-12 は211案件が0→09-14 に復帰）は、その日の増減を全案件 0 にする
+  const GAP_ZERO_MIN = 100;
+  const GAP_MASS_MIN = 20;
+  const GAP_MASS_STEP = 100;
+  let gapCache = null; // { filled: rows（①適用後）, massDays: {dayIdx: {count, sign}} }
+
+  function membersGapInfo(payload) {
+    if (gapCache && gapCache.payload === payload) return gapCache;
+    const n = payload.days.length;
+    // ①「0に落ちて後で戻った」区間だけ前の値で埋める。戻らずに終わった（null か 0 のまま最終日）区間は埋めない＝
+    //   案件の終了・追跡終了は本物の減少として残す（断 v3.1 欠測切替 重2：無条件に埋めると361日の0ランまで横ばいになった）
+    const filled = payload.rows.map((row) => {
+      const out = row.slice();
+      let d = 1;
+      while (d < n) {
+        const prev = out[d - 1];
+        if (out[d] === 0 && typeof prev === "number" && prev >= GAP_ZERO_MIN) {
+          let e = d;
+          while (e < n && out[e] === 0) e++;
+          const recovered = e < n && typeof out[e] === "number" && out[e] > 0;
+          if (recovered) for (let k = d; k < e; k++) out[k] = prev;
+          d = e;
+        } else {
+          d++;
+        }
+      }
+      return out;
+    });
+    const massDays = {};
+    for (let d = 1; d < n; d++) {
+      let down = 0, up = 0;
+      payload.rows.forEach((row) => {
+        const a = row[d - 1], b = row[d];
+        if (typeof a !== "number" || typeof b !== "number") return;
+        if (b - a <= -GAP_MASS_STEP) down++; else if (b - a >= GAP_MASS_STEP) up++;
+      });
+      if (down >= GAP_MASS_MIN) massDays[d] = { count: down, sign: -1 };
+      else if (up >= GAP_MASS_MIN) massDays[d] = { count: up, sign: 1 };
+    }
+    gapCache = { payload, filled, massDays };
+    return gapCache;
+  }
+
+  // その案件が d 日に、一斉変動と同じ向きへ動いたか（記録の生の値で判定・大きさは問わない）。
+  // 2026-06-24 の再集計は −1〜−2,741 まで連続的（比率で削られている）で、しきい値では切り分けられない
+  // （100人以上だけ 0 にすると −5,468 が残る・実測）。逆向き（本物の増加）は残す。
+  function isMassMove(rawRow, d, sign) {
+    const a = rawRow[d - 1], b = rawRow[d];
+    if (typeof a !== "number" || typeof b !== "number") return false;
+    return sign < 0 ? b - a < 0 : b - a > 0;
+  }
+
+  function renderGapNote() {
+    const el = document.getElementById("ov-gap-note");
+    if (!el || !ovData.members) return;
+    const info = membersGapInfo(ovData.members);
+    const days = ovData.members.days;
+    const inRange = Object.keys(info.massDays).map(Number).filter((d) => d >= ovState.startIdx && d <= ovState.endIdx).sort((a, b) => a - b);
+    const list = inRange.map((d) => `${fmtDateJa(days[d])}（${info.massDays[d].count}案件が同時に${info.massDays[d].sign < 0 ? "減" : "増"}）`).join("・");
+    if (ovState.gapMode === "raw") {
+      el.textContent = `記録された値の差をそのまま出しています。${inRange.length > 0 ? `期間内の一斉変動の日＝${list}。この日は本家側の再集計やページ消失の跡で、実際の退会・入会ではありません。` : ""}`;
+    } else {
+      el.textContent = `欠測を除いています＝0に落ちて後で戻った日は前の値で埋め、多数の案件が同じ日に同じ向きに動いた日（一斉の再集計）はその向きの増減を0にしています${inRange.length > 0 ? `（期間内 ${inRange.length}日＝${list}）` : "（期間内に該当日なし）"}。「そのまま」で記録どおりの値に切り替えられます。`;
+    }
+  }
+
   function renderPanelE(topFolders) {
     ensureMetricLoaded("members").then((payload) => {
       const buckets = buildBuckets();
       const topN = topFolders.slice(0, ovState.topN);
+      const exclude = ovState.gapMode !== "raw";
+      const gap = exclude ? membersGapInfo(payload) : null;
+      const rowsUsed = exclude ? gap.filled : payload.rows;
 
       // 期間開始日の1日前が要る（純増の差分計算のため）。無ければ最初の日はnull扱い。
       function netAddRow(folder) {
         const idx = payload.folderIndex[folder];
         if (idx === undefined) return {};
-        const row = payload.rows[idx];
+        const row = rowsUsed[idx];
         const net = {};
         for (let d = ovState.startIdx; d <= ovState.endIdx; d++) {
           if (d === 0 || row[d] === null || row[d - 1] === null || row[d] === undefined || row[d - 1] === undefined) {
             net[d] = null;
+          } else if (exclude && gap.massDays[d] && isMassMove(payload.rows[idx], d, gap.massDays[d].sign)) {
+            net[d] = 0; // ②一斉変動の日は、その向きの増減を 0（逆向きの本物の増減は残す＝断 重1）
           } else {
             net[d] = row[d] - row[d - 1];
           }
@@ -960,8 +1034,9 @@
           b.indices.forEach((di) => { if (net[di] !== null && net[di] !== undefined) { s += net[di]; has = true; } });
           return has ? s : 0;
         });
-        return { name: tf.name, data };
+        return { name: tf.name, folder: tf.folder, data };
       });
+      renderGapNote();
 
       // その他 = 上位N以外の全プロジェクトの純増合計
       const topFolderSet = new Set(topN.map((t) => t.folder));
@@ -979,6 +1054,7 @@
       const shortLabels = buckets.map((b) => b.short);
       const datasets = series.map((s, i) => ({
         label: s.name,
+        ftId: s.folder,
         data: s.data,
         backgroundColor: ovColor(i),
         stack: "members"
@@ -988,7 +1064,8 @@
         data: othersData,
         backgroundColor: OV_OTHER_COLOR,
         stack: "members",
-        hidden: !ovState.showOthers
+        hidden: !ovState.showOthers,
+      ftLocked: !ovState.showOthers // 「その他を表示」で隠したときは凡例の記憶・「全部出す」の対象にしない
       });
 
       if (ovCharts.members) ovCharts.members.destroy();
@@ -1005,7 +1082,7 @@
           },
           scales: {
             x: { stacked: true, ticks: xTicksOptions(shortLabels), grid: { color: chartColors().gridX } },
-            y: { stacked: true, ticks: { color: chartColors().tick }, grid: { color: chartColors().gridY } }
+            y: { stacked: true, afterDataLimits: axisHeadroom, ticks: { color: chartColors().tick }, grid: { color: chartColors().gridY } }
           }
         }
       });
@@ -1259,6 +1336,8 @@
 
     dom.showOthers.addEventListener("change", () => {
       ovState.showOthers = dom.showOthers.checked;
+      // 入れ直したら「その他」は必ず出す（凡例で消した記憶が残って食い違わないように・断 v3.1 重1）
+      if (ovState.showOthers && window.FtLegend) window.FtLegend.forget(["ov:volume", "ov:share", "ov:members"], "その他");
       const topFolders = computeTopNVolumeFolders();
       renderPanelAB(topFolders);
       if (ovState.panelEReady) renderPanelE(topFolders);
@@ -1268,6 +1347,20 @@
 
     if (dom.errorReload) {
       dom.errorReload.addEventListener("click", () => window.location.reload());
+    }
+
+    // メンバー数の増減：欠測を除く／そのまま（記憶・ルク指摘 07:10）
+    const gapGroup = document.getElementById("ov-gap-mode");
+    if (gapGroup) {
+      setActive(gapGroup, "data-gap", ovState.gapMode);
+      gapGroup.querySelectorAll("button[data-gap]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          ovState.gapMode = btn.getAttribute("data-gap") === "raw" ? "raw" : "exclude";
+          try { localStorage.setItem(GAP_MODE_KEY, ovState.gapMode); } catch (e) { /* 記憶できなくても動く */ }
+          setActive(gapGroup, "data-gap", ovState.gapMode);
+          if (ovState.panelEReady) renderPanelE(computeTopNVolumeFolders());
+        });
+      });
     }
 
     if (dom.shareView) {
@@ -1330,6 +1423,6 @@
     onShow,
     OVERVIEW_CONFIG,
     // 検査用（tests/check_overview.js から参照）。本番の見た目には影響しない。
-    _debug: { state: ovState, charts: ovCharts, data: ovData, ovColor, isMobile, applyTheme, currentTheme, chartSizeOf, CHART_SIZES }
+    _debug: { state: ovState, charts: ovCharts, data: ovData, membersGapInfo, ovColor, isMobile, applyTheme, currentTheme, chartSizeOf, CHART_SIZES }
   };
 })();

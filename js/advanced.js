@@ -1,5 +1,5 @@
 
-  const APP_VERSION = "3.0.0";
+  const APP_VERSION = "3.1.1";
   console.info("FiNANCiE TIMES v" + APP_VERSION);
 
   let projectsList = [];
@@ -65,7 +65,9 @@
   const btnNextDay = document.getElementById("btn-next-day");
   const btnLatestDay = document.getElementById("btn-latest-day");
   const travelDatePicker = document.getElementById("travel-date-picker");
-  const sortTabButtons = document.querySelectorAll(".sort-tab-btn");
+  // 日付別ランキングの並べ替え釦だけを拾う（全体市況の期間・粒度・上位・指標の釦も .sort-tab-btn を持つため、
+  // クラスだけで拾うと全体市況で押したときに travelSort が null になり、並びがメンバー増加数順に落ちていた＝2026-09-13 ルク 08:36）
+  const sortTabButtons = document.querySelectorAll(".sort-criteria-group .sort-tab-btn[data-sort]");
   const historicRankingTbody = document.getElementById("historic-ranking-tbody");
   const btnLoadMoreDaily = document.getElementById("btn-load-more-daily");
   const travelInfo = document.getElementById("travel-info");
@@ -338,6 +340,7 @@
   // プロジェクト選択処理 (個別モード用)
   function selectProject(folder) {
     currentProjectFolder = folder;
+    volumeFullScale = false; // 「実寸で見る」は案件ごと（別の案件へ移ったら上限つきに戻す・断 v3.1 中1）
     
     // サイドバーのactive切り替え
     const items = projectListContainer.querySelectorAll(".project-item");
@@ -418,7 +421,7 @@
     metricVolume.textContent = `${formatFloat(latest.volume, 2)} 円`;
     
     // 累計取引量
-    metricVolumeSub.textContent = `累計取引量: ${formatFloat(latest.volume, 2)} 円`;
+    metricVolumeSub.textContent = `累計出来高: ${formatFloat(latest.volume, 2)} 円`;
 
     // メンバー数
     metricMembers.textContent = `${formatNumber(latest.members)} 人`;
@@ -572,7 +575,7 @@
     const volumeOptions = getCommonOptions();
     volumeOptions.plugins.tooltip.callbacks = {
       title: (items) => (items.length && data[items[0].dataIndex] ? fmtYmd(data[items[0].dataIndex].date) : ""),
-      label: (item) => `24H 取引量: ${formatFloat(item.raw, 2)} 円${capOn && item.raw > volumeCap.cap ? "（縦軸の上限を超えています）" : ""}`
+      label: (item) => `24H 出来高: ${formatFloat(item.raw, 2)} 円${capOn && item.raw > volumeCap.cap ? "（縦軸の上限を超えています）" : ""}`
     };
     if (capOn) {
       volumeOptions.scales.y.min = 0;
@@ -585,7 +588,7 @@
       data: {
         labels: labels,
         datasets: [{
-          label: '24H 取引量',
+          label: '24H 出来高',
           data: volumes,
           backgroundColor: volumeGradient,
           borderRadius: 4,
@@ -633,13 +636,7 @@
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: {
-            position: 'top',
-            labels: {
-              color: chartTextColor(),
-              font: { family: 'Outfit, sans-serif' }
-            }
-          },
+          legend: { display: false }, // 凡例はカードの下のHTML（js/chart-legend.js・v3.1 項目3）
           tooltip: {
             mode: 'index',
             intersect: false
@@ -675,6 +672,7 @@
         }
       }
     });
+    if (window.FtLegend) window.FtLegend.render(combinedChart, document.getElementById("legend-combined"), "single:combined");
   }
 
   // 共通のグラフ設定オプション
@@ -844,6 +842,7 @@
 
       const commonConfig = {
         label: projData.name,
+        ftId: projData.folder || selectedCompareFolders[index], // 凡例の記憶の識別子（同名の案件があるため名前では区別しない）
         borderColor: color,
         backgroundColor: color,
         borderWidth: 2,
@@ -891,6 +890,20 @@
       data: { labels: labels, datasets: stockDatasets },
       options: getCommonCompareOptions("トークン在庫 (個)")
     });
+    renderCompareLegends();
+  }
+
+  // 比較の4枚は同じ案件の集まりなので、凡例の記憶キーを1つ共有する＝1枚で消すと4枚とも消える（v3.1 項目3）
+  function renderCompareLegends() {
+    if (!window.FtLegend) return;
+    const pairs = [
+      [comparePriceChart, "legend-comparePriceChart"],
+      [compareVolumeChart, "legend-compareVolumeChart"],
+      [compareMembersChart, "legend-compareMembersChart"],
+      [compareStockChart, "legend-compareStockChart"]
+    ];
+    const syncAll = () => pairs.forEach(([ch, id]) => window.FtLegend.render(ch, document.getElementById(id), "compare", { onChange: syncAll }));
+    syncAll();
   }
 
   function getCommonCompareOptions(yTitle) {
@@ -898,14 +911,7 @@
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          position: 'top',
-          labels: {
-            color: chartTextColor(),
-            font: { size: 11, family: 'Outfit, sans-serif' },
-            boxWidth: 12
-          }
-        },
+        legend: { display: false }, // 凡例はカードの下のHTML（js/chart-legend.js・v3.1 項目3）
         tooltip: {
           mode: 'index',
           intersect: false,
@@ -1063,11 +1069,13 @@
     }
 
     const sorted = [...dailyData];
-    if (travelSort === "volume") {
-      sorted.sort((a, b) => b.volume_24h - a.volume_24h);
-    } else {
-      sorted.sort((a, b) => b.members_diff - a.members_diff);
-    }
+    // 数でない値（null・文字列）は最後へ。NaN で並びが崩れないように比較する
+    const sortKey = travelSort === "members" ? "members_diff" : "volume_24h";
+    const num = (v) => (typeof v === "number" && isFinite(v) ? v : Number.NEGATIVE_INFINITY);
+    sorted.sort((a, b) => {
+      const x = num(a[sortKey]), y = num(b[sortKey]);
+      return x === y ? 0 : (y > x ? 1 : -1);
+    });
 
     const limit = showAllDaily ? sorted.length : 20;
     const listToRender = sorted.slice(0, limit);
@@ -1091,7 +1099,7 @@
       const volumeK = Math.round(item.volume_24h / 1000);
       const volumeKDiff = Math.round(item.volume_24h_diff / 1000);
       
-      const tdVolumeVal = `<td class="text-right bold-text" data-label="出来高 24h［千円］">${formatNumber(volumeK)}</td>`;
+      const tdVolumeVal = `<td class="text-right bold-text" data-label="24H 出来高［千円］">${formatNumber(volumeK)}</td>`;
       const tdVolumeDiff = `<td class="text-left ${getDiffClass(volumeKDiff)}" data-label="前日比">${formatDiffText(volumeKDiff)}</td>`;
 
       const basePriceDiffPct = basePrice > 0 ? (item.price_diff / basePrice) * 100 : 0;
@@ -1236,7 +1244,7 @@
             <span>${item.name}</span>
           </a>
         </td>
-        <td class="text-right bold-text" style="font-size: 14px; padding-right: 2rem;" data-label="期間総取引量［円］">${formatFloat(item.total_volume, 2)} 円</td>
+        <td class="text-right bold-text" style="font-size: 14px; padding-right: 2rem;" data-label="期間総出来高［円］">${formatFloat(item.total_volume, 2)} 円</td>
       `;
 
       tr.querySelector(".table-pj-link").addEventListener("click", (e) => {
@@ -1360,11 +1368,10 @@
   });
 
   sortTabButtons.forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      sortTabButtons.forEach(b => b.classList.remove("active"));
-      e.target.classList.add("active");
-      
-      travelSort = e.target.getAttribute("data-sort");
+    btn.addEventListener("click", () => {
+      // 押した釦そのもの（e.target は中の要素になりうる）・値は2つだけ受け付ける
+      travelSort = btn.getAttribute("data-sort") === "members" ? "members" : "volume";
+      sortTabButtons.forEach(b => b.classList.toggle("active", b.getAttribute("data-sort") === travelSort));
       renderDailyTable();
     });
   });
