@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>合体｜画面イメージ（PC 1280）</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #f5f5f5; font-family: 'Geist', 'Hiragino Sans', sans-serif; color: #2d3142; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 24px; }
+  h1 { font-family: 'Instrument Serif', 'Hiragino Mincho ProN', serif; font-weight: 400; font-size: 28px; margin: 0 0 4px; }
+  .eyebrow { font-family: 'Geist Mono', 'Hiragino Sans', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #7a8399; }
+  svg { width: 100%; height: auto; display: block; margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">FiNANCiE TIMES Web · 全体市況と分析の合体 v3.2.0 · 画面イメージ（PC 1280）</div>
+  <h1>タブは1つ。上の操作帯が全部の図に効き、箱ごとに見せ方を切り替える</h1>
+  <svg viewBox="0 0 960 880" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ms-title ms-desc" font-family="'Geist', 'Hiragino Sans', sans-serif">
+    <title id="ms-title">合体後の全体市況タブの画面イメージ</title>
+    <desc id="ms-desc">ヘッダーにタブとテーマ・縦横の切替。その下に期間・開始終了・粒度・上位・その他と、全図共通の「欠測・一斉変動の日」切替を持つ操作帯。続いて結論のKPI5枚と自動文3行、機運の5指標の表、出来高・シェア・ランキング・価格・メンバーの箱が縦1列に並び、各箱の右上に見せ方の釦がある。</desc>
+    <rect width="960" height="880" fill="#f5f5f5"/>
+
+    <!-- ブラウザ枠 -->
+    <rect x="40" y="24" width="880" height="800" rx="6" fill="#ffffff" stroke="#bfc0c0"/>
+
+    <!-- ヘッダー -->
+    <rect x="40" y="24" width="880" height="40" rx="6" fill="#2d3142" fill-opacity="0.06"/>
+    <text x="56" y="48" font-size="12" font-weight="600" fill="#2d3142">FiNANCiE TIMES</text>
+    <g font-size="8" fill="#4f5d75" text-anchor="middle">
+      <rect x="172" y="34" width="64" height="20" rx="10" fill="#2d3142" fill-opacity="0.12"/>
+      <text x="204" y="48" fill="#2d3142" font-weight="600">全体市況</text>
+      <text x="268" y="48">分析（当面）</text>
+      <text x="340" y="48">個別プロジェクト</text>
+      <text x="408" y="48">複数比較</text>
+      <text x="456" y="48">日付別</text>
+      <text x="508" y="48">月次・累計</text>
+      <rect x="720" y="34" width="88" height="20" rx="4" fill="none" stroke="#bfc0c0"/>
+      <text x="764" y="48">ライト｜ダーク</text>
+      <rect x="816" y="34" width="88" height="20" rx="4" fill="none" stroke="#bfc0c0"/>
+      <text x="860" y="48">縦1列｜横2列</text>
+    </g>
+
+    <!-- 共通の操作帯 -->
+    <rect x="56" y="76" width="848" height="60" rx="4" fill="#2d3142" fill-opacity="0.04" stroke="#2d3142" stroke-opacity="0.12"/>
+    <g font-size="8" fill="#4f5d75">
+      <text x="68" y="98">期間</text>
+      <g text-anchor="middle">
+        <rect x="96" y="86" width="32" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="112" y="97">7日</text>
+        <rect x="132" y="86" width="32" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="148" y="97">30日</text>
+        <rect x="168" y="86" width="32" height="16" rx="3" fill="#2e5aa8"/><text x="184" y="97" fill="#ffffff">90日</text>
+        <rect x="204" y="86" width="32" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="220" y="97">1年</text>
+        <rect x="240" y="86" width="40" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="260" y="97">全期間</text>
+      </g>
+      <text x="296" y="98">開始〜終了</text>
+      <g text-anchor="middle">
+        <rect x="348" y="86" width="72" height="16" rx="3" fill="#ffffff" stroke="#bfc0c0"/><text x="384" y="97">2026/06/16</text>
+        <text x="428" y="97">〜</text>
+        <rect x="436" y="86" width="72" height="16" rx="3" fill="#ffffff" stroke="#bfc0c0"/><text x="472" y="97">2026/09/13</text>
+        <rect x="516" y="86" width="32" height="16" rx="3" fill="none" stroke="#2e5aa8"/><text x="532" y="97" fill="#2e5aa8">適用</text>
+      </g>
+      <text x="568" y="98">粒度</text>
+      <g text-anchor="middle">
+        <rect x="592" y="86" width="24" height="16" rx="3" fill="#2e5aa8"/><text x="604" y="97" fill="#ffffff">日</text>
+        <rect x="620" y="86" width="24" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="632" y="97">週</text>
+        <rect x="648" y="86" width="24" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="660" y="97">月</text>
+      </g>
+      <text x="688" y="98">上位</text>
+      <g text-anchor="middle">
+        <rect x="712" y="86" width="24" height="16" rx="3" fill="#2e5aa8"/><text x="724" y="97" fill="#ffffff">10</text>
+        <rect x="740" y="86" width="24" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="752" y="97">20</text>
+        <rect x="768" y="86" width="24" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="780" y="97">30</text>
+      </g>
+      <text x="808" y="98">☑ その他</text>
+      <!-- 焦点1：全図共通の欠測切替 -->
+      <rect x="64" y="108" width="272" height="20" rx="4" fill="#eb6c36" fill-opacity="0.08" stroke="#eb6c36"/>
+      <text x="72" y="122" fill="#eb6c36" font-weight="600">欠測・一斉変動の日</text>
+      <g text-anchor="middle">
+        <rect x="172" y="110" width="76" height="16" rx="3" fill="#eb6c36" fill-opacity="0.18" stroke="#eb6c36"/><text x="210" y="121" fill="#2d3142">ならす（既定）</text>
+        <rect x="252" y="110" width="76" height="16" rx="3" fill="#ffffff" stroke="#eb6c36" stroke-opacity="0.5"/><text x="290" y="121">記録どおり</text>
+      </g>
+      <text x="348" y="122" fill="#7a8399">全部の図に効く・URL と記憶に残る</text>
+    </g>
+
+    <!-- 結論 -->
+    <text x="56" y="156" font-size="12" font-weight="600" fill="#2d3142">結論</text>
+    <text x="96" y="156" font-size="8" fill="#7a8399">数字から自動で組み立てた3行（解釈は入れない）</text>
+    <g font-size="8" fill="#4f5d75">
+      <rect x="56" y="164" width="160" height="48" rx="4" fill="#f5f5f5" stroke="#bfc0c0"/><text x="64" y="180">期間の出来高合計</text><text x="64" y="200" font-size="12" font-weight="600" fill="#2d3142">4,856万円</text>
+      <rect x="228" y="164" width="160" height="48" rx="4" fill="#f5f5f5" stroke="#bfc0c0"/><text x="236" y="180">前期間比（同じ長さ）</text><text x="236" y="200" font-size="12" font-weight="600" fill="#2d3142">−30%</text>
+      <rect x="400" y="164" width="160" height="48" rx="4" fill="#f5f5f5" stroke="#bfc0c0"/><text x="408" y="180">取引のあったPJ数</text><text x="408" y="200" font-size="12" font-weight="600" fill="#2d3142">333</text>
+      <rect x="572" y="164" width="160" height="48" rx="4" fill="#f5f5f5" stroke="#bfc0c0"/><text x="580" y="180">メンバー純増</text><text x="580" y="200" font-size="12" font-weight="600" fill="#2d3142">−14,514人</text>
+      <rect x="744" y="164" width="160" height="48" rx="4" fill="#f5f5f5" stroke="#bfc0c0"/><text x="752" y="180">機運の5指標</text><text x="752" y="200" font-size="12" font-weight="600" fill="#2d3142">1 / 5（なし）</text>
+      <text x="64" y="228">・期間合計と前期間比</text>
+      <text x="64" y="240">・集中度（上位1PJのシェア・上位2を除いた比）</text>
+      <text x="64" y="252">・裾野（新たに出来高が立ったPJ数）</text>
+    </g>
+    <!-- 機運の5指標 -->
+    <rect x="56" y="264" width="848" height="56" rx="4" fill="#ffffff" stroke="#bfc0c0"/>
+    <g font-size="8" fill="#4f5d75">
+      <text x="68" y="280" font-weight="600" fill="#2d3142">機運の5指標（結論の直下）</text>
+      <text x="732" y="280">窓</text>
+      <g text-anchor="middle">
+        <rect x="748" y="270" width="28" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="762" y="281">30</text>
+        <rect x="780" y="270" width="28" height="16" rx="3" fill="#2e5aa8"/><text x="794" y="281" fill="#ffffff">90</text>
+        <rect x="812" y="270" width="32" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="828" y="281">180</text>
+      </g>
+      <text x="68" y="300">① 直近の出来高 前の同じ窓比 ≥+20%　×　　② 窓の後半＞前半　×　　③ 出来高が立ったPJ数 +10%　○</text>
+      <text x="68" y="312">④ メンバー純増の加速　×　　⑤ 価格上位10の反転 ≥6　×</text>
+    </g>
+
+    <!-- 箱：出来高 -->
+    <rect x="56" y="332" width="848" height="128" rx="4" fill="#ffffff" stroke="#2d3142" stroke-opacity="0.25"/>
+    <text x="68" y="352" font-size="12" font-weight="600" fill="#2d3142">出来高</text>
+    <g font-size="8" fill="#4f5d75" text-anchor="middle">
+      <text x="500" y="352">見せ方</text>
+      <!-- 焦点2：箱ごとの見せ方 -->
+      <rect x="520" y="340" width="96" height="16" rx="3" fill="#eb6c36" fill-opacity="0.08" stroke="#eb6c36"/><text x="568" y="351" fill="#eb6c36" font-weight="600">上位Nの積み上げ</text>
+      <rect x="620" y="340" width="64" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="652" y="351">束（月次）</text>
+      <rect x="688" y="340" width="88" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="732" y="351">合計＋7日平均</text>
+      <rect x="780" y="340" width="44" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="802" y="351">PJ数</text>
+      <rect x="836" y="340" width="56" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="864" y="351">小 中 大</text>
+    </g>
+    <g>
+      <rect x="76" y="404" width="36" height="32" fill="#2a78d6" fill-opacity="0.7"/><rect x="76" y="388" width="36" height="14" fill="#8a8986" fill-opacity="0.5"/>
+      <rect x="128" y="396" width="36" height="40" fill="#2a78d6" fill-opacity="0.7"/><rect x="128" y="380" width="36" height="14" fill="#8a8986" fill-opacity="0.5"/>
+      <rect x="180" y="412" width="36" height="24" fill="#2a78d6" fill-opacity="0.7"/><rect x="180" y="400" width="36" height="10" fill="#8a8986" fill-opacity="0.5"/>
+      <rect x="232" y="384" width="36" height="52" fill="#2a78d6" fill-opacity="0.7"/><rect x="232" y="372" width="36" height="10" fill="#8a8986" fill-opacity="0.5"/>
+      <rect x="284" y="408" width="36" height="28" fill="#2a78d6" fill-opacity="0.7"/><rect x="284" y="392" width="36" height="14" fill="#8a8986" fill-opacity="0.5"/>
+      <rect x="336" y="416" width="36" height="20" fill="#2a78d6" fill-opacity="0.7"/><rect x="336" y="404" width="36" height="10" fill="#8a8986" fill-opacity="0.5"/>
+      <rect x="388" y="400" width="36" height="36" fill="#2a78d6" fill-opacity="0.7"/><rect x="388" y="384" width="36" height="14" fill="#8a8986" fill-opacity="0.5"/>
+      <rect x="440" y="392" width="36" height="44" fill="#2a78d6" fill-opacity="0.7"/><rect x="440" y="380" width="36" height="10" fill="#8a8986" fill-opacity="0.5"/>
+      <rect x="492" y="412" width="36" height="24" fill="#2a78d6" fill-opacity="0.7"/><rect x="492" y="396" width="36" height="14" fill="#8a8986" fill-opacity="0.5"/>
+      <rect x="544" y="420" width="36" height="16" fill="#2a78d6" fill-opacity="0.7"/><rect x="544" y="408" width="36" height="10" fill="#8a8986" fill-opacity="0.5"/>
+      <rect x="596" y="404" width="36" height="32" fill="#2a78d6" fill-opacity="0.7"/><rect x="596" y="392" width="36" height="10" fill="#8a8986" fill-opacity="0.5"/>
+      <rect x="648" y="396" width="36" height="40" fill="#2a78d6" fill-opacity="0.7"/><rect x="648" y="380" width="36" height="14" fill="#8a8986" fill-opacity="0.5"/>
+      <rect x="700" y="380" width="36" height="56" fill="#2a78d6" fill-opacity="0.7"/><rect x="700" y="368" width="36" height="10" fill="#8a8986" fill-opacity="0.5"/>
+      <rect x="752" y="408" width="36" height="28" fill="#2a78d6" fill-opacity="0.7"/><rect x="752" y="396" width="36" height="10" fill="#8a8986" fill-opacity="0.5"/>
+      <rect x="804" y="400" width="36" height="36" fill="#2a78d6" fill-opacity="0.7"/><rect x="804" y="388" width="36" height="10" fill="#8a8986" fill-opacity="0.5"/>
+      <rect x="856" y="392" width="36" height="44" fill="#2a78d6" fill-opacity="0.7"/><rect x="856" y="380" width="36" height="10" fill="#8a8986" fill-opacity="0.5"/>
+      <line x1="72" y1="436" x2="896" y2="436" stroke="#bfc0c0" stroke-width="0.8"/>
+    </g>
+    <text x="68" y="452" font-size="8" fill="#7a8399">凡例（11）｜押すと出し入れ　・灰色＝その他（破線の凡例）</text>
+
+    <!-- 箱：シェア -->
+    <rect x="56" y="472" width="848" height="96" rx="4" fill="#ffffff" stroke="#2d3142" stroke-opacity="0.25"/>
+    <text x="68" y="492" font-size="12" font-weight="600" fill="#2d3142">出来高シェア</text>
+    <g font-size="8" fill="#4f5d75" text-anchor="middle">
+      <rect x="620" y="480" width="72" height="16" rx="3" fill="#2d3142" fill-opacity="0.12"/><text x="656" y="491" fill="#2d3142">円（上位N）</text>
+      <rect x="696" y="480" width="40" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="716" y="491">推移</text>
+      <rect x="740" y="480" width="32" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="756" y="491">束</text>
+    </g>
+    <g fill="none" stroke-width="16">
+      <circle cx="140" cy="528" r="28" stroke="#2a78d6" stroke-dasharray="62 114"/>
+      <circle cx="140" cy="528" r="28" stroke="#eb6834" stroke-dasharray="36 140" stroke-dashoffset="-62"/>
+      <circle cx="140" cy="528" r="28" stroke="#1baf7a" stroke-dasharray="26 150" stroke-dashoffset="-98"/>
+      <circle cx="140" cy="528" r="28" stroke="#8a8986" stroke-dasharray="52 124" stroke-dashoffset="-124"/>
+    </g>
+    <g font-size="8" fill="#4f5d75">
+      <text x="196" y="516">PJ A　35%</text><text x="196" y="528">PJ B　20%</text><text x="196" y="540">PJ C　15%</text><text x="196" y="552">その他　30%</text>
+      <text x="420" y="528" fill="#7a8399">推移＝100%積み上げ／束＝NinjaDAO系・令和の虎系・RED系＋単独3＋その他</text>
+    </g>
+
+    <!-- 箱：ランキング -->
+    <rect x="56" y="580" width="848" height="92" rx="4" fill="#ffffff" stroke="#2d3142" stroke-opacity="0.25"/>
+    <text x="68" y="600" font-size="12" font-weight="600" fill="#2d3142">ランキング</text>
+    <g font-size="8" fill="#4f5d75" text-anchor="middle">
+      <rect x="660" y="588" width="32" height="16" rx="3" fill="#2d3142" fill-opacity="0.12"/><text x="676" y="599" fill="#2d3142">表</text>
+      <rect x="696" y="588" width="80" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="736" y="599">上位8の今と前</text>
+    </g>
+    <g font-size="8" fill="#4f5d75">
+      <text x="68" y="620" font-weight="600">順位</text><text x="108" y="620" font-weight="600">プロジェクト</text><text x="400" y="620" font-weight="600">出来高（期間）</text><text x="520" y="620" font-weight="600">シェア</text><text x="600" y="620" font-weight="600">期末直近30日</text><text x="720" y="620" font-weight="600">前期間比</text>
+      <line x1="64" y1="626" x2="896" y2="626" stroke="#bfc0c0" stroke-width="0.8"/>
+      <text x="68" y="640">1</text><text x="108" y="640">PJ A　↗</text><text x="400" y="640">1,702万円</text><text x="520" y="640">35%</text><text x="600" y="640">520万円</text><text x="720" y="640">+12%</text>
+      <text x="68" y="652">2</text><text x="108" y="652">PJ B　↗</text><text x="400" y="652">968万円</text><text x="520" y="652">20%</text><text x="600" y="652">301万円</text><text x="720" y="652">−8%</text>
+      <text x="68" y="664">3</text><text x="108" y="664">PJ C　↗</text><text x="400" y="664">731万円</text><text x="520" y="664">15%</text><text x="600" y="664">188万円</text><text x="720" y="664">+3%</text>
+    </g>
+
+    <!-- 箱：価格 -->
+    <rect x="56" y="684" width="848" height="64" rx="4" fill="#ffffff" stroke="#2d3142" stroke-opacity="0.25"/>
+    <text x="68" y="704" font-size="12" font-weight="600" fill="#2d3142">価格の推移</text>
+    <g font-size="8" fill="#4f5d75" text-anchor="middle">
+      <rect x="596" y="692" width="32" height="16" rx="3" fill="#2d3142" fill-opacity="0.12"/><text x="612" y="703" fill="#2d3142">円</text>
+      <rect x="632" y="692" width="40" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="652" y="703">指数</text>
+      <text x="696" y="703">選び方</text>
+      <rect x="720" y="692" width="72" height="16" rx="3" fill="#2d3142" fill-opacity="0.12"/><text x="756" y="703" fill="#2d3142">出来高上位</text>
+      <rect x="796" y="692" width="60" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="826" y="703">価格上位</text>
+    </g>
+    <g fill="none" stroke-width="1.5">
+      <polyline points="200,740 300,732 400,736 500,724 600,728 700,716 800,720" stroke="#2a78d6"/>
+      <polyline points="200,728 300,724 400,720 500,728 600,732 700,736 800,732" stroke="#eb6834"/>
+      <polyline points="200,736 300,740 400,732 500,736 600,720 700,724 800,716" stroke="#1baf7a"/>
+    </g>
+
+    <!-- 箱：メンバー -->
+    <rect x="56" y="760" width="848" height="56" rx="4" fill="#ffffff" stroke="#2d3142" stroke-opacity="0.25"/>
+    <text x="68" y="780" font-size="12" font-weight="600" fill="#2d3142">メンバー</text>
+    <g font-size="8" fill="#4f5d75" text-anchor="middle">
+      <rect x="680" y="768" width="80" height="16" rx="3" fill="#2d3142" fill-opacity="0.12"/><text x="720" y="779" fill="#2d3142">日ごとの純増</text>
+      <rect x="764" y="768" width="40" height="16" rx="3" fill="none" stroke="#bfc0c0"/><text x="784" y="779">水準</text>
+    </g>
+    <g fill="#2a78d6" fill-opacity="0.7">
+      <rect x="200" y="788" width="12" height="8"/><rect x="232" y="784" width="12" height="12"/><rect x="264" y="796" width="12" height="8" fill="#e34948"/><rect x="296" y="790" width="12" height="6"/><rect x="328" y="786" width="12" height="10"/><rect x="360" y="796" width="12" height="4" fill="#e34948"/><rect x="392" y="788" width="12" height="8"/>
+    </g>
+    <line x1="196" y1="796" x2="600" y2="796" stroke="#bfc0c0" stroke-width="0.8"/>
+
+    <!-- 凡例・注記 -->
+    <line x1="40" y1="836" x2="920" y2="836" stroke="#2d3142" stroke-opacity="0.10" stroke-width="0.8"/>
+    <g font-size="8" fill="#4f5d75">
+      <text x="40" y="852">オレンジ＝焦点（全図共通の「欠測・一斉変動の日」と、箱ごとの「見せ方」）。青の塗り＝選択中。テーマと縦横はヘッダー右に1つずつ（どのタブでも効く）。</text>
+      <text x="40" y="868">既定は縦1列。横2列にすると出来高〜メンバーの箱が2列に並ぶ。スマホ 390 は常に1列で、操作帯は期間だけ見せて残りはたたむ。</text>
+    </g>
+  </svg>
+</div>
+</body>
+</html>
