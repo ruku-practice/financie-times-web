@@ -290,7 +290,7 @@ async function run() {
       await page.click('#an-period-group button[data-period="90"]');
       await waitReady(page);
       let cc = await contrastCheck(page, TEXT_SELECTORS);
-      record("B10-contrast-dark", cc.every((c) => c.ok), JSON.stringify(cc.filter((c) => !c.ok)) || "all ok");
+      record("B10-contrast-light-default", cc.every((c) => c.ok), JSON.stringify(cc.filter((c) => !c.ok)) || "all ok"); // v3.2.0：既定はライト
       const hDark = await fullShot(page, path.join(OUT_DIR, "analysis_1280.png"));
       record("B10-fullpage-shot", hDark > 3000, `page height=${hDark}px（1画面 900px より十分に長い＝全区画が写っている）`);
 
@@ -301,8 +301,8 @@ async function run() {
       st = await chartsStatus(page);
       cc = await contrastCheck(page, TEXT_SELECTORS);
       const lineColor = await page.evaluate(() => window.FinancieAnalysis._debug.charts.daily.data.datasets[1].backgroundColor);
-      record("B11-light-theme", theme === "light" && st.every((s) => s.ok) && lineColor === "#2a78d6", `theme=${theme} bar=${lineColor}`);
-      record("B11-contrast-light", cc.every((c) => c.ok), JSON.stringify(cc.filter((c) => !c.ok)) || "all ok");
+      record("B11-dark-theme", theme === "dark" && st.every((s) => s.ok) && lineColor === "#3987e5", `theme=${theme} bar=${lineColor}`); // 切替でダーク＝パレットの暗い段
+      record("B11-contrast-dark", cc.every((c) => c.ok), JSON.stringify(cc.filter((c) => !c.ok)) || "all ok");
       const hLight = await fullShot(page, path.join(OUT_DIR, "analysis_light_1280.png"));
       record("B11-fullpage-shot", hLight > 3000, `page height=${hLight}px`);
       await page.click("#theme-toggle");

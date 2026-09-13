@@ -518,3 +518,8 @@
     margin-left: 0;
   }
 }
+
+/* 欠測の注記：1行目＝結論・2行目＝日付（改行を活かす・エマ v3.1 中3） */
+#ov-gap-note {
+  white-space: pre-line;
+}
