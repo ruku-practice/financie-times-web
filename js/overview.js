@@ -9,7 +9,7 @@
 (function () {
   "use strict";
 
-  const OV_APP_VERSION = "3.2.1";
+  const OV_APP_VERSION = "3.2.2";
 
   // 出来高の単位＝「円」（2026-09-12 21:30 ルク決定・本家 financie.jp が円表示のため）。
   // ラベルの定義はここ1か所だけ（A12）。切り替えるときはこの1行だけ直せばよい。
@@ -453,7 +453,7 @@
       if (prevTotal > 0) {
         const diffPct = (total - prevTotal) / prevTotal;
         const sign = diffPct >= 0 ? "多い" : "少ない";
-        subText = `前の${nDays}日より${fmtPercent(Math.abs(diffPct))}${sign}`;
+        subText = `前期間より${fmtPercent(Math.abs(diffPct))}${sign}`; // 呼び名を結論・ランキングの「前期間」にそろえる（エマ v3.2.1 軽）
       }
     }
 
@@ -599,7 +599,7 @@
       renderShareDonut(series, othersData);
       return;
     }
-    if (dom.shareTitle) dom.shareTitle.textContent = "出来高シェア（100%積み上げ）";
+    if (dom.shareTitle) dom.shareTitle.textContent = "出来高シェア（推移・100%積み上げ）"; // 円・束と同じ形に（エマ v3.2.1 軽）
 
     // シェア（100%積み上げ）: バケツごとの合計（上位N + その他）でパーセント化
     const bucketTotals = labels.map((_, bi) => {
@@ -1142,7 +1142,7 @@
     if (ovState.rangeSwapped) lines.push("開始日と終了日を入れ替えました");
     if (ovState.granularity === "week" && !ovState.granularityManual) lines.push("期間が1年を超えるので、粒度を「週」にしました（粒度の釦で変えられます）");
     if (ovState.granularity === "week" && ovState.bucketDropped > 0) lines.push(`週は期末を末尾にした7日区切りのため、先頭の${ovState.bucketDropped}日は週の図に入れていません`);
-    dom.rangeNote.textContent = lines.join("。");
+    dom.rangeNote.textContent = lines.length ? `${lines.join("。")}。` : "";
     dom.rangeNote.classList.toggle("hidden-element", lines.length === 0);
   }
 
@@ -1154,7 +1154,8 @@
     const days = ovData.market.days;
     const parts = [];
     if (ovState.period === "custom") parts.push(`${fmtMD(days[ovState.startIdx])}〜${fmtMD(days[ovState.endIdx])}`);
-    parts.push(`${GRANULARITY_LABELS[ovState.granularity] || ""}${ovState.granularityManual ? "" : "（自動）"}`);
+    // 「（自動）」は期間に合わせて週へ切り替えたときだけ（既定の「日」に付けると何が自動か分からない＝エマ v3.2.1 軽）
+    parts.push(`${GRANULARITY_LABELS[ovState.granularity] || ""}${!ovState.granularityManual && ovState.granularity === "week" ? "（自動）" : ""}`);
     parts.push(`上位${ovState.topN}`);
     parts.push(ovState.showOthers ? "その他あり" : "その他なし");
     parts.push(gapMode() === "raw" ? "記録どおり" : "ならす");
@@ -1192,7 +1193,7 @@
     ovState.pricePick = s.views.pricePick;
     ovState.membersView = s.views.members;
     if (!dom) return;
-    if (s.period === "custom") dom.periodGroup.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
+    if (s.period === "custom") dom.periodGroup.querySelectorAll("button").forEach((b) => { b.classList.remove("active"); b.setAttribute("aria-pressed", "false"); }); // 期間の釦を外すときは aria-pressed も（断 v3.2.1 重1）
     else setActive(dom.periodGroup, "data-period", String(s.period));
     setActive(dom.granularityGroup, "data-granularity", s.granularity);
     setActive(dom.topnGroup, "data-topn", String(s.topN));
@@ -1225,7 +1226,7 @@
       ovState.period = "custom";
       dom.startInput.value = params.get(URL_KEYS.start);
       dom.endInput.value = params.get(URL_KEYS.end);
-      dom.periodGroup.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
+      dom.periodGroup.querySelectorAll("button").forEach((b) => { b.classList.remove("active"); b.setAttribute("aria-pressed", "false"); }); // 期間の釦を外すときは aria-pressed も（断 v3.2.1 重1）
     }
     const g = params.get(URL_KEYS.granularity);
     if (["day", "week", "month"].includes(g)) {
@@ -1375,7 +1376,7 @@
       else restoreDateInputs();
       return;
     }
-    dom.periodGroup.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
+    dom.periodGroup.querySelectorAll("button").forEach((b) => { b.classList.remove("active"); b.setAttribute("aria-pressed", "false"); }); // 期間の釦を外すときは aria-pressed も（断 v3.2.1 重1）
     ovState.period = "custom";
     ovState.granularityManual = false;
     recomputeAll();

@@ -138,6 +138,13 @@ async function main() {
     // M10 KPI「メンバー純増」が選んだ期間に従う（契約 C・中2）＝reference_merged.json（別実装）の期間の純増と一致
     const membersNet = () => page.evaluate(() => Number(document.getElementById("mg-kpi-members").getAttribute("data-members-net")));
     const clickPeriod = async (p) => { await page.click(`#ov-period-group button[data-period="${p}"]`); await page.evaluate(() => window.scrollTo(0, 0)); await page.waitForTimeout(1500); };
+    // 数値の文字（Range）の右端がカードの内側（右の余白の手前）に収まっているか＝はみ出したカードだけ返す（エマ v3.2.1 中B）
+    const kpiOverflow = (pg) => pg.evaluate(() => Array.from(document.querySelectorAll("#ov-kpi-grid .metric-card")).map((card) => {
+      const v = card.querySelector(".metric-value");
+      const rg = document.createRange(); rg.selectNodeContents(v);
+      const tr = rg.getBoundingClientRect(), cr = card.getBoundingClientRect(), pad = parseFloat(getComputedStyle(card).paddingRight);
+      return { text: v.textContent, over: Math.round((tr.right - (cr.right - pad)) * 10) / 10 };
+    }).filter((x) => x.over > 0.5));
     const m10 = { p90: await membersNet() };
     await clickPeriod("30"); m10.p30 = await membersNet();
     await clickPeriod("all"); m10.all = await membersNet();
@@ -148,12 +155,16 @@ async function main() {
       gran: (document.querySelector("#ov-granularity-group button.active") || {}).textContent,
       label: document.getElementById("mg-kpi-members-label").textContent, sub: document.getElementById("mg-kpi-members-sub").textContent
     }));
+    // M22 全期間（いちばん桁の多い日）でも KPI の数値がカードに収まる（エマ v3.2.1 中B）
+    const m22 = { total: await page.textContent("#ov-kpi-total"), over: await kpiOverflow(page) };
+    record("M22-kpi-fits-all-period-1280", m22.total.replace(/[^0-9]/g, "").length >= 10 && m22.over.length === 0, m22);
     await page.click('#ov-gap-mode button[data-gap="raw"]'); await page.waitForTimeout(1500); m10.allRaw = await membersNet();
     await page.click('#ov-gap-mode button[data-gap="smooth"]'); await clickPeriod("90");
     const mp = ref.member_periods;
     record("M10-kpi-members-follows-period", m10.p90 === mp.latest_90.smooth_net && m10.p30 === mp.latest_30.smooth_net && m10.all === mp.all.smooth_net && m10.allRaw === mp.all.raw_net && m10.p90 !== m10.p30,
       { m10, ref: { p90: mp.latest_90.smooth_net, p30: mp.latest_30.smooth_net, all: mp.all.smooth_net, allRaw: mp.all.raw_net } });
-    record("M11-all-period-no-dangling", !/前期間比 -/.test(m11.line1) && !m11.noteHidden && /週/.test(m11.note) && m11.gran === "週" && /期間のメンバー純増/.test(m11.label) && /比較できる前期間がありません/.test(m11.sub), m11);
+    record("M11-all-period-no-dangling", !/前期間比 -/.test(m11.line1) && !m11.noteHidden && /週/.test(m11.note) && m11.gran === "週" && /期間のメンバー純増/.test(m11.label) && /比較できる前期間がありません/.test(m11.sub)
+      && /前期間がないため比較できません/.test(m11.line1) && /。$/.test(m11.note.trim()), m11);
 
     // M12 KPI の数値の上端がそろう・KPI の下と「結論」の間が 24px 以上（中3）
     const m12 = await page.evaluate(() => {
@@ -171,7 +182,19 @@ async function main() {
     const m13a = await shareUi();
     await page.click('#ov-share-view button[data-view="donut"]'); await page.waitForTimeout(800);
     const m13b = await shareUi();
-    record("M13-share-title-aria", /束/.test(m13a.title) && !/100%積み上げ/.test(m13a.title) && JSON.stringify(m13a.pressed) === JSON.stringify(["false", "false", "true"]) && /期間合計/.test(m13b.title) && JSON.stringify(m13b.pressed) === JSON.stringify(["true", "false", "false"]), { m13a, m13b });
+    await page.click('#ov-share-view button[data-view="stack"]'); await page.waitForTimeout(800);
+    const m13c = await shareUi();
+    await page.click('#ov-share-view button[data-view="donut"]'); await page.waitForTimeout(800);
+    record("M13-share-title-aria", /束/.test(m13a.title) && !/100%積み上げ/.test(m13a.title) && JSON.stringify(m13a.pressed) === JSON.stringify(["false", "false", "true"]) && /期間合計/.test(m13b.title) && JSON.stringify(m13b.pressed) === JSON.stringify(["true", "false", "false"])
+      && /推移・100%積み上げ/.test(m13c.title) && JSON.stringify(m13c.pressed) === JSON.stringify(["false", "true", "false"]), { m13a, m13b, m13c });
+
+    // M24 開始〜終了で期間を入れたら、期間の釦に active も aria-pressed="true" も残らない（断 v3.2.1 重1）
+    await page.evaluate(() => window.FtMerged.set({ period: "custom", start: "2026-07-01", end: "2026-07-31", granularityManual: false }));
+    await page.waitForTimeout(1000);
+    const m24 = await page.evaluate(() => Array.from(document.querySelectorAll("#ov-period-group button")).map((b) => ({ t: b.textContent, active: b.classList.contains("active"), pressed: b.getAttribute("aria-pressed") })));
+    await clickPeriod("90");
+    const m24back = await page.evaluate(() => (document.querySelector('#ov-period-group button[aria-pressed="true"]') || {}).textContent);
+    record("M24-custom-period-no-pressed", m24.length === 5 && m24.every((b) => !b.active && b.pressed !== "true") && m24back === "90日", { m24, m24back });
 
     // M14 上位10は検証済みの10色（9位・10位が青系の段で見分けられなかった＝中4）・11位以降だけ青系
     const m14 = await page.evaluate(() => {
@@ -229,6 +252,14 @@ async function main() {
     sPage.on("pageerror", (e) => errors.push(`[390] ${String(e)} @ ${(e.stack || "").split("\n").slice(1, 3).join(" | ")}`));
     await sPage.goto(BASE, { waitUntil: "domcontentloaded" });
     await ready(sPage);
+    // M23 スマホ：開いただけ（スクロールも操作もしない）で KPI（期間のメンバー純増・機運）と結論が埋まり、数値がカードに収まる（エマ v3.2.1 中A）
+    const m23ok = await sPage.waitForFunction(() => {
+      const t = (id) => (document.getElementById(id) || {}).textContent || "";
+      return /人$/.test(t("mg-kpi-members").trim()) && /^\d \/ 5$/.test(t("mg-kpi-verdict").trim()) && document.querySelectorAll("#mg-conclusion li").length === 3;
+    }, { timeout: 8000 }).then(() => true).catch(() => false);
+    const m23 = await sPage.evaluate(() => ({ members: document.getElementById("mg-kpi-members").textContent, verdict: document.getElementById("mg-kpi-verdict").textContent, concl: document.querySelectorAll("#mg-conclusion li").length, scrollY: window.scrollY, kpiTop: Math.round(document.getElementById("ov-kpi-grid").getBoundingClientRect().top), conclTop: Math.round(document.getElementById("mg-sec-conclusion").getBoundingClientRect().top), vh: window.innerHeight }));
+    const m23over = await kpiOverflow(sPage);
+    record("M23-sp-kpi-filled-without-scroll", m23ok && m23.scrollY === 0 && m23.conclTop > m23.vh && m23over.length === 0, Object.assign({}, m23, { over: m23over }));
     await scrollThrough(sPage);
     const ov390 = await sPage.evaluate(() => ({ sw: document.documentElement.scrollWidth, iw: window.innerWidth }));
     await sPage.screenshot({ path: path.join(OUT, "merged_390.png"), fullPage: true });
@@ -243,10 +274,12 @@ async function main() {
         const r = b.getBoundingClientRect(), c = card.getBoundingClientRect();
         if (r.left < c.left - 0.5 || r.right > c.right + 0.5 || r.height < 44) bad.push({ t: b.textContent.trim(), l: Math.round(r.left), r: Math.round(r.right), h: Math.round(r.height), cl: Math.round(c.left), cr: Math.round(c.right) });
       });
-      return { n: all.length, bad };
+      // 各箱の見せ方の組の最初の釦の左端（箱ごとに面がそろっているか＝エマ v3.2.1 軽）
+      const lefts = Array.from(document.querySelectorAll("#overview-view .ft-view-group, #overview-view #ov-share-view")).map((g) => Math.round(g.querySelector("button").getBoundingClientRect().left));
+      return { n: all.length, bad, lefts };
     });
     // 釦の数＝出来高 4＋3・シェア 3＋3・ランキング 2・価格 2＋2＋3・メンバー 2＋3＝27（1つでも消えたら FAIL にする）
-    record("M17-sp-view-buttons-inside-44", m17.n === 27 && m17.bad.length === 0, m17);
+    record("M17-sp-view-buttons-inside-44", m17.n === 27 && m17.bad.length === 0 && Math.max(...m17.lefts) - Math.min(...m17.lefts) <= 1, m17);
 
     // M18 スマホ：見せ方を替えたあと、既定「上位＋その他」へ押して戻れる（重1）
     await sPage.click('.ft-view-group[data-box="volume"] button[data-view="bundle"]');
@@ -273,7 +306,7 @@ async function main() {
     await sPage.click("#ov-controls-toggle");
     await sPage.waitForTimeout(300);
     const m19b = await bandState();
-    record("M19-sp-controls-collapse", m19a.toggle && m19a.expanded === "false" && m19a.period && !m19a.gran && !m19a.gap && /ならす/.test(m19a.summary) && /上位10/.test(m19a.summary)
+    record("M19-sp-controls-collapse", m19a.toggle && m19a.expanded === "false" && m19a.period && !m19a.gran && !m19a.gap && /ならす/.test(m19a.summary) && /上位10/.test(m19a.summary) && !/自動/.test(m19a.summary)
       && m19b.expanded === "true" && m19b.gran && m19b.gap && m19b.small === 0 && m19a.bandH < m19b.bandH, { m19a, m19b });
 
     // M21 日付別ランキング 390：並べ替え釦の高さ 44px 以上（エマ 日付別 軽2・合体 軽13）

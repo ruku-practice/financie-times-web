@@ -121,6 +121,16 @@ html[data-layout="v"] #analysis-view .chart-card.full-width {
   min-height: calc(1.4em * 2);
 }
 
+/* 中B（エマ v3.2.1）：6列（PC 1280）の全期間で「4,435,076,304」がカードの右端を越えた＝数値の文字をカードの幅に合わせて縮める */
+#overview-view #ov-kpi-grid .metric-card {
+  container-type: inline-size;
+  min-width: 0;
+}
+#overview-view #ov-kpi-grid .metric-value {
+  font-size: min(1.6rem, 13cqi);
+  white-space: nowrap;
+}
+
 /* 軽11：期間の注記は複数の文になるので折り返す（1行に収めると操作帯の横にはみ出す） */
 #overview-view #ov-range-note {
   white-space: normal;
@@ -185,6 +195,12 @@ html[data-layout="v"] #analysis-view .chart-card.full-width {
   #overview-view .ft-view-group .ov-size-btn,
   #overview-view #ov-share-view .ov-size-btn {
     flex: 1 1 auto;
+  }
+
+  /* 390 でランキングの箱だけ見せ方の釦の左端が 8px 内側にずれていた（見出しの余白 16px・ほかの箱は 24px＝エマ v3.2.1 軽） */
+  #overview-view .ov-ranking-head {
+    padding-left: 24px;
+    padding-right: 24px;
   }
 
   /* 軽12：小中大も 44px（他の箱の釦と同じ） */

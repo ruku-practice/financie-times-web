@@ -133,7 +133,7 @@
       }
       if (subEl) {
         if (!prev) subEl.textContent = "比較できる前期間がありません";
-        else subEl.textContent = `前の${r.calendarDays}日${prev.partial ? "（記録の初日から）" : ""} ${signed(core.membersNet(members, key, prev.startIdx, prev.endIdx))}`;
+        else subEl.textContent = `前期間${prev.partial ? "（記録の初日から）" : ""} ${signed(core.membersNet(members, key, prev.startIdx, prev.endIdx))}`;
       }
     });
   }
@@ -144,6 +144,9 @@
     if (!m || !window.AnalysisParts || !document.getElementById("mg-sec-conclusion")) return;
     m.bindViewButtons(document);
     m.syncAllViews();
+    // KPI（期間のメンバー純増・機運）は操作帯の直下＝スマホでは結論の欄より先に画面に入る。結論の欄だけを見張ると、
+    // 開いただけでは KPI が「-」のままだった（エマ v3.2.1 中A）＝KPI の並びも同じ描画で見張る
+    register("kpi", document.getElementById("ov-kpi-grid"), ["conclusion"], renderMembersKpi);
     register("conclusion", document.getElementById("mg-sec-conclusion"), ["conclusion"], renderMembersKpi);
     register("indicators", document.getElementById("mg-sec-indicators"), ["indicators"]);
     register("volume:bundle", document.getElementById("mg-pane-monthly"), ["monthly"]);

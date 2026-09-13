@@ -15,7 +15,7 @@ cp "$SRC/index.html" "$SRC/advanced.html" "$OUT/site/financie/"
 cp -R "$SRC/css" "$SRC/js" "$OUT/site/financie/"
 rsync -a --exclude 'history.json' --exclude 'history_checkpoint.json' --exclude '2026.xlsx' --exclude 'ranking_daily (1).json' --exclude 'metadata_last_run.txt' "$SRC/data/" "$OUT/site/financie/data/"
 cat > "$OUT/site/index.html" <<'HTML'
-<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="0; url=/financie/"><title>FiNANCiE TIMES merged v3.2.1 (staging)</title></head><body><a href="/financie/">/financie/</a></body></html>
+<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="0; url=/financie/"><title>FiNANCiE TIMES merged v3.2.2 (staging)</title></head><body><a href="/financie/">/financie/</a></body></html>
 HTML
 printf '/*\n  X-Robots-Tag: noindex\n' > "$OUT/site/_headers"
 printf 'User-agent: *\nDisallow: /\n' > "$OUT/site/robots.txt"

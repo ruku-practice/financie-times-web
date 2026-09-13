@@ -24,7 +24,7 @@
 (function () {
   "use strict";
 
-  const AN_VERSION = "3.2.1";
+  const AN_VERSION = "3.2.2";
   const C = window.FtAnalysisCore;
 
   const AN_CONFIG = {
@@ -232,7 +232,7 @@
       // カードにある数字（合計・前期間比）は繰り返さず、カードに無いこと（集中度・上位2を除いた比）だけ書く（エマ中8）
       // 前期間が無い（全期間など）ときは「上位2PJを除くと前期間比」の節ごと出さない（値なしの「-」で終わっていた＝エマ v3.2.0 中7）
       const exClause = exChange === null ? "" : `上位2PJ（${top2now.map((t) => C.escapeHtml(t.short)).join("・")}）を除くと前期間比 ${C.fmtPct(exChange, 0)}。`;
-      lines.push(`<strong>出来高：</strong>前期間比は${dir(change)}。` +
+      lines.push(`<strong>出来高：</strong>${change === null ? "前期間がないため比較できません。" : `前期間比は${dir(change)}。`}` + // 「前期間比は比較できず」の重なり（エマ v3.2.1 軽）
         (top1 ? `上位1PJは ${C.escapeHtml(top1.short)}（シェア ${share1.toFixed(1)}%）。${exClause}` : "期間内に出来高のあるPJがありません。"));
       // 期間と窓が同じ日数なら同じ数字を2回言わない（エマ中2）
       const periodDays = C.daysBetween(days[state.startIdx], days[state.endIdx]) + 1;

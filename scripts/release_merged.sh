@@ -24,7 +24,7 @@
 # =============================================================================
 set -euo pipefail
 
-VERSION="3.2.1"
+VERSION="3.2.2"
 PRODUCT_DIR="/Users/kkr/ruku_data/00_products/apps/FiNANCiE-times-web"
 WORKTREE="$PRODUCT_DIR/.claude/worktrees/analysis-tab"
 BRANCH="feature/analysis-tab"

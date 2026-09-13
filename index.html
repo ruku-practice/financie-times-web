@@ -6,10 +6,10 @@
   <title>FiNANCiE TIMES | 市況ダッシュボード</title>
   <link rel="canonical" href="https://ruku-practice.github.io/financie-times-web/">
   <script>/* 背景の白黒：既定はライト（白）・記憶が dark のときだけダーク（OS に追従しない）。ちらつき防止のため最初に。JS 側は data-theme を見るので属性は必ず付ける */(function(){var t="light";try{if(localStorage.getItem("ft_theme")==="dark"){t="dark";}}catch(e){}document.documentElement.setAttribute("data-theme",t);})();</script>
-  <link rel="stylesheet" href="css/advanced.css?v=3.2.1">
-  <link rel="stylesheet" href="css/overview.css?v=3.2.1">
-  <link rel="stylesheet" href="css/analysis.css?v=3.2.1">
-  <link rel="stylesheet" href="css/layout.css?v=3.2.1">
+  <link rel="stylesheet" href="css/advanced.css?v=3.2.2">
+  <link rel="stylesheet" href="css/overview.css?v=3.2.2">
+  <link rel="stylesheet" href="css/analysis.css?v=3.2.2">
+  <link rel="stylesheet" href="css/layout.css?v=3.2.2">
   <script>/* 箱の並び：記憶があれば最初の描画から反映 */try{document.documentElement.setAttribute("data-layout",localStorage.getItem("ft_layout")==="h"?"h":"v");}catch(e){document.documentElement.setAttribute("data-layout","v");}</script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -273,12 +273,12 @@
             </div>
             <div class="metric-card">
               <span class="metric-label" id="mg-kpi-members-label">期間のメンバー純増</span>
-              <div class="metric-value" id="mg-kpi-members">-</div>
+              <div class="metric-value" id="mg-kpi-members">読み込み中</div>
               <span class="metric-sub" id="mg-kpi-members-sub">-</span>
             </div>
             <div class="metric-card">
               <span class="metric-label">機運の5指標</span>
-              <div class="metric-value" id="mg-kpi-verdict">-</div>
+              <div class="metric-value" id="mg-kpi-verdict">読み込み中</div>
               <span class="metric-sub" id="mg-kpi-verdict-sub">-</span>
             </div>
           </div>
@@ -374,7 +374,7 @@
           <footer class="ov-footer" id="ov-footer">
             <p>非公式サイトです。FiNANCiE から許可を得て、公開ページの表示値を毎日1回記録しています。</p>
             <p>全データを取り切れていない可能性があります。参考値としてご覧ください（正確性は保証しません）。</p>
-            <p>「ならす」は 24H 出来高が取れなかった日（24H＝30日の一致）を除きます（「記録どおり」で元の値）・期間は暦日で数え、週は期末を末尾にした7日です・期間合計は毎晩1回の記録の合計で厳密な期間出来高ではありません・出来高の単位は円・v3.2.1</p>
+            <p>「ならす」は 24H 出来高が取れなかった日（24H＝30日の一致）を除きます（「記録どおり」で元の値）・期間は暦日で数え、週は期末を末尾にした7日です・期間合計は毎晩1回の記録の合計で厳密な期間出来高ではありません・出来高の単位は円・v3.2.2</p>
           </footer>
         </div>
 
@@ -557,7 +557,7 @@
 
           <footer class="ov-footer" id="an-footer">
             <p>非公式サイトです。FiNANCiE から許可を得て、公開ページの表示値を毎日1回記録しています。</p>
-            <p>出来高は各日の24H 出来高（記録値）の合算で、全体市況タブと欠測の扱いが違います（分析＝生の記録値をそのまま・全体市況＝24H＝30日の日を欠測扱い）。単位は円・v3.2.1</p>
+            <p>出来高は各日の24H 出来高（記録値）の合算で、全体市況タブと欠測の扱いが違います（分析＝生の記録値をそのまま・全体市況＝24H＝30日の日を欠測扱い）。単位は円・v3.2.2</p>
           </footer>
           </div>
         </div>
@@ -670,18 +670,18 @@
 
     </div>
 
-    <footer class="app-footer">FiNANCiE TIMES v3.2.1（非公式） ・ 毎晩自動更新 ・ <a href="https://financie.jp">FiNANCiE公式</a></footer>
+    <footer class="app-footer">FiNANCiE TIMES v3.2.2（非公式） ・ 毎晩自動更新 ・ <a href="https://financie.jp">FiNANCiE公式</a></footer>
   </div>
 
-  <script src="js/theme.js?v=3.2.1"></script>
-  <script src="js/merged-core.js?v=3.2.1"></script>
-  <script src="js/merged.js?v=3.2.1"></script>
-  <script src="js/chart-legend.js?v=3.2.1"></script>
-  <script src="js/advanced.js?v=3.2.1"></script>
-  <script src="js/overview.js?v=3.2.1"></script>
-  <script src="js/analysis-core.js?v=3.2.1"></script>
-  <script src="js/analysis.js?v=3.2.1"></script>
-  <script src="js/merged-analysis.js?v=3.2.1"></script>
-  <script src="js/layout.js?v=3.2.1"></script>
+  <script src="js/theme.js?v=3.2.2"></script>
+  <script src="js/merged-core.js?v=3.2.2"></script>
+  <script src="js/merged.js?v=3.2.2"></script>
+  <script src="js/chart-legend.js?v=3.2.2"></script>
+  <script src="js/advanced.js?v=3.2.2"></script>
+  <script src="js/overview.js?v=3.2.2"></script>
+  <script src="js/analysis-core.js?v=3.2.2"></script>
+  <script src="js/analysis.js?v=3.2.2"></script>
+  <script src="js/merged-analysis.js?v=3.2.2"></script>
+  <script src="js/layout.js?v=3.2.2"></script>
 </body>
 </html>

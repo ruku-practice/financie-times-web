@@ -1,5 +1,5 @@
 
-  const APP_VERSION = "3.2.1";
+  const APP_VERSION = "3.2.2";
   console.info("FiNANCiE TIMES v" + APP_VERSION);
 
   let projectsList = [];
