@@ -229,27 +229,29 @@ def compute_diffs(arr):
     return diffs
 
 
-def apply_mass_change_zero(smooth_diffs_by_folder, n_days, threshold_pj=20, threshold_amount=100):
-    """契約C②：前日・当日が両方数値のPJのうち、100人以上減った(または増えた)PJが20件以上の日は、
-    その向きに動いた全PJの増減（100人未満も）を0にする。逆向きは残す。
-    smooth_diffs_by_folder を書き換え、一斉変動日の一覧（日index, 向き, 件数, 合計影響）を返す。"""
+def apply_mass_change_zero(smooth_diffs_by_folder, raw_diffs_by_folder, n_days, threshold_pj=20, threshold_amount=100):
+    """契約C②（v3.1 の membersGapInfo と同じ判定）：**生の値の差分**で、100人以上減った（または増えた）PJが
+    20件以上の日を一斉変動の日とする（減る側を先に見る）。その日は**生の値で同じ向きに動いた**PJの smooth の増減を0にし、
+    逆向きは残す。smooth_diffs_by_folder を書き換え、一斉変動日の一覧を返す。
+    （2026-09-13 10:05 修正：①で埋めた値で判定すると 2024-09-12・09-14 が外れ、merged-core／v3.1 と食い違った）"""
     folders = list(smooth_diffs_by_folder.keys())
     events = []
-    for i in range(n_days):
-        neg_folders = [f for f in folders if smooth_diffs_by_folder[f][i] is not None and smooth_diffs_by_folder[f][i] <= -threshold_amount]
-        pos_folders = [f for f in folders if smooth_diffs_by_folder[f][i] is not None and smooth_diffs_by_folder[f][i] >= threshold_amount]
-        if len(neg_folders) >= threshold_pj:
-            zeroed = [f for f in folders if smooth_diffs_by_folder[f][i] is not None and smooth_diffs_by_folder[f][i] < 0]
-            impact = sum(smooth_diffs_by_folder[f][i] for f in zeroed)
-            for f in zeroed:
-                smooth_diffs_by_folder[f][i] = 0
-            events.append({"day_index": i, "direction": "down", "n_pj_over_threshold": len(neg_folders), "n_pj_zeroed": len(zeroed), "impact": impact})
-        if len(pos_folders) >= threshold_pj:
-            zeroed = [f for f in folders if smooth_diffs_by_folder[f][i] is not None and smooth_diffs_by_folder[f][i] > 0]
-            impact = sum(smooth_diffs_by_folder[f][i] for f in zeroed)
-            for f in zeroed:
-                smooth_diffs_by_folder[f][i] = 0
-            events.append({"day_index": i, "direction": "up", "n_pj_over_threshold": len(pos_folders), "n_pj_zeroed": len(zeroed), "impact": impact})
+    for i in range(1, n_days):
+        neg = [f for f in folders if raw_diffs_by_folder[f][i] is not None and raw_diffs_by_folder[f][i] <= -threshold_amount]
+        pos = [f for f in folders if raw_diffs_by_folder[f][i] is not None and raw_diffs_by_folder[f][i] >= threshold_amount]
+        if len(neg) >= threshold_pj:
+            sign, n_over, direction = -1, len(neg), "down"
+        elif len(pos) >= threshold_pj:
+            sign, n_over, direction = 1, len(pos), "up"
+        else:
+            continue
+        zeroed = [f for f in folders
+                  if raw_diffs_by_folder[f][i] is not None and (raw_diffs_by_folder[f][i] < 0 if sign < 0 else raw_diffs_by_folder[f][i] > 0)
+                  and smooth_diffs_by_folder[f][i] is not None]
+        impact = sum(smooth_diffs_by_folder[f][i] for f in zeroed)
+        for f in zeroed:
+            smooth_diffs_by_folder[f][i] = 0
+        events.append({"day_index": i, "direction": direction, "n_pj_over_threshold": n_over, "n_pj_zeroed": len(zeroed), "impact": impact})
     return events
 
 
@@ -349,7 +351,7 @@ def main():
     smooth_diffs = {f: compute_diffs(smooth_arrays[f]) for f in folders_merged}
     raw_diffs = {f: compute_diffs(raw_members[f]) for f in folders_merged}
 
-    mass_events = apply_mass_change_zero(smooth_diffs, len(all_dkeys_merged))
+    mass_events = apply_mass_change_zero(smooth_diffs, raw_diffs, len(all_dkeys_merged))
 
     member_period_results = {}
     for pdef in period_defs:
