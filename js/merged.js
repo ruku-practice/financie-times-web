@@ -169,7 +169,9 @@
     if (!b) return;
     b.stale = false;
     const ctx = { gen: g, isCurrent: () => generation.isCurrent(g), view: state.views[id], boxId: id };
-    Promise.resolve().then(() => b.render(clone(state), ctx)).catch((err) => console.error(`FtMerged draw ${id}`, err));
+    // render が false を返したら「今は描かなかった」（隠れている見せ方など）＝古いまま残し、次に見えたときに描く
+    Promise.resolve().then(() => b.render(clone(state), ctx)).then((res) => { if (res === false) b.stale = true; })
+      .catch((err) => { b.stale = true; console.error(`FtMerged draw ${id}`, err); });
   }
 
   function invalidate() {
@@ -177,11 +179,13 @@
     boxes.forEach((b, id) => { b.stale = true; if (b.visible || !observer) draw(id, g); });
   }
 
+  // 見せ方の箱 "volume" を描き直すときは、その見せ方ごとの箱（"volume:bundle" など）も古くする
   function redrawBox(id) {
-    const b = boxes.get(id);
-    if (!b) return;
-    b.stale = true;
-    if (b.visible || !observer) draw(id, generation.current());
+    boxes.forEach((b, key) => {
+      if (key !== id && !key.startsWith(`${id}:`)) return;
+      b.stale = true;
+      if (b.visible || !observer) draw(key, generation.current());
+    });
   }
 
   /* ---------------- 見せ方の釦 ---------------- */
@@ -195,7 +199,7 @@
       b.setAttribute("aria-pressed", String(on));
     });
     document.querySelectorAll(`[data-ft-box-root="${box}"] [data-view-pane]`).forEach((pane) => {
-      pane.hidden = pane.getAttribute("data-view-pane") !== view;
+      pane.hidden = !pane.getAttribute("data-view-pane").split(/\s+/).includes(view); // "donut trend" のように複数可
     });
   }
 
@@ -236,6 +240,7 @@
     DEFAULTS, VIEW_CHOICES, URL_KEYS, FILES,
     state: () => clone(state), set, subscribe,
     registerBox, invalidate, redrawBox, setView, bindViewButtons, syncViewUi,
+    syncAllViews: () => Object.keys(VIEW_CHOICES).forEach((k) => syncViewUi(k)),
     load, generation,
     _debug: { boxes, initState, toSearch }
   };

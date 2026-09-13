@@ -192,60 +192,60 @@
 }
 
 /* 分析タブのカードは高さ固定（advanced.css の .chart-card 380px）を外し、中身なりにする */
-#analysis-view .chart-card {
+:is(#analysis-view, #overview-view) .chart-card {
   height: auto;
 }
 
-#analysis-view .metrics-grid {
+:is(#analysis-view, #overview-view) .metrics-grid {
   grid-template-columns: repeat(5, 1fr);
 }
 
 @media (max-width: 1024px) {
-  #analysis-view .metrics-grid {
+  :is(#analysis-view, #overview-view) .metrics-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-  #analysis-view .charts-grid {
+  :is(#analysis-view, #overview-view) .charts-grid {
     grid-template-columns: 1fr;
   }
 }
 
 /* グリッドの中の canvas が親の幅を押し広げないように（Chart.js の responsive の定石） */
-#analysis-view .chart-card,
-#analysis-view .an-chart-wrapper,
-#analysis-view .charts-grid > * {
+:is(#analysis-view, #overview-view) .chart-card,
+:is(#analysis-view, #overview-view) .an-chart-wrapper,
+:is(#analysis-view, #overview-view) .charts-grid > * {
   min-width: 0;
 }
 
 /* 表の中のリンク（既定の青はダークで 1.86:1）＝面の上のリンク文字の変数を使う */
-#analysis-view .an-table a {
+:is(#analysis-view, #overview-view) .an-table a {
   color: var(--accent-text);
   text-decoration: none;
 }
 
-#analysis-view .an-table a:hover {
+:is(#analysis-view, #overview-view) .an-table a:hover {
   text-decoration: underline;
 }
 
 /* 判定のセルは折り返さない（スマホで「当てはまらな／い」と割れる＝エマ軽） */
-#analysis-view .an-table td.verdict {
+:is(#analysis-view, #overview-view) .an-table td.verdict {
   white-space: nowrap;
 }
 
 /* スマホ（カード表示）では数値セルを折り返してよい＝長い実測で右列（閾値・判定）が外へ出ないように（エマ重1）。判定だけは折り返さない */
 @media (max-width: 768px) {
-  #analysis-view .an-table td.num {
+  :is(#analysis-view, #overview-view) .an-table td.num {
     white-space: normal;
   }
-  #analysis-view .an-table tbody tr {
+  :is(#analysis-view, #overview-view) .an-table tbody tr {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
-  #analysis-view .an-table td.verdict {
+  :is(#analysis-view, #overview-view) .an-table td.verdict {
     white-space: nowrap;
   }
-  #analysis-view .an-table td.def {
+  :is(#analysis-view, #overview-view) .an-table td.def {
     min-width: 0;
   }
 }

@@ -298,7 +298,7 @@
     });
 
     const items = [
-      { n: 1, label: `直近${W}日出来高の前${W}日比`, def: `全PJの24h出来高合算。${fmtMD(ra)}〜${fmtMD(rb)} ÷ ${fmtMD(pa)}〜${fmtMD(pb)}`,
+      { n: 1, label: `直近${W}日出来高の前${W}日比`, def: `全PJの24H 出来高の合算。${fmtMD(ra)}〜${fmtMD(rb)} ÷ ${fmtMD(pa)}〜${fmtMD(pb)}`,
         threshold: `+${T.volumeChangePct}%以上`, actual: `${fmtYen(vLast)} ÷ ${fmtYen(vPrev)} ＝ ${fmtPct(vChange, 0)}（上位2PJを除くと ${fmtPct(exChange, 0)}）`,
         ok: vChange !== null && vChange >= T.volumeChangePct },
       { n: 2, label: `窓内の後半が前半より多い`, def: `${W}日の窓を前半・後半に割り、出来高合算の 後半（${fmtMD(ha)}〜${fmtMD(rb)}）÷ 前半（${fmtMD(ra)}〜${fmtMD(addDays(ha, -1))}）`,

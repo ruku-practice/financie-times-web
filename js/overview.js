@@ -1,5 +1,5 @@
 /* ============================================================
- * FiNANCiE TIMES 全体市況タブ（Dune型ダッシュボード） v3.1.1
+ * FiNANCiE TIMES 全体市況タブ（Dune型ダッシュボード） v3.2.0
  *
  * advanced.js が読み込まれたあとに読み込まれる想定（同じドキュメント内の
  * 別スクリプトなので、トップレベルの let/const は共有される）。
@@ -9,7 +9,7 @@
 (function () {
   "use strict";
 
-  const OV_APP_VERSION = "3.1.1";
+  const OV_APP_VERSION = "3.2.0";
 
   // 出来高の単位＝「円」（2026-09-12 21:30 ルク決定・本家 financie.jp が円表示のため）。
   // ラベルの定義はここ1か所だけ（A12）。切り替えるときはこの1行だけ直せばよい。
@@ -1150,7 +1150,7 @@
     setActive(dom.topnGroup, "data-topn", String(s.topN));
     setActive(dom.metricGroup, "data-metric", s.metric);
     if (dom.showOthers) dom.showOthers.checked = s.showOthers;
-    if (dom.shareView) setActive(dom.shareView, "data-view", ovState.shareView === "donut" ? "donut" : "stack"); // 再読み込み後も釦の見た目を記憶に合わせる
+    if (dom.shareView) setActive(dom.shareView, "data-view", ovState.shareView); // donut | stack | bundle（再読み込み後も記憶に合わせる）
     const gapGroup = document.getElementById("ov-gap-mode");
     if (gapGroup) gapGroup.querySelectorAll("button[data-gap]").forEach((b) => {
       const on = (b.getAttribute("data-gap") === "raw") === (s.gap === "raw");
@@ -1228,6 +1228,13 @@
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
+        // データを読む前に画面に入ったとき（再読み込みでスクロール位置が戻った等）は、印だけ付けて初回の描画に任せる
+        if (!ovState.initialized) {
+          if (entry.target === dCard) ovState.panelDReady = true;
+          if (entry.target === eCard) ovState.panelEReady = true;
+          observer.unobserve(entry.target);
+          return;
+        }
         if (entry.target === dCard && !ovState.panelDReady) {
           ovState.panelDReady = true;
           renderPanelD(computeTopNVolumeFolders());
@@ -1431,7 +1438,7 @@
       syncShareButtons();
       dom.shareView.querySelectorAll("button[data-view]").forEach((btn) => {
         btn.addEventListener("click", () => {
-          if (merged()) { merged().setView("share", btn.getAttribute("data-view") === "donut" ? "donut" : "trend"); return; }
+          if (merged()) { const v = btn.getAttribute("data-view"); merged().setView("share", v === "donut" || v === "bundle" ? v : "trend"); return; }
           ovState.shareView = btn.getAttribute("data-view") === "donut" ? "donut" : "stack";
           try { localStorage.setItem(SHARE_VIEW_KEY, ovState.shareView); } catch (e) { /* 記憶できなくても動く */ }
           syncShareButtons();

@@ -51,3 +51,59 @@ html[data-layout="v"] #analysis-view .chart-card.full-width {
 .layout-toggle {
   min-height: 44px;
 }
+
+/* ============================================================
+   合体 v3.2.0：全体市況の箱の中の「見せ方」（分析の図）と、結論の KPI
+   ============================================================ */
+#overview-view #ov-kpi-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+@media (max-width: 1100px) {
+  #overview-view #ov-kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 768px) {
+  #overview-view #ov-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+#overview-view [data-view-pane] .an-chart-wrapper {
+  position: relative;
+  height: 320px;
+}
+@media (max-width: 768px) {
+  #overview-view [data-view-pane] .an-chart-wrapper { height: 240px; }
+}
+#overview-view .ov-header-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+#overview-view .ov-gap-group .ov-control-label {
+  color: var(--text-primary);
+}
+
+/* 見せ方の釦＝枠つきのチップを少し離して並べる（詰まって1つの文に見えた＝v3.2.0 目視） */
+#overview-view .ft-view-group,
+#overview-view #ov-share-view {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-right: 8px;
+}
+#overview-view .ft-view-group .ov-size-btn,
+#overview-view #ov-share-view .ov-size-btn {
+  border: 1px solid var(--legend-chip-border);
+  border-radius: 6px;
+  padding: 2px 10px;
+  background: transparent;
+  color: var(--text-primary);
+}
+#overview-view .ft-view-group .ov-size-btn.active,
+#overview-view #ov-share-view .ov-size-btn.active {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: #fff;
+}
+@media (max-width: 768px) {
+  #overview-view .ft-view-group .ov-size-btn,
+  #overview-view #ov-share-view .ov-size-btn { min-height: 44px; }
+}

@@ -193,11 +193,15 @@ async function run() {
     const filesAfterMetric = await page.evaluate(() => window.__ovLoadedFiles.slice());
     const priceCountBefore = filesBeforeMetric.filter((f) => f.includes("price.json")).length;
     const priceCountAfter = filesAfterMetric.filter((f) => f.includes("price.json")).length;
-    const onlyMarketAndV24Initially = filesBeforeMetric.every((f) => f.includes("market.json") || f.includes("v24.json"))
+    // v3.2.0：結論（機運の5指標）がメンバーと価格を使うため、最初に読むのは market・v24＋結論の分（price・members・monthly・bundles）まで。
+    //        在庫・時価総額・30日出来高は読まない。同じファイルは2回取りに行かない（読み込みの共有＝契約 A）
+    const allowedInitial = ["market.json", "v24.json", "price.json", "members.json", "monthly.json", "bundles.json"];
+    const initialOk = filesBeforeMetric.every((f) => allowedInitial.some((a) => f.endsWith(a)))
       && filesBeforeMetric.some((f) => f.includes("market.json"))
-      && filesBeforeMetric.some((f) => f.includes("v24.json"));
-    record("A8-initial-files", onlyMarketAndV24Initially, `before=${JSON.stringify(filesBeforeMetric)}`);
-    record("A8-price-once", priceCountBefore === 0 && priceCountAfter === 1, `before=${priceCountBefore} after=${priceCountAfter}`);
+      && filesBeforeMetric.some((f) => f.includes("v24.json"))
+      && new Set(filesBeforeMetric).size === filesBeforeMetric.length;
+    record("A8-initial-files", initialOk, `before=${JSON.stringify(filesBeforeMetric)}`);
+    record("A8-price-once", priceCountAfter === 1 && priceCountBefore <= 1, `before=${priceCountBefore} after=${priceCountAfter}`);
     await page.click('#ov-metric-group button[data-metric="volume"]');
     await page.waitForTimeout(200);
 
@@ -483,10 +487,10 @@ async function run() {
     await page.waitForFunction(() => !!window.FinancieOverview._debug.charts.members, { timeout: 15000 });
     await page.waitForTimeout(400);
     const gapPersist = await gapSum();
-    await page.click('#ov-gap-mode button[data-gap="exclude"]');
+    await page.click('#ov-gap-mode button[data-gap="smooth"]');
     await page.waitForTimeout(400);
     record("A46b-members-gap-edges", gapEdges.mass.length === 3 && gapEdges.mass.includes("2024-09-12") && gapEdges.mass.includes("2024-09-14") && gapEdges.mass.includes("2026-06-24") && gapEdges.s0912raw <= -40000 && Math.abs(gapEdges.s0912fill) < 2000 && Math.abs(gapEdges.s0914fill) < 2000 && gapEdges.waNotFilled, JSON.stringify(gapEdges));
-    record("A46-members-gap-toggle", gapExclude.i >= 0 && gapExclude.mode === "exclude" && gapExclude.active === "exclude" && gapExclude.sum > -1000 && gapExclude.note.includes("2026/06/24") && gapRaw.mode === "raw" && gapRaw.sum <= -15000 && gapRaw.note.includes("2026/06/24") && gapPersist.mode === "raw" && gapPersist.active === "raw" && gapExclude.yMin > gapRaw.yMin, JSON.stringify({ exclude: { sum: gapExclude.sum, yMin: gapExclude.yMin, note: gapExclude.note.slice(0, 60) }, raw: { sum: gapRaw.sum, yMin: gapRaw.yMin }, persist: gapPersist.mode }));
+    record("A46-members-gap-toggle", gapExclude.i >= 0 && gapExclude.mode === "exclude" && gapExclude.active === "smooth" && gapExclude.sum > -1000 && gapExclude.note.includes("2026/06/24") && gapRaw.mode === "raw" && gapRaw.sum <= -15000 && gapRaw.note.includes("2026/06/24") && gapPersist.mode === "raw" && gapPersist.active === "raw" && gapExclude.yMin > gapRaw.yMin, JSON.stringify({ exclude: { sum: gapExclude.sum, yMin: gapExclude.yMin, note: gapExclude.note.slice(0, 60) }, raw: { sum: gapRaw.sum, yMin: gapRaw.yMin }, persist: gapPersist.mode }));
     await page.click('#ov-period-group button[data-period="90"]');
     await page.waitForTimeout(400);
 
@@ -606,14 +610,14 @@ async function run() {
     record("A32-theme-back", backLight === "light/light", backLight);
 
     // A33: グラフの高さ＝各グラフ右上の小／中／大（既定＝中）・グラフごとに記憶・再読み込みで保たれる・chartArea が実際に増える
-    const sizeBefore = await page.evaluate(() => { const c = window.FinancieOverview._debug.charts.volume; return { area: Math.round(c.chartArea.bottom - c.chartArea.top), h: c.canvas.closest(".chart-wrapper").getBoundingClientRect().height, active: c.canvas.closest(".chart-card").querySelector(".ov-size-btn.active").getAttribute("data-size") }; });
+    const sizeBefore = await page.evaluate(() => { const c = window.FinancieOverview._debug.charts.volume; return { area: Math.round(c.chartArea.bottom - c.chartArea.top), h: c.canvas.closest(".chart-wrapper").getBoundingClientRect().height, active: c.canvas.closest(".chart-card").querySelector(".ov-size-btn[data-size].active").getAttribute("data-size") }; });
     await page.click('#ov-legend-volume ~ *, #ovVolumeChart ~ *', { trial: true }).catch(() => {});
     await page.evaluate(() => document.querySelector("#ovVolumeChart").closest(".chart-card").querySelector('.ov-size-btn[data-size="l"]').click());
     await page.waitForTimeout(500);
     const sizeAfter = await page.evaluate(() => { const c = window.FinancieOverview._debug.charts.volume; return { area: Math.round(c.chartArea.bottom - c.chartArea.top), h: c.canvas.closest(".chart-wrapper").getBoundingClientRect().height, stored: localStorage.getItem("ft_chart_size"), shareH: window.FinancieOverview._debug.charts.share.canvas.closest(".chart-wrapper").getBoundingClientRect().height }; });
     await page.reload({ waitUntil: "domcontentloaded" });
     await waitOverviewReady(page);
-    const sizePersist = await page.evaluate(() => { const c = window.FinancieOverview._debug.charts.volume; return { h: c.canvas.closest(".chart-wrapper").getBoundingClientRect().height, active: c.canvas.closest(".chart-card").querySelector(".ov-size-btn.active").getAttribute("data-size") }; });
+    const sizePersist = await page.evaluate(() => { const c = window.FinancieOverview._debug.charts.volume; return { h: c.canvas.closest(".chart-wrapper").getBoundingClientRect().height, active: c.canvas.closest(".chart-card").querySelector(".ov-size-btn[data-size].active").getAttribute("data-size") }; });
     record("A33-chart-size", sizeBefore.active === "m" && sizeBefore.h === 320 && sizeAfter.h === 460 && sizeAfter.area > sizeBefore.area + 100 && sizeAfter.shareH === 320 && JSON.parse(sizeAfter.stored).volume === "l" && sizePersist.h === 460 && sizePersist.active === "l",
       JSON.stringify({ sizeBefore, sizeAfter, sizePersist }));
     await page.evaluate(() => { localStorage.removeItem("ft_chart_size"); localStorage.removeItem("ft_theme"); });
