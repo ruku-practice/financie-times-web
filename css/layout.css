@@ -138,10 +138,27 @@ html[data-layout="v"] #analysis-view .chart-card.full-width {
   line-height: 1.5;
 }
 
-/* 日付別ランキング：並べ替え中の列の見出しに ▼（エマ 日付別 軽3） */
+/* 日付別ランキング：並べ替え中の列の見出しに ↓（エマ 日付別 軽3）。
+   v3.2.4 で増減の記号を「+」「▲」にしたため、三角（▼）は使わず矢印にする（増減の ▲ と混同しない） */
 #daily-travel-view th[aria-sort="descending"]::after {
-  content: " ▼";
-  font-size: 0.75em;
+  content: " ↓";
+  font-size: 0.85em;
+}
+
+/* 増減のセルと見出しは折り返さない（「▲1未満」「前日差」が細い列で2行に割れていた・v3.2.4 目視）。表は横スクロールの箱の中 */
+#daily-travel-view .historic-ranking-table th,
+#daily-travel-view .historic-ranking-table td.diff-up,
+#daily-travel-view .historic-ranking-table td.diff-down,
+#daily-travel-view .historic-ranking-table td.diff-flat {
+  white-space: nowrap;
+}
+
+/* 価格の上昇率順・上昇額順のときだけ出る足切りの注記（v3.2.4） */
+#daily-travel-view .daily-sort-note {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-secondary);
 }
 
 /* 中9：スマホの操作帯＝「期間」だけ見せ、残りは「絞り込み ▾」でたたむ（設計書どおり）。PC では釦を出さない */

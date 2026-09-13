@@ -233,7 +233,7 @@ async function main() {
     const m16pc = await page.evaluate(() => { window.scrollTo(0, 0); return { toggle: document.getElementById("ov-controls-toggle").getBoundingClientRect().height, gran: document.getElementById("ov-granularity-group").getBoundingClientRect().height, gap: document.getElementById("ov-gap-mode").getBoundingClientRect().height }; });
     record("M16-pc-no-controls-toggle", m16pc.toggle === 0 && m16pc.gran > 0 && m16pc.gap > 0, m16pc);
 
-    // M20 日付別ランキング PC：並べ替え中の列の見出しに ▼（エマ 日付別 軽3）
+    // M20 日付別ランキング PC：並べ替え中の列の見出しに ↓（エマ 日付別 軽3。v3.2.4 で増減の記号を「+」「▲」にしたため三角をやめて矢印）
     await page.click('.tab-nav-btn[data-tab="daily-tab"]');
     await page.waitForFunction(() => document.querySelectorAll("#historic-ranking-tbody tr").length > 5, { timeout: 30000 });
     const sortTh = () => page.evaluate(() => Array.from(document.querySelectorAll("#daily-travel-view th[aria-sort]")).map((th) => ({ col: th.getAttribute("data-sort-col"), after: getComputedStyle(th, "::after").content })));
@@ -243,7 +243,7 @@ async function main() {
     const m20b = await sortTh();
     await page.click('.sort-criteria-group .sort-tab-btn[data-sort="volume"]');
     await page.click('.tab-nav-btn[data-tab="overview-tab"]');
-    record("M20-daily-sorted-column-mark", m20a.length === 1 && m20a[0].col === "volume" && /▼/.test(m20a[0].after) && m20b.length === 1 && m20b[0].col === "members", { m20a, m20b });
+    record("M20-daily-sorted-column-mark", m20a.length === 1 && m20a[0].col === "volume" && /↓/.test(m20a[0].after) && !/[▲▼]/.test(m20a[0].after) && m20b.length === 1 && m20b[0].col === "members", { m20a, m20b });
 
     // M25 旧「分析」タブを外した（ルク決裁 12:33）＝釦も画面も無い・?tab=analysis で来ても全体市況が出て URL から tab だけ消える・data/analysis は読まない
     const oldTab = await ctx.newPage();
@@ -331,7 +331,8 @@ async function main() {
     await sPage.click('.tab-nav-btn[data-tab="daily-tab"]');
     await sPage.waitForFunction(() => document.querySelectorAll("#historic-ranking-tbody tr").length > 5, { timeout: 30000 });
     const m21 = await sPage.evaluate(() => Array.from(document.querySelectorAll(".sort-criteria-group .sort-tab-btn")).map((b) => Math.round(b.getBoundingClientRect().height)));
-    record("M21-sp-daily-sort-44", m21.length === 2 && m21.every((h) => h >= 44), { heights: m21 });
+    // v3.2.4 で価格の上昇率順・上昇額順を足した＝釦は4つ
+    record("M21-sp-daily-sort-44", m21.length === 4 && m21.every((h) => h >= 44), { heights: m21 });
     await sPage.click('.tab-nav-btn[data-tab="overview-tab"]');
     record("M8-no-horizontal-overflow", ov1280.sw <= ov1280.iw && ov390.sw <= ov390.iw, { ov1280, ov390 });
     record("M0-no-console-errors", errors.length === 0, { n: errors.length, first: errors.slice(0, 3) });

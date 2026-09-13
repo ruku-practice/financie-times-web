@@ -1,5 +1,5 @@
 
-  const APP_VERSION = "3.2.3";
+  const APP_VERSION = "3.2.4";
   console.info("FiNANCiE TIMES v" + APP_VERSION);
 
   let projectsList = [];
@@ -18,7 +18,7 @@
 
   // タイムトラベル用の状態
   let travelDate = ""; // "YYYY-MM-DD"
-  let travelSort = "volume"; // "volume" or "members"
+  let travelSort = "volume"; // DAILY_SORTS のキー＝"volume" / "members" / "price_rate" / "price_diff"
   let dailyData = []; // 現在ロードされている日の全データ
   let showAllDaily = false;
   let dailyCollectedMap = {}; // { "YYYYMMDD": "ISO日時" } 各日の取得日時
@@ -69,6 +69,7 @@
   // クラスだけで拾うと全体市況で押したときに travelSort が null になり、並びがメンバー増加数順に落ちていた＝2026-09-13 ルク 08:36）
   const sortTabButtons = document.querySelectorAll(".sort-criteria-group .sort-tab-btn[data-sort]");
   const historicRankingTbody = document.getElementById("historic-ranking-tbody");
+  const dailySortNote = document.getElementById("daily-sort-note");
   const btnLoadMoreDaily = document.getElementById("btn-load-more-daily");
   const travelInfo = document.getElementById("travel-info");
 
@@ -133,14 +134,25 @@
     });
   };
 
-  // 差分のフォーマット（▲／▼ とカラー用クラス）
-  const formatDiffText = (diff, isPercent = false, decimals = 0) => {
-    if (diff === undefined || diff === null || diff === 0) return "-";
-    const arrow = diff > 0 ? "▲" : "▼";
-    const suffix = isPercent ? "%" : "";
-    const val = decimals > 0 ? formatFloat(Math.abs(diff), decimals) : formatNumber(Math.abs(diff));
-    return `${arrow}${val}${suffix}`;
+  // 差分のフォーマット＝日本の会計表記（上昇「+」・下落「▲」・表示の桁で0になるものは「±0」・値が無いときは「-」）
+  // ▲を上昇に使うとマイナスに読める（ルク 2026-09-13 13:27）。符号は表示する桁で丸めた値から決める（「+0.00%」を出さない）
+  const roundForDisplay = (diff, decimals) => {
+    const f = Math.pow(10, decimals);
+    return Math.round(Math.abs(diff) * f) / f;
   };
+  const formatDiffText = (diff, isPercent = false, decimals = 0) => {
+    if (typeof diff !== "number" || !isFinite(diff)) return "-";
+    const suffix = isPercent ? "%" : "";
+    if (diff === 0) return `±0${suffix}`;
+    const mark = diff > 0 ? "+" : "▲";
+    const shown = roundForDisplay(diff, decimals);
+    // 動いたのに表示の桁では0になるもの＝「±0」にすると動かなかったように読める→「+0.01%未満」（Astra 相談 2026-09-13）
+    if (shown === 0) return `${mark}${decimals > 0 ? formatFloat(Math.pow(10, -decimals), decimals) : "1"}${suffix}未満`;
+    return `${mark}${decimals > 0 ? formatFloat(shown, decimals) : formatNumber(shown)}${suffix}`;
+  };
+
+  // 価格の桁：1円未満は小数4桁（0.0317→0.0335円が両方「0.03」に見えて +5.7% が不自然になるのを防ぐ）・1円以上は2桁
+  const priceDecimals = (v) => (typeof v === "number" && isFinite(v) && Math.abs(v) < 1 ? 4 : 2);
 
   // グラフの文字色（背景の白黒に合わせる。トグルは overview.js）
   // 色の正本は css/advanced.css の CSS 変数（js/theme.js の FtTheme で読む・読めないときは既定値）＝v3.2.0
@@ -148,8 +160,28 @@
   const chartTextColor = () => themeColor("--chart-tick", document.documentElement.getAttribute("data-theme") === "dark" ? "#9ca3af" : "#4b5563");
 
   const getDiffClass = (diff) => {
-    if (!diff || diff === 0) return "diff-flat";
+    if (typeof diff !== "number" || !isFinite(diff) || diff === 0) return "diff-flat";
     return diff > 0 ? "diff-up" : "diff-down";
+  };
+
+  // 価格の前日比［％］＝前日差 ÷ 前日価格（前日価格＝現在価格−前日差）。前日価格が0以下・値が無いときは null
+  const priceRateOf = (item) => {
+    const p = item.price, d = item.price_diff;
+    if (typeof p !== "number" || typeof d !== "number" || !isFinite(p) || !isFinite(d)) return null;
+    const base = p - d;
+    return base > 0 ? (d / base) * 100 : null;
+  };
+
+  // 日付別ランキングの並べ替え（v3.2.4 で価格の2つを追加・ルク 2026-09-13 13:27）。
+  // 価格の2つは足切り＝24H出来高1,000円以上かつ前日価格が分かる PJ だけ。価格の下限は置かない
+  // （Astra 相談 13:34：出来高100円の売買で +5.7% のような順位を外す。0.1円の下限は根拠が弱く件数もほぼ変わらない）
+  const DAILY_PRICE_MIN_VOLUME = 1000;
+  const isPriceRankable = (item) => typeof item.volume_24h === "number" && item.volume_24h >= DAILY_PRICE_MIN_VOLUME && priceRateOf(item) !== null;
+  const DAILY_SORTS = {
+    volume: { value: (item) => item.volume_24h },
+    members: { value: (item) => item.members_diff },
+    price_rate: { value: priceRateOf, rankable: isPriceRankable },
+    price_diff: { value: (item) => item.price_diff, rankable: isPriceRankable }
   };
 
   // N/A対応
@@ -283,7 +315,6 @@
       item.className = itemClass;
       item.setAttribute("data-folder", proj.folder);
       
-      const sign = proj.member_change_24h > 0 ? "+" : "";
       const changeColor = proj.member_change_24h > 0 
         ? "var(--accent-success)" 
         : proj.member_change_24h < 0 ? "var(--accent-danger)" : "var(--text-secondary)";
@@ -305,7 +336,7 @@
           <div class="project-item-name">${proj.name}</div>
           <div class="project-item-meta">
             <span class="project-item-price">${formatFloat(proj.price, 4)} 円</span>
-            <span style="color: ${changeColor}">${sign}${formatNumber(proj.member_change_24h)}人</span>
+            <span style="color: ${changeColor}">${formatDiffText(proj.member_change_24h)}人</span>
           </div>
         </div>
         ${pinnedIconHtml}
@@ -408,19 +439,18 @@
     // 現在価格
     metricPrice.textContent = `${formatFloat(latest.price, 4)} 円`;
     
-    // 価格変化 (前日比)
+    // 価格変化（円の差＝前日差・％＝前日比。記号は日付別ランキングと同じ「+」「▲」＝v3.2.4）
     if (history.length > 1) {
       const prev = history[history.length - 2];
       const diff = latest.price - prev.price;
-      const pct = prev.price > 0 ? (diff / prev.price) * 100 : 0;
-      const sign = diff > 0 ? "+" : "";
+      const pct = prev.price > 0 ? (diff / prev.price) * 100 : null;
       const colorClass = diff > 0 ? "up" : diff < 0 ? "down" : "";
-      
+
       metricPriceSub.className = `metric-sub ${colorClass}`;
-      metricPriceSub.textContent = `前日比: ${sign}${formatFloat(diff, 4)} 円 (${sign}${pct.toFixed(2)}%)`;
+      metricPriceSub.textContent = `前日差: ${formatDiffText(diff, false, 4)} 円（前日比 ${formatDiffText(pct, true, 2)}）`;
     } else {
       metricPriceSub.className = "metric-sub";
-      metricPriceSub.textContent = "前日比: -";
+      metricPriceSub.textContent = "前日差: -";
     }
 
     // 24H 出来高
@@ -436,11 +466,10 @@
     if (history.length > 1) {
       const prev = history[history.length - 2];
       const diff = latest.members - prev.members;
-      const sign = diff > 0 ? "+" : "";
       const colorClass = diff > 0 ? "up" : diff < 0 ? "down" : "";
-      
+
       metricMembersSub.className = `metric-sub ${colorClass}`;
-      metricMembersSub.textContent = `前日比: ${sign}${formatNumber(diff)} 人 (アクティブ: ${cleanRank(latest.active_ranking)})`;
+      metricMembersSub.textContent = `前日差: ${formatDiffText(diff)} 人 (アクティブ: ${cleanRank(latest.active_ranking)})`;
     } else {
       metricMembersSub.className = "metric-sub";
       metricMembersSub.textContent = `アクティブ: ${cleanRank(latest.active_ranking)}`;
@@ -1062,11 +1091,26 @@
       })
       .catch(error => {
         console.error("Error loading daily data:", error);
+        dailyData = []; // 失敗後に並べ替えを押しても、前に開いていた日の表を出さない（Astra 相談の落とし穴）
+        updateDailySortNote(DAILY_SORTS.volume, 0, 0);
+        btnLoadMoreDaily.style.display = "none";
         historicRankingTbody.innerHTML = `<tr><td colspan="12" style="text-align: center; padding: 3rem; color: var(--accent-danger);">指定された日付（${dateStr}）のデータが見つかりません。</td></tr>`;
       });
   }
 
-  // 並べ替え中の列の見出しに印（aria-sort＝descending・▼は CSS）＝どの列で並んでいるか表から分かる（エマ 日付別 軽3）
+  // 価格の2つの並べ替えのときだけ、足切りの注記と件数を出す（v3.2.4）
+  function updateDailySortNote(sortDef, rankedCount, totalCount) {
+    if (!dailySortNote) return;
+    if (!sortDef.rankable || totalCount === 0) {
+      dailySortNote.hidden = true;
+      dailySortNote.textContent = "";
+      return;
+    }
+    dailySortNote.textContent = `価格の上昇率順・上昇額順は、24H 出来高が 1,000円以上で前日価格が分かる PJ だけを、横ばい・下落も含めて並べています（この日 ${rankedCount}件／全${totalCount}件）。`;
+    dailySortNote.hidden = false;
+  }
+
+  // 並べ替え中の列の見出しに印（aria-sort＝descending・↓は CSS）＝どの列で並んでいるか表から分かる（エマ 日付別 軽3）
   function syncSortHeader() {
     document.querySelectorAll("#daily-travel-view th[data-sort-col]").forEach(th => {
       if (th.getAttribute("data-sort-col") === travelSort) th.setAttribute("aria-sort", "descending");
@@ -1083,12 +1127,19 @@
       return;
     }
 
-    const sorted = [...dailyData];
-    // 数でない値（null・文字列）は最後へ。NaN で並びが崩れないように比較する
-    const sortKey = travelSort === "members" ? "members_diff" : "volume_24h";
+    // 価格の2つは足切りを通った PJ だけを並べる（対象外は表から外し、注記に件数を出す＝Astra 相談の案A）
+    const sortDef = DAILY_SORTS[travelSort] || DAILY_SORTS.volume;
+    const sorted = sortDef.rankable ? dailyData.filter(sortDef.rankable) : [...dailyData];
+    updateDailySortNote(sortDef, sorted.length, dailyData.length);
+    if (sorted.length === 0) {
+      btnLoadMoreDaily.style.display = "none";
+      historicRankingTbody.innerHTML = `<tr><td colspan="12" style="text-align: center; padding: 3rem; color: var(--text-secondary);">この日は並べ替えの対象になる PJ（24H 出来高 1,000円以上）がありません</td></tr>`;
+      return;
+    }
+    // 数でない値（null・文字列）は最後へ。NaN で並びが崩れないように比較する。比べるのは丸める前の値
     const num = (v) => (typeof v === "number" && isFinite(v) ? v : Number.NEGATIVE_INFINITY);
     sorted.sort((a, b) => {
-      const x = num(a[sortKey]), y = num(b[sortKey]);
+      const x = num(sortDef.value(a)), y = num(sortDef.value(b));
       return x === y ? 0 : (y > x ? 1 : -1);
     });
 
@@ -1099,7 +1150,7 @@
       btnLoadMoreDaily.style.display = "none";
     } else {
       btnLoadMoreDaily.style.display = "inline-block";
-      btnLoadMoreDaily.textContent = `もっと表示する (全${sorted.length}件)`;
+      btnLoadMoreDaily.textContent = sortDef.rankable ? `もっと表示する (対象${sorted.length}件)` : `もっと表示する (全${sorted.length}件)`;
     }
 
     const defaultLogo = 'https://financie.jp/assets/img/ogp.png';
@@ -1112,23 +1163,24 @@
       
       const basePrice = item.price - item.price_diff;
       const volumeK = Math.round(item.volume_24h / 1000);
-      const volumeKDiff = Math.round(item.volume_24h_diff / 1000);
-      
+      const volumeKDiff = typeof item.volume_24h_diff === "number" ? item.volume_24h_diff / 1000 : null; // 丸めは formatDiffText が表示の桁で行う
+
       const tdVolumeVal = `<td class="text-right bold-text" data-label="24H 出来高［千円］">${formatNumber(volumeK)}</td>`;
-      const tdVolumeDiff = `<td class="text-left ${getDiffClass(volumeKDiff)}" data-label="前日比">${formatDiffText(volumeKDiff)}</td>`;
+      // 語の使い分け（ルク 2026-09-13 13:27）：％の増減＝「前日比」、差の増減＝「前日差」
+      const tdVolumeDiff = `<td class="text-left ${getDiffClass(volumeKDiff)}" data-label="前日差">${formatDiffText(volumeKDiff)}</td>`;
 
-      const basePriceDiffPct = basePrice > 0 ? (item.price_diff / basePrice) * 100 : 0;
-      const tdBasePriceVal = `<td class="text-right bold-text" data-label="前日価格［円］">${formatFloat(basePrice, 2)}</td>`;
-      const tdBasePriceDiff = `<td class="text-left ${getDiffClass(item.price_diff)}" data-label="前日比">${formatDiffText(basePriceDiffPct, true, 2)}</td>`;
+      const basePriceDiffPct = priceRateOf(item);
+      const tdBasePriceVal = `<td class="text-right bold-text" data-label="前日価格［円］">${formatFloat(basePrice, priceDecimals(basePrice))}</td>`;
+      const tdBasePriceDiff = `<td class="text-left ${getDiffClass(basePriceDiffPct)}" data-label="前日比">${formatDiffText(basePriceDiffPct, true, 2)}</td>`;
 
-      const tdPriceVal = `<td class="text-right bold-text" data-label="現在価格［円］">${formatFloat(item.price, 2)}</td>`;
-      const tdPriceDiff = `<td class="text-left ${getDiffClass(item.price_diff)}" data-label="前日比">${formatDiffText(item.price_diff, false, 2)}</td>`;
+      const tdPriceVal = `<td class="text-right bold-text" data-label="現在価格［円］">${formatFloat(item.price, priceDecimals(item.price))}</td>`;
+      const tdPriceDiff = `<td class="text-left ${getDiffClass(item.price_diff)}" data-label="前日差">${formatDiffText(item.price_diff, false, priceDecimals(Math.min(item.price, basePrice)))}</td>`;
 
       const tdMembersVal = `<td class="text-right bold-text" data-label="メンバー数［人］">${formatNumber(item.members)}</td>`;
-      const tdMembersDiff = `<td class="text-left ${getDiffClass(item.members_diff)}" data-label="前日比">${formatDiffText(item.members_diff)}</td>`;
+      const tdMembersDiff = `<td class="text-left ${getDiffClass(item.members_diff)}" data-label="前日差">${formatDiffText(item.members_diff)}</td>`;
 
       const tdStockVal = `<td class="text-right bold-text" data-label="トークン在庫［個］">${formatNumber(item.stock)}</td>`;
-      const tdStockDiff = `<td class="text-left ${getDiffClass(item.stock_diff)}" data-label="前日比">${formatDiffText(item.stock_diff)}</td>`;
+      const tdStockDiff = `<td class="text-left ${getDiffClass(item.stock_diff)}" data-label="前日差">${formatDiffText(item.stock_diff)}</td>`;
 
       tr.innerHTML = `
         <td class="text-center bold-text" data-label="順位">${rank}</td>
@@ -1379,8 +1431,9 @@
 
   sortTabButtons.forEach(btn => {
     btn.addEventListener("click", () => {
-      // 押した釦そのもの（e.target は中の要素になりうる）・値は2つだけ受け付ける
-      travelSort = btn.getAttribute("data-sort") === "members" ? "members" : "volume";
+      // 押した釦そのもの（e.target は中の要素になりうる）・値は DAILY_SORTS のキーだけ受け付ける
+      const key = btn.getAttribute("data-sort");
+      travelSort = Object.prototype.hasOwnProperty.call(DAILY_SORTS, key) ? key : "volume";
       sortTabButtons.forEach(b => {
         const on = b.getAttribute("data-sort") === travelSort;
         b.classList.toggle("active", on);

@@ -6,10 +6,10 @@
   <title>FiNANCiE TIMES | 市況ダッシュボード</title>
   <link rel="canonical" href="https://ruku-practice.github.io/financie-times-web/">
   <script>/* 背景の白黒：既定はライト（白）・記憶が dark のときだけダーク（OS に追従しない）。ちらつき防止のため最初に。JS 側は data-theme を見るので属性は必ず付ける */(function(){var t="light";try{if(localStorage.getItem("ft_theme")==="dark"){t="dark";}}catch(e){}document.documentElement.setAttribute("data-theme",t);})();</script>
-  <link rel="stylesheet" href="css/advanced.css?v=3.2.3">
-  <link rel="stylesheet" href="css/overview.css?v=3.2.3">
-  <link rel="stylesheet" href="css/analysis.css?v=3.2.3">
-  <link rel="stylesheet" href="css/layout.css?v=3.2.3">
+  <link rel="stylesheet" href="css/advanced.css?v=3.2.4">
+  <link rel="stylesheet" href="css/overview.css?v=3.2.4">
+  <link rel="stylesheet" href="css/analysis.css?v=3.2.4">
+  <link rel="stylesheet" href="css/layout.css?v=3.2.4">
   <script>/* 箱の並び：記憶があれば最初の描画から反映 */try{document.documentElement.setAttribute("data-layout",localStorage.getItem("ft_layout")==="h"?"h":"v");}catch(e){document.documentElement.setAttribute("data-layout","v");}</script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -373,7 +373,7 @@
           <footer class="ov-footer" id="ov-footer">
             <p>非公式サイトです。FiNANCiE から許可を得て、公開ページの表示値を毎日1回記録しています。</p>
             <p>全データを取り切れていない可能性があります。参考値としてご覧ください（正確性は保証しません）。</p>
-            <p>「ならす」は 24H 出来高が取れなかった日（24H＝30日の一致）を除きます（「記録どおり」で元の値）・期間は暦日で数え、週は期末を末尾にした7日です・期間合計は毎晩1回の記録の合計で厳密な期間出来高ではありません・出来高の単位は円・v3.2.3</p>
+            <p>「ならす」は 24H 出来高が取れなかった日（24H＝30日の一致）を除きます（「記録どおり」で元の値）・期間は暦日で数え、週は期末を末尾にした7日です・期間合計は毎晩1回の記録の合計で厳密な期間出来高ではありません・出来高の単位は円・v3.2.4</p>
           </footer>
         </div>
 
@@ -402,10 +402,15 @@
 
             <div class="sort-criteria-group">
               <span style="font-size: 12px; color: var(--text-secondary); font-weight: bold;">並べ替え: </span>
-              <button class="sort-tab-btn active" data-sort="volume">24H 出来高順</button>
-              <button class="sort-tab-btn" data-sort="members">メンバー増加数順</button>
+              <button type="button" class="sort-tab-btn active" data-sort="volume" aria-pressed="true">24H 出来高順</button>
+              <button type="button" class="sort-tab-btn" data-sort="members" aria-pressed="false">メンバー増加数順</button>
+              <button type="button" class="sort-tab-btn" data-sort="price_rate" aria-pressed="false">価格の上昇率（前日比）順</button>
+              <button type="button" class="sort-tab-btn" data-sort="price_diff" aria-pressed="false">価格の上昇額（前日差）順</button>
             </div>
           </div>
+
+          <!-- 価格の2つの並べ替えのときだけ出す足切りの注記（js/advanced.js が文と表示を決める・v3.2.4） -->
+          <p id="daily-sort-note" class="daily-sort-note" role="note" hidden></p>
 
           <!-- 取得日時・対象日の注記（CNP TIMES と同様に、日付は取得日で内容は前日の結果） -->
           <div id="travel-info" class="travel-info" role="note"></div>
@@ -419,15 +424,15 @@
                     <th style="width: 5%;">順位</th>
                     <th style="width: 22%; text-align: left;">プロジェクト</th>
                     <th data-sort-col="volume" aria-sort="descending">24H 出来高［千円］</th>
-                    <th>前日比</th>
+                    <th>前日差</th>
                     <th>前日価格［円］</th>
-                    <th>前日比</th>
+                    <th data-sort-col="price_rate">前日比</th>
                     <th>現在価格［円］</th>
-                    <th>前日比</th>
+                    <th data-sort-col="price_diff">前日差</th>
                     <th>メンバー数［人］</th>
-                    <th data-sort-col="members">前日比</th>
+                    <th data-sort-col="members">前日差</th>
                     <th>トークン在庫［個］</th>
-                    <th>前日比</th>
+                    <th>前日差</th>
                   </tr>
                 </thead>
                 <tbody id="historic-ranking-tbody">
@@ -488,18 +493,18 @@
 
     </div>
 
-    <footer class="app-footer">FiNANCiE TIMES v3.2.3（非公式） ・ 毎晩自動更新 ・ <a href="https://financie.jp">FiNANCiE公式</a></footer>
+    <footer class="app-footer">FiNANCiE TIMES v3.2.4（非公式） ・ 毎晩自動更新 ・ <a href="https://financie.jp">FiNANCiE公式</a></footer>
   </div>
 
-  <script src="js/theme.js?v=3.2.3"></script>
-  <script src="js/merged-core.js?v=3.2.3"></script>
-  <script src="js/merged.js?v=3.2.3"></script>
-  <script src="js/chart-legend.js?v=3.2.3"></script>
-  <script src="js/advanced.js?v=3.2.3"></script>
-  <script src="js/overview.js?v=3.2.3"></script>
-  <script src="js/analysis-core.js?v=3.2.3"></script>
-  <script src="js/analysis.js?v=3.2.3"></script>
-  <script src="js/merged-analysis.js?v=3.2.3"></script>
-  <script src="js/layout.js?v=3.2.3"></script>
+  <script src="js/theme.js?v=3.2.4"></script>
+  <script src="js/merged-core.js?v=3.2.4"></script>
+  <script src="js/merged.js?v=3.2.4"></script>
+  <script src="js/chart-legend.js?v=3.2.4"></script>
+  <script src="js/advanced.js?v=3.2.4"></script>
+  <script src="js/overview.js?v=3.2.4"></script>
+  <script src="js/analysis-core.js?v=3.2.4"></script>
+  <script src="js/analysis.js?v=3.2.4"></script>
+  <script src="js/merged-analysis.js?v=3.2.4"></script>
+  <script src="js/layout.js?v=3.2.4"></script>
 </body>
 </html>
