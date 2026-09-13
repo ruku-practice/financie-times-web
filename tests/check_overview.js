@@ -161,13 +161,27 @@ async function run() {
       const ds = window.FinancieOverview._debug.charts.volume.data.datasets;
       return ds.reduce((s, d) => s + d.data.reduce((a, b) => a + b, 0), 0);
     });
+    // 捨てた端数＝最初の週の開始日より前の日の合計（日の図の合計から、同じ期間の行列で数え直す）
+    const weekDropped = await page.evaluate(() => {
+      const dbg = window.FinancieOverview._debug;
+      const st = dbg.state;
+      const days = dbg.data.market.days;
+      const labels = dbg.charts.volume.data.labels;
+      const firstStart = labels[0].slice(0, 10).replace(/\//g, "-");
+      const lastLabel = labels[labels.length - 1];
+      const rows = window.FtMergedCore.volumeRows(dbg.data.volume, window.FtMerged ? window.FtMerged.state().gap : "smooth");
+      let sum = 0;
+      for (let d = st.startIdx; d <= st.endIdx && days[d] < firstStart; d++) rows.forEach((r) => { if (typeof r[d] === "number") sum += r[d]; });
+      return { days: st.bucketDropped, firstStart, sum, lastEndsAtPeriodEnd: lastLabel.endsWith(days[st.endIdx].slice(5).replace("-", "/")) };
+    });
     await page.click('#ov-granularity-group button[data-granularity="month"]');
     await page.waitForTimeout(300);
     const monthTotal = await page.evaluate(() => {
       const ds = window.FinancieOverview._debug.charts.volume.data.datasets;
       return ds.reduce((s, d) => s + d.data.reduce((a, b) => a + b, 0), 0);
     });
-    record("A7-week", Math.abs(weekTotal - dayTotal) <= 1, `day=${dayTotal} week=${weekTotal}`);
+    // v3.2.0：週＝期末を末尾にした暦日7日・先頭の7日に満たない端数は捨てる＝週の合計＋捨てた端数＝日の合計
+    record("A7-week", Math.abs(weekTotal + weekDropped.sum - dayTotal) <= 1 && weekDropped.lastEndsAtPeriodEnd, `day=${dayTotal} week=${weekTotal} dropped=${JSON.stringify(weekDropped)}`);
     record("A7-month", Math.abs(monthTotal - dayTotal) <= 1, `day=${dayTotal} month=${monthTotal}`);
     await page.click('#ov-granularity-group button[data-granularity="day"]');
     await page.waitForTimeout(300);
@@ -605,6 +619,10 @@ async function run() {
     await page.evaluate(() => { localStorage.removeItem("ft_chart_size"); localStorage.removeItem("ft_theme"); });
 
     // A36: シェアの円グラフ（ルク一言 21:56）＝切替でドーナツ・上位10＋その他の11切片・合計＝KPIの全体出来高・上位のシェア＝KPI・記憶
+    // v3.2.0：既定＝円（ルク決裁 08:26）＝何も押さずに円。記憶のキーは ft_views（見せ方を箱ごとに1つ）
+    const shareDefault = await page.evaluate(() => window.FinancieOverview._debug.charts.share.config.type);
+    await page.click('#ov-share-view button[data-view="stack"]');
+    await page.waitForTimeout(400);
     await page.click('#ov-share-view button[data-view="donut"]');
     await page.waitForTimeout(400);
     const donut = await page.evaluate(() => {
@@ -614,16 +632,17 @@ async function run() {
       const top = data.slice(0, -1).reduce((a, b) => a + b, 0);
       const kpi = Number(document.getElementById("ov-kpi-total").textContent.replace(/[^0-9.]/g, ""));
       const kpiShare = parseFloat(document.getElementById("ov-kpi-share").textContent);
-      return { type: c.config.type, n: data.length, labelLast: c.data.labels[data.length - 1], sum: Math.round(sum), kpi, topShare: +((top / sum) * 100).toFixed(1), kpiShare, stored: localStorage.getItem("ft_share_view"), title: document.getElementById("ov-share-title").textContent, legendN: document.querySelectorAll("#ov-legend-share .ov-legend-item").length };
+      return { type: c.config.type, n: data.length, labelLast: c.data.labels[data.length - 1], sum: Math.round(sum), kpi, topShare: +((top / sum) * 100).toFixed(1), kpiShare, stored: (JSON.parse(localStorage.getItem("ft_views") || "{}").share || null), default: null, title: document.getElementById("ov-share-title").textContent, legendN: document.querySelectorAll("#ov-legend-share .ov-legend-item").length };
     });
-    record("A36-share-donut", donut.type === "doughnut" && donut.n === 11 && donut.labelLast === "その他" && Math.abs(donut.sum - donut.kpi) <= 1 && Math.abs(donut.topShare - donut.kpiShare) <= 0.11 && donut.stored === "donut" && donut.title.includes("円") === false && donut.title.includes("期間合計") && donut.legendN === 11, JSON.stringify(donut));
+    record("A36-share-donut", shareDefault === "doughnut" && donut.type === "doughnut" && donut.n === 11 && donut.labelLast === "その他" && Math.abs(donut.sum - donut.kpi) <= 1 && Math.abs(donut.topShare - donut.kpiShare) <= 0.11 && donut.stored === "donut" && donut.title.includes("円") === false && donut.title.includes("期間合計") && donut.legendN === 11, JSON.stringify(donut));
     await page.reload({ waitUntil: "domcontentloaded" });
     await waitOverviewReady(page);
     const donutPersist = await page.evaluate(() => ({ type: window.FinancieOverview._debug.charts.share.config.type, active: document.querySelector("#ov-share-view button.active").getAttribute("data-view") }));
     await page.click('#ov-share-view button[data-view="stack"]');
     await page.waitForTimeout(400);
-    const backStack = await page.evaluate(() => window.FinancieOverview._debug.charts.share.config.type + "/" + localStorage.getItem("ft_share_view"));
-    record("A36-share-donut-persist", donutPersist.type === "doughnut" && donutPersist.active === "donut" && backStack === "bar/stack", JSON.stringify({ donutPersist, backStack }));
+    const backStack = await page.evaluate(() => window.FinancieOverview._debug.charts.share.config.type + "/" + (JSON.parse(localStorage.getItem("ft_views") || "{}").share || null));
+    record("A36-share-donut-persist", donutPersist.type === "doughnut" && donutPersist.active === "donut" && backStack === "bar/trend", JSON.stringify({ donutPersist, backStack }));
+    await page.evaluate(() => { localStorage.removeItem("ft_views"); });
 
     // A11: フッター文言・煽り語なし
     const footerText = await page.textContent(".ov-footer");

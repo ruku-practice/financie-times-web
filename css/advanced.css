@@ -117,7 +117,7 @@ html[data-theme="dark"] {
 }
 
 
-html:not([data-theme="dark"]) .sort-tab-btn:hover,
+html:not([data-theme="dark"]) .sort-tab-btn:not(.active):hover, /* 選択中の釦に載せない（白い字が薄い灰の地に乗って 1.2:1 になった＝v3.2.0 検査 A32） */
 html:not([data-theme="dark"]) .action-btn:hover,
 html:not([data-theme="dark"]) .btn-external:hover {
   background: rgba(15, 23, 42, 0.06);

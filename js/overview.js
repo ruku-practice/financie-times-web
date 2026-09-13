@@ -157,6 +157,19 @@
 
   window.__ovLoadedFiles = window.__ovLoadedFiles || [];
 
+  /* 合体 v3.2.0：集計の共通部品（js/merged-core.js）と、共通の状態・URL の持ち主（js/merged.js）を使う。
+     FtMerged が無いとき（旧 index.html）は、これまでどおりこのファイルが状態を持つ。 */
+  const core = () => window.FtMergedCore;
+  const merged = () => window.FtMerged || null;
+  // 欠測・一斉変動の日の扱い：smooth（ならす・既定）／raw（記録どおり）
+  function gapMode() {
+    const m = merged();
+    if (m) return m.state().gap === "raw" ? "raw" : "smooth";
+    return ovState.gapMode === "raw" ? "raw" : "smooth";
+  }
+  // 出来高の行列（smooth＝24H＝30日の日を値なしに・raw＝生の値）
+  function volRows() { return core().volumeRows(ovData.volume, gapMode()); }
+
   /* ------------------------------------------------------------
    * DOM
    * ------------------------------------------------------------ */
@@ -264,9 +277,13 @@
     return payload;
   }
 
+  const MERGED_FILE = { market: "market", volume: "v24", price: "price", members: "members", stock: "stock", mcap: "mcap" };
+
   function ensureMetricLoaded(metricKey) {
     if (ovData[metricKey]) return Promise.resolve(ovData[metricKey]);
-    return fetchOverviewFile(OVERVIEW_CONFIG.dataFiles[metricKey]).then((payload) => {
+    const m = merged();
+    const pr = m ? m.load(MERGED_FILE[metricKey]) : fetchOverviewFile(OVERVIEW_CONFIG.dataFiles[metricKey]);
+    return pr.then((payload) => {
       ovData[metricKey] = metricKey === "market" ? payload : indexMetricPayload(payload);
       return ovData[metricKey];
     });
@@ -308,37 +325,23 @@
    * ------------------------------------------------------------ */
   function computeRange() {
     const days = ovData.market.days;
-    const latestIdx = days.length - 1;
-
-    if (ovState.period === "custom") {
-      const startVal = dom.startInput.value;
-      const endVal = dom.endInput.value;
-      // 終了日: データの範囲外（過去すぎ）なら最古日へ丸める（floorIndexが-1を返すのは
-      // 「target未満の日が1つも無い」＝終了日がデータの最初の日より前のケース）。
-      let endIdx = endVal ? floorIndex(days, endVal) : latestIdx;
-      if (endIdx < 0) endIdx = 0;
-      // 開始日: データの範囲外（未来すぎ）なら最古日ではなく最新日へ丸める（ceilIndexがdays.lengthを
-      // 返すのは「target以上の日が1つも無い」＝開始日がデータの最後の日より後のケース）。
-      let startIdx = startVal ? ceilIndex(days, startVal) : 0;
-      if (startIdx >= days.length) startIdx = latestIdx;
-      // 開始日＞終了日は黙って収束させず、入れ替えて扱う（利用者へ注記を出す）。
-      ovState.rangeSwapped = false;
-      if (startIdx > endIdx) {
-        const tmp = startIdx; startIdx = endIdx; endIdx = tmp;
-        ovState.rangeSwapped = true;
-      }
-      ovState.startIdx = startIdx;
-      ovState.endIdx = endIdx;
-    } else if (ovState.period === "all") {
-      ovState.startIdx = 0;
-      ovState.endIdx = latestIdx;
-      ovState.rangeSwapped = false;
-    } else {
-      const n = Number(ovState.period);
-      ovState.endIdx = latestIdx;
-      ovState.startIdx = Math.max(0, latestIdx - (n - 1));
-      ovState.rangeSwapped = false;
+    const spec = ovState.period === "custom"
+      ? { period: "custom", start: ovState.customStart || dom.startInput.value, end: ovState.customEnd || dom.endInput.value }
+      : { period: ovState.period };
+    // 期間は暦日で数える（契約 D）。7／30／90／365＝期末から暦日 N 日
+    const r = core().computeRange(days, spec);
+    ovState.startIdx = r.startIdx;
+    ovState.endIdx = r.endIdx;
+    ovState.range = r;
+    // 開始＞終了は入れ替えて扱い、注記を出す。共通の状態と URL にも入れ替えた順で書き戻す（描き直しはしない）
+    if (r.swapped) {
+      ovState.customStart = days[r.startIdx];
+      ovState.customEnd = days[r.endIdx];
+      ovState.swapNoticeKey = `${ovState.customStart}|${ovState.customEnd}`;
+      if (merged()) merged().set({ start: ovState.customStart, end: ovState.customEnd }, { silent: true });
     }
+    ovState.rangeSwapped = r.swapped || (ovState.period === "custom" && ovState.swapNoticeKey === `${days[r.startIdx]}|${days[r.endIdx]}`);
+    if (ovState.period !== "custom") ovState.swapNoticeKey = null;
 
     // 打っている途中の欄（編集中）には書き戻さない（重4：1字ごとに値が飛ぶのを防ぐ）。
     // 🔴 document.activeElement は Chrome の日付欄が年→月へ自動で進む瞬間に空になるため使わない。
@@ -352,7 +355,7 @@
   }
 
   function autoAdjustGranularity() {
-    const nDays = ovState.endIdx - ovState.startIdx + 1;
+    const nDays = ovState.range ? ovState.range.calendarDays : ovState.endIdx - ovState.startIdx + 1;
     if (!ovState.granularityManual) {
       ovState.granularity = nDays > 365 ? "week" : "day";
       dom.granularityGroup.querySelectorAll("button").forEach((btn) => {
@@ -376,26 +379,18 @@
   //   short = 横軸用の短い表記（日・週:MM/DD、月:YYYY/MM）＝回転させずに読める（重1・軽6）
   function buildBuckets() {
     const days = ovData.market.days;
-    const buckets = [];
-    const bucketMap = {};
-    for (let i = ovState.startIdx; i <= ovState.endIdx; i++) {
-      const dstr = days[i];
-      let key;
-      if (ovState.granularity === "day") key = dstr;
-      else if (ovState.granularity === "week") key = isoWeekKey(dstr);
-      else key = dstr.slice(0, 7); // YYYY-MM
-
-      if (!bucketMap[key]) {
-        let label = key, short;
-        if (ovState.granularity === "day") short = fmtMD(dstr);
-        else if (ovState.granularity === "week") { label = `${key}（${fmtMD(dstr)}〜）`; short = fmtMD(dstr); }
-        else short = key.replace("-", "/");
-        bucketMap[key] = { label, short, indices: [] };
-        buckets.push(bucketMap[key]);
-      }
-      bucketMap[key].indices.push(i);
-    }
-    return buckets;
+    const range = ovState.range || core().computeRange(days, { period: "all" });
+    const { buckets, dropped } = core().buckets(days, range, ovState.granularity);
+    ovState.bucketDropped = dropped; // 週の先頭で捨てた端数の日数（注記用）
+    return buckets.map((b) => {
+      const indices = [];
+      for (let i = b.startIdx; i <= b.endIdx; i++) indices.push(i);
+      let label, short;
+      if (ovState.granularity === "week") { label = `${fmtDateJa(b.start)}〜${fmtMD(b.end)}`; short = fmtMD(b.end); }
+      else if (ovState.granularity === "month") { label = b.key; short = b.key.replace("-", "/"); }
+      else { label = b.start; short = fmtMD(b.start); }
+      return { label, short, indices };
+    });
   }
 
   /* ------------------------------------------------------------
@@ -403,9 +398,10 @@
    * ------------------------------------------------------------ */
   function computeTopNVolumeFolders() {
     const payload = ovData.volume;
+    const rows = volRows();
     const totals = payload.projects.map((p, i) => {
       let sum = 0;
-      const row = payload.rows[i];
+      const row = rows[i];
       for (let d = ovState.startIdx; d <= ovState.endIdx; d++) {
         if (row[d] !== null && row[d] !== undefined) sum += row[d];
       }
@@ -418,21 +414,15 @@
   /* ------------------------------------------------------------
    * KPI・見出し
    * ------------------------------------------------------------ */
+  // 前期間＝同じ暦日数の直前（記録の初日より前にかかるときは partial・全く無ければ null）
   function prevPeriodRange() {
-    const len = ovState.endIdx - ovState.startIdx + 1;
-    const prevEnd = ovState.startIdx - 1;
-    const prevStart = Math.max(0, prevEnd - (len - 1));
-    if (prevEnd < 0) return null;
-    return { startIdx: prevStart, endIdx: prevEnd };
+    if (!ovState.range) return null;
+    return core().prevRange(ovData.market.days, ovState.range);
   }
 
+  // 期間の全体出来高＝行列（欠測の切替に従う）から足す。KPI・内訳・ランキングが同じ数から出る（契約 B）
   function sumMarketV24(startIdx, endIdx) {
-    const arr = ovData.market.v24_total;
-    let sum = 0, hasAny = false;
-    for (let i = startIdx; i <= endIdx; i++) {
-      if (arr[i] !== null && arr[i] !== undefined) { sum += arr[i]; hasAny = true; }
-    }
-    return hasAny ? sum : 0;
+    return core().sumOf(core().projectTotals(volRows(), startIdx, endIdx));
   }
 
   // 「上位N」の N を実際の数に置き換える（中1）・データの日付と件数を見出しに出す（中2・中7）
@@ -451,7 +441,7 @@
 
   function renderKPIs(topRanked) {
     const total = sumMarketV24(ovState.startIdx, ovState.endIdx);
-    const nDays = ovState.endIdx - ovState.startIdx + 1;
+    const nDays = ovState.range ? ovState.range.calendarDays : ovState.endIdx - ovState.startIdx + 1;
     const avg = nDays > 0 ? total / nDays : 0;
 
     const prev = prevPeriodRange();
@@ -469,8 +459,9 @@
     dom.kpiTotalSub.textContent = subText;
     dom.kpiAvg.textContent = `${fmtInt(avg)}`;
 
+    const vr = volRows();
     const activeCount = ovData.volume.projects.filter((p, i) => {
-      const row = ovData.volume.rows[i];
+      const row = vr[i];
       let s = 0;
       for (let d = ovState.startIdx; d <= ovState.endIdx; d++) {
         if (row[d] !== null && row[d] !== undefined) s += row[d];
@@ -528,24 +519,24 @@
    * ------------------------------------------------------------ */
   function buildSeriesForBuckets(buckets, topFolders) {
     const payload = ovData.volume;
+    const rows = volRows();
     const series = topFolders.map((tf) => {
       const idx = payload.folderIndex[tf.folder];
-      const row = idx !== undefined ? payload.rows[idx] : null;
+      const row = idx !== undefined ? rows[idx] : null;
       const data = buckets.map((b) => {
         if (!row) return 0;
         let s = 0;
-        b.indices.forEach((di) => { if (row[di] !== null && row[di] !== undefined) s += row[di]; });
+        b.indices.forEach((di) => { if (typeof row[di] === "number") s += row[di]; });
         return s;
       });
       return { folder: tf.folder, name: tf.name, data };
     });
 
-    // その他 = market の合計 - 上位N合計
+    // その他 = 全PJの合計 - 上位N合計（同じ行列から＝欠測の切替と食い違わない）
     const othersData = buckets.map((b, bi) => {
       let bucketTotal = 0;
       b.indices.forEach((di) => {
-        const v = ovData.market.v24_total[di];
-        if (v !== null && v !== undefined) bucketTotal += v;
+        for (let p = 0; p < rows.length; p++) { const v = rows[p][di]; if (typeof v === "number") bucketTotal += v; }
       });
       const topSumThisBucket = series.reduce((s, ser) => s + ser.data[bi], 0);
       return Math.max(0, bucketTotal - topSumThisBucket);
@@ -598,6 +589,7 @@
     });
     renderHtmlLegend("volume");
 
+    if (ovState.shareView === "bundle") return; // 束の円は分析の部品が描く（見せ方の切替）
     if (ovState.shareView === "donut") {
       renderShareDonut(series, othersData);
       return;
@@ -742,9 +734,10 @@
       if (prev) {
         const payload = ovData.volume;
         prevTotalMap = {};
+        const vr = volRows();
         const prevTotals = payload.projects.map((p, i) => {
           let s = 0;
-          const row = payload.rows[i];
+          const row = vr[i];
           for (let d = prev.startIdx; d <= prev.endIdx; d++) {
             if (row[d] !== null && row[d] !== undefined) s += row[d];
           }
@@ -895,33 +888,38 @@
       const days = ovData.market.days;
       const labels = days.slice(ovState.startIdx, ovState.endIdx + 1);
       const shortLabels = labels.map(fmtMD);
-      const topN = topFolders.slice(0, ovState.topN);
+      const asIndex = ovState.priceView === "index";
+      // 選び方：出来高上位（既定・他の図と同じ上位）／期末の価格上位
+      let picks = topFolders.slice(0, ovState.topN);
+      if (ovState.pricePick === "price") {
+        picks = payload.projects.map((p, i) => ({ folder: p.folder, name: p.name, v: firstLastValid(payload.rows[i], ovState.startIdx, ovState.endIdx).last }))
+          .filter((x) => typeof x.v === "number" && x.v > 0)
+          .sort((a, b) => b.v - a.v)
+          .slice(0, ovState.topN);
+      }
+      if (dom.panelDTitle) {
+        const pickText = ovState.pricePick === "price" ? `期末の価格上位${ovState.topN}` : `上位${ovState.topN}`;
+        dom.panelDTitle.textContent = `価格の推移（${pickText}・${asIndex ? "期間内で最初に値が付いた日＝100" : "円"}）`;
+      }
 
-      const datasets = topN.map((tf, i) => {
+      const datasets = picks.map((tf, i) => {
         const idx = payload.folderIndex[tf.folder];
         const row = idx !== undefined ? payload.rows[idx] : null;
-        // 価格の絶対値（円）。指数（期間初日=100）は 2026-09-13 06:43 ルク指示で絶対値へ変更。
-        // 価格 0 以下は「値が付いていない日」として null（線は spanGaps でつなぐ）。桁の違う案件は凡例で出し入れして読む（項目3）。
+        // 価格 0 以下は「値が付いていない日」として null（線は spanGaps でつなぐ）。指数＝期間内で最初に 0 より大きい値＝100
         const data = [];
+        let base = null;
         for (let d = ovState.startIdx; d <= ovState.endIdx; d++) {
           const v = row ? row[d] : null;
-          data.push(typeof v === "number" && v > 0 ? v : null);
+          const ok = typeof v === "number" && v > 0;
+          if (ok && base === null) base = v;
+          data.push(ok ? (asIndex ? (v / base) * 100 : v) : null);
         }
-        return {
-          label: tf.name,
-          ftId: tf.folder,
-          data,
-          borderColor: ovColor(i),
-          backgroundColor: "transparent",
-          borderWidth: 2,
-          pointRadius: 0,
-          spanGaps: true,
-          tension: 0.1
-        };
+        return { label: tf.name, ftId: tf.folder, data, borderColor: ovColor(i), backgroundColor: "transparent", borderWidth: 2, pointRadius: 0, spanGaps: true, tension: 0.1 };
       });
 
       if (ovCharts.price) ovCharts.price.destroy();
       const ctx = document.getElementById("ovPriceChart").getContext("2d");
+      const fmtY = (v) => (asIndex ? fmtFloat(v, 0) : `${fmtFloat(v, Number.isInteger(v) ? 0 : 2)} 円`);
       ovCharts.price = new Chart(ctx, {
         type: "line",
         data: { labels, datasets },
@@ -930,11 +928,11 @@
           maintainAspectRatio: false,
           plugins: {
             legend: NO_CANVAS_LEGEND,
-            tooltip: { mode: "index", intersect: false, callbacks: { label: (item) => `${item.dataset.label}: ${fmtFloat(item.raw, 2)} 円` } }
+            tooltip: { mode: "index", intersect: false, callbacks: { label: (item) => `${item.dataset.label}: ${asIndex ? fmtFloat(item.raw, 1) : `${fmtFloat(item.raw, 2)} 円`}` } }
           },
           scales: {
             x: { ticks: xTicksOptions(shortLabels), grid: { color: chartColors().gridX } },
-            y: { min: 0, afterDataLimits: axisHeadroom, ticks: { color: chartColors().tick, callback: (v) => `${fmtFloat(v, Number.isInteger(v) ? 0 : 2)} 円` }, grid: { color: chartColors().gridY } }
+            y: { min: asIndex ? undefined : 0, afterDataLimits: axisHeadroom, ticks: { color: chartColors().tick, callback: fmtY }, grid: { color: chartColors().gridY } }
           }
         }
       });
@@ -954,41 +952,9 @@
   const GAP_MASS_STEP = 100;
   let gapCache = null; // { filled: rows（①適用後）, massDays: {dayIdx: {count, sign}} }
 
+  // 式の正本は js/merged-core.js（membersInfo＝①で埋めた行と一斉変動の日）。検査の互換のため名前を残す
   function membersGapInfo(payload) {
-    if (gapCache && gapCache.payload === payload) return gapCache;
-    const n = payload.days.length;
-    // ①「0に落ちて後で戻った」区間だけ前の値で埋める。戻らずに終わった（null か 0 のまま最終日）区間は埋めない＝
-    //   案件の終了・追跡終了は本物の減少として残す（断 v3.1 欠測切替 重2：無条件に埋めると361日の0ランまで横ばいになった）
-    const filled = payload.rows.map((row) => {
-      const out = row.slice();
-      let d = 1;
-      while (d < n) {
-        const prev = out[d - 1];
-        if (out[d] === 0 && typeof prev === "number" && prev >= GAP_ZERO_MIN) {
-          let e = d;
-          while (e < n && out[e] === 0) e++;
-          const recovered = e < n && typeof out[e] === "number" && out[e] > 0;
-          if (recovered) for (let k = d; k < e; k++) out[k] = prev;
-          d = e;
-        } else {
-          d++;
-        }
-      }
-      return out;
-    });
-    const massDays = {};
-    for (let d = 1; d < n; d++) {
-      let down = 0, up = 0;
-      payload.rows.forEach((row) => {
-        const a = row[d - 1], b = row[d];
-        if (typeof a !== "number" || typeof b !== "number") return;
-        if (b - a <= -GAP_MASS_STEP) down++; else if (b - a >= GAP_MASS_STEP) up++;
-      });
-      if (down >= GAP_MASS_MIN) massDays[d] = { count: down, sign: -1 };
-      else if (up >= GAP_MASS_MIN) massDays[d] = { count: up, sign: 1 };
-    }
-    gapCache = { payload, filled, massDays };
-    return gapCache;
+    return core().membersInfo(payload);
   }
 
   // その案件が d 日に、一斉変動と同じ向きへ動いたか（記録の生の値で判定・大きさは問わない）。
@@ -1000,43 +966,71 @@
     return sign < 0 ? b - a < 0 : b - a > 0;
   }
 
+  // 注記は結論から1文・2行目に日付（エマ v3.1 中3＝2つのモードで同じ骨格）
   function renderGapNote() {
     const el = document.getElementById("ov-gap-note");
     if (!el || !ovData.members) return;
-    const info = membersGapInfo(ovData.members);
-    const days = ovData.members.days;
-    const inRange = Object.keys(info.massDays).map(Number).filter((d) => d >= ovState.startIdx && d <= ovState.endIdx).sort((a, b) => a - b);
-    const list = inRange.map((d) => `${fmtDateJa(days[d])}（${info.massDays[d].count}案件が同時に${info.massDays[d].sign < 0 ? "減" : "増"}）`).join("・");
-    if (ovState.gapMode === "raw") {
-      el.textContent = `記録された値の差をそのまま出しています。${inRange.length > 0 ? `期間内の一斉変動の日＝${list}。この日は本家側の再集計やページ消失の跡で、実際の退会・入会ではありません。` : ""}`;
+    const list = core().massDaysIn(ovData.members, ovState.startIdx, ovState.endIdx);
+    const dates = list.map((x) => `${fmtDateJa(x.date)}（${x.count}件が同時に${x.sign < 0 ? "減" : "増"}）`).join("・");
+    if (gapMode() === "raw") {
+      el.textContent = `記録どおりの値です（期間内の一斉変動の日＝${list.length}日）。` +
+        (list.length ? `\n${dates}は本家側の再集計の跡で、実際の退会・入会ではありません。「ならす」で除けます。` : "\n「ならす」にすると、0に落ちて戻った日と一斉変動の日を除きます。");
     } else {
-      el.textContent = `欠測を除いています＝0に落ちて後で戻った日は前の値で埋め、多数の案件が同じ日に同じ向きに動いた日（一斉の再集計）はその向きの増減を0にしています${inRange.length > 0 ? `（期間内 ${inRange.length}日＝${list}）` : "（期間内に該当日なし）"}。「そのまま」で記録どおりの値に切り替えられます。`;
+      el.textContent = `欠測の日をならしています（期間内の一斉変動の日＝${list.length}日）。` +
+        `\n0に落ちて後で戻った日は前の値で埋め、一斉変動の日${list.length ? `（${dates}）` : ""}はその向きの増減を0にしています。「記録どおり」で元の値に戻せます。`;
     }
+  }
+
+  // メンバーの水準（見せ方「水準」）：全PJ合計（初日から積み上げ＝契約 C）と FiNANCiE公式PJ の2枚（2軸にしない）
+  function renderMembersLevel(payload) {
+    const mode = gapMode();
+    const days = ovData.market.days;
+    const labels = days.slice(ovState.startIdx, ovState.endIdx + 1);
+    const shortLabels = labels.map(fmtMD);
+    const level = core().membersLevel(payload, mode);
+    const base = mode === "raw" ? payload.rows : core().membersInfo(payload).filled;
+    const officialIdx = payload.folderIndex["308_tokenplus"];
+    const all = labels.map((_, k) => level[ovState.startIdx + k]);
+    const official = labels.map((_, k) => {
+      const v = officialIdx === undefined ? null : base[officialIdx][ovState.startIdx + k];
+      return typeof v === "number" ? v : null;
+    });
+    renderGapNote();
+    const draw = (key, canvasId, label, data, color) => {
+      const el = document.getElementById(canvasId);
+      if (!el) return;
+      if (ovCharts[key]) ovCharts[key].destroy();
+      ovCharts[key] = new Chart(el.getContext("2d"), {
+        type: "line",
+        data: { labels, datasets: [{ label, data, borderColor: color, backgroundColor: "transparent", borderWidth: 2, pointRadius: 0, spanGaps: true, tension: 0.1 }] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: NO_CANVAS_LEGEND, tooltip: { mode: "index", intersect: false, callbacks: { label: (item) => `${label}: ${fmtInt(item.raw)} 人` } } },
+          scales: {
+            x: { ticks: xTicksOptions(shortLabels), grid: { color: chartColors().gridX } },
+            y: { afterDataLimits: axisHeadroom, ticks: { color: chartColors().tick, callback: (v) => fmtInt(v) }, grid: { color: chartColors().gridY } }
+          }
+        }
+      });
+    };
+    draw("membersLevelAll", "ovMembersLevelAll", "全PJ合計のメンバー数", all, ovColor(0));
+    draw("membersLevelOfficial", "ovMembersLevelOfficial", "FiNANCiE公式PJのメンバー数", official, ovColor(1));
   }
 
   function renderPanelE(topFolders) {
     ensureMetricLoaded("members").then((payload) => {
+      if (ovState.membersView === "level") { renderMembersLevel(payload); return; }
       const buckets = buildBuckets();
       const topN = topFolders.slice(0, ovState.topN);
-      const exclude = ovState.gapMode !== "raw";
-      const gap = exclude ? membersGapInfo(payload) : null;
-      const rowsUsed = exclude ? gap.filled : payload.rows;
-
-      // 期間開始日の1日前が要る（純増の差分計算のため）。無ければ最初の日はnull扱い。
+      // 日ごとの純増（欠測の切替に従う・式は js/merged-core.js の membersDaily）
+      const daily = core().membersDaily(payload, gapMode()).net;
       function netAddRow(folder) {
         const idx = payload.folderIndex[folder];
         if (idx === undefined) return {};
-        const row = rowsUsed[idx];
+        const row = daily[idx];
         const net = {};
-        for (let d = ovState.startIdx; d <= ovState.endIdx; d++) {
-          if (d === 0 || row[d] === null || row[d - 1] === null || row[d] === undefined || row[d - 1] === undefined) {
-            net[d] = null;
-          } else if (exclude && gap.massDays[d] && isMassMove(payload.rows[idx], d, gap.massDays[d].sign)) {
-            net[d] = 0; // ②一斉変動の日は、その向きの増減を 0（逆向きの本物の増減は残す＝断 重1）
-          } else {
-            net[d] = row[d] - row[d - 1];
-          }
-        }
+        for (let d = ovState.startIdx; d <= ovState.endIdx; d++) net[d] = row[d];
         return net;
       }
 
@@ -1053,12 +1047,12 @@
 
       // その他 = 上位N以外の全プロジェクトの純増合計
       const topFolderSet = new Set(topN.map((t) => t.folder));
-      const otherFolders = payload.projects.filter((p) => !topFolderSet.has(p.folder)).map((p) => p.folder);
-      const othersData = buckets.map((b, bi) => {
+      const otherIdx = payload.projects.map((p, i) => (topFolderSet.has(p.folder) ? -1 : i)).filter((i) => i >= 0);
+      const othersData = buckets.map((b) => {
         let s = 0;
-        otherFolders.forEach((folder) => {
-          const net = netAddRow(folder);
-          b.indices.forEach((di) => { if (net[di] !== null && net[di] !== undefined) s += net[di]; });
+        otherIdx.forEach((pi) => {
+          const row = daily[pi];
+          b.indices.forEach((di) => { const v = row[di]; if (typeof v === "number") s += v; });
         });
         return s;
       });
@@ -1109,6 +1103,7 @@
   const URL_KEYS = { period: "ov_p", granularity: "ov_g", topN: "ov_n", metric: "ov_m", start: "ov_s", end: "ov_e", others: "ov_o" };
 
   function syncUrl() {
+    if (merged()) return; // URL の持ち主は js/merged.js（契約 A）
     if (!window.history || !window.history.replaceState) return;
     const params = new URLSearchParams(window.location.search);
     Object.values(URL_KEYS).forEach((k) => params.delete(k));
@@ -1130,7 +1125,49 @@
     group.querySelectorAll("button").forEach((b) => b.classList.toggle("active", b.getAttribute(attr) === String(value)));
   }
 
+  // 共通の状態（js/merged.js）を、このファイルの状態と釦の見た目へ写す
+  function pullMergedState() {
+    const m = merged();
+    if (!m) return;
+    const s = m.state();
+    ovState.period = s.period;
+    ovState.customStart = s.start;
+    ovState.customEnd = s.end;
+    ovState.granularity = s.granularity;
+    ovState.granularityManual = s.granularityManual;
+    ovState.topN = s.topN;
+    ovState.metric = s.metric;
+    ovState.showOthers = s.showOthers;
+    ovState.gapMode = s.gap === "raw" ? "raw" : "exclude";
+    ovState.shareView = s.views.share === "trend" ? "stack" : s.views.share; // donut | stack | bundle
+    ovState.priceView = s.views.price;
+    ovState.pricePick = s.views.pricePick;
+    ovState.membersView = s.views.members;
+    if (!dom) return;
+    if (s.period === "custom") dom.periodGroup.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
+    else setActive(dom.periodGroup, "data-period", String(s.period));
+    setActive(dom.granularityGroup, "data-granularity", s.granularity);
+    setActive(dom.topnGroup, "data-topn", String(s.topN));
+    setActive(dom.metricGroup, "data-metric", s.metric);
+    if (dom.showOthers) dom.showOthers.checked = s.showOthers;
+    if (dom.shareView) setActive(dom.shareView, "data-view", ovState.shareView === "donut" ? "donut" : "stack"); // 再読み込み後も釦の見た目を記憶に合わせる
+    const gapGroup = document.getElementById("ov-gap-mode");
+    if (gapGroup) gapGroup.querySelectorAll("button[data-gap]").forEach((b) => {
+      const on = (b.getAttribute("data-gap") === "raw") === (s.gap === "raw");
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-pressed", String(on));
+    });
+  }
+
+  let recomputeQueued = false;
+  function scheduleRecompute() {
+    if (!ovState.initialized || recomputeQueued) return;
+    recomputeQueued = true;
+    Promise.resolve().then(() => { recomputeQueued = false; recomputeAll(); });
+  }
+
   function restoreStateFromUrl() {
+    if (merged()) { pullMergedState(); return; }
     const params = new URLSearchParams(window.location.search);
     const p = params.get(URL_KEYS.period);
     if (p === "all" || ["7", "30", "90", "365"].includes(p)) {
@@ -1168,6 +1205,7 @@
    * 全体の再描画
    * ------------------------------------------------------------ */
   function recomputeAll() {
+    pullMergedState();
     computeRange();
     autoAdjustGranularity();
     renderHeadings();
@@ -1274,6 +1312,12 @@
     if (dateTimer) { clearTimeout(dateTimer); dateTimer = null; }
     if (!ovState.dateDirty) return;
     ovState.dateDirty = false;
+    if (merged()) {
+      const a = dom.startInput.value, b = dom.endInput.value;
+      if (isPlausibleDate(a) && isPlausibleDate(b)) merged().set({ period: "custom", start: a, end: b, granularityManual: false });
+      else restoreDateInputs();
+      return;
+    }
     dom.periodGroup.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
     ovState.period = "custom";
     ovState.granularityManual = false;
@@ -1285,6 +1329,7 @@
       btn.addEventListener("click", () => {
         setActive(dom.periodGroup, "data-period", btn.getAttribute("data-period"));
         const val = btn.getAttribute("data-period");
+        if (merged()) { merged().set({ period: val === "all" ? "all" : Number(val), start: null, end: null, granularityManual: false }); return; }
         ovState.period = val === "all" ? "all" : Number(val);
         ovState.granularityManual = false;
         ovState.dateDirty = false;
@@ -1321,6 +1366,7 @@
     dom.granularityGroup.querySelectorAll("button[data-granularity]").forEach((btn) => {
       btn.addEventListener("click", () => {
         setActive(dom.granularityGroup, "data-granularity", btn.getAttribute("data-granularity"));
+        if (merged()) { merged().set({ granularity: btn.getAttribute("data-granularity"), granularityManual: true }); return; }
         ovState.granularity = btn.getAttribute("data-granularity");
         ovState.granularityManual = true;
         const topFolders = computeTopNVolumeFolders();
@@ -1333,6 +1379,7 @@
     dom.topnGroup.querySelectorAll("button[data-topn]").forEach((btn) => {
       btn.addEventListener("click", () => {
         setActive(dom.topnGroup, "data-topn", btn.getAttribute("data-topn"));
+        if (merged()) { merged().set({ topN: Number(btn.getAttribute("data-topn")) }); return; }
         ovState.topN = Number(btn.getAttribute("data-topn"));
         recomputeAll();
       });
@@ -1341,6 +1388,7 @@
     dom.metricGroup.querySelectorAll("button[data-metric]").forEach((btn) => {
       btn.addEventListener("click", () => {
         setActive(dom.metricGroup, "data-metric", btn.getAttribute("data-metric"));
+        if (merged()) { merged().set({ metric: btn.getAttribute("data-metric") }); return; }
         ovState.metric = btn.getAttribute("data-metric");
         renderPanelC();
         syncUrl();
@@ -1351,6 +1399,7 @@
       ovState.showOthers = dom.showOthers.checked;
       // 入れ直したら「その他」は必ず出す（凡例で消した記憶が残って食い違わないように・断 v3.1 重1）
       if (ovState.showOthers && window.FtLegend) window.FtLegend.forget(["ov:volume", "ov:share", "ov:members"], "その他");
+      if (merged()) { merged().set({ showOthers: ovState.showOthers }); return; }
       const topFolders = computeTopNVolumeFolders();
       renderPanelAB(topFolders);
       if (ovState.panelEReady) renderPanelE(topFolders);
@@ -1365,9 +1414,10 @@
     // メンバー数の増減：欠測を除く／そのまま（記憶・ルク指摘 07:10）
     const gapGroup = document.getElementById("ov-gap-mode");
     if (gapGroup) {
-      setActive(gapGroup, "data-gap", ovState.gapMode);
+      gapGroup.querySelectorAll("button[data-gap]").forEach((b) => b.classList.toggle("active", (b.getAttribute("data-gap") === "raw") === (gapMode() === "raw")));
       gapGroup.querySelectorAll("button[data-gap]").forEach((btn) => {
         btn.addEventListener("click", () => {
+          if (merged()) { merged().set({ gap: btn.getAttribute("data-gap") === "raw" ? "raw" : "smooth" }); return; }
           ovState.gapMode = btn.getAttribute("data-gap") === "raw" ? "raw" : "exclude";
           try { localStorage.setItem(GAP_MODE_KEY, ovState.gapMode); } catch (e) { /* 記憶できなくても動く */ }
           setActive(gapGroup, "data-gap", ovState.gapMode);
@@ -1381,6 +1431,7 @@
       syncShareButtons();
       dom.shareView.querySelectorAll("button[data-view]").forEach((btn) => {
         btn.addEventListener("click", () => {
+          if (merged()) { merged().setView("share", btn.getAttribute("data-view") === "donut" ? "donut" : "trend"); return; }
           ovState.shareView = btn.getAttribute("data-view") === "donut" ? "donut" : "stack";
           try { localStorage.setItem(SHARE_VIEW_KEY, ovState.shareView); } catch (e) { /* 記憶できなくても動く */ }
           syncShareButtons();
@@ -1409,6 +1460,7 @@
     setupChartSizes();
     setupLazyPanels();
     restoreStateFromUrl();
+    if (merged()) merged().subscribe(() => scheduleRecompute()); // 共通の状態が変わったら描き直す
 
     Promise.all([
       ensureMetricLoaded("market"),

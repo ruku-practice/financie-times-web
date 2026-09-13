@@ -139,8 +139,30 @@ def month_bucket_sum(daily_total):
     return sum(buckets.values())
 
 
+def apply_merges(history):
+    """名寄せ（v3.2.0 合体・契約 B）：docs/analysis_code/window_compare.py の MERGES を文字列から読み、
+    前身の data を後継へ（同じ日付は後継を優先）入れて前身を消す。build_overview.py は import しない（別実装のまま）。"""
+    import re
+    # 正本は元フォルダの docs/analysis_code（worktree には無い＝check_analysis.js の B0 と同じ場所を見る）
+    cands = [os.path.join(BASE_DIR, "docs", "analysis_code", "window_compare.py"),
+             os.path.join(BASE_DIR, "..", "..", "..", "docs", "analysis_code", "window_compare.py")]
+    path = next(c for c in cands if os.path.exists(c))
+    src = open(path, encoding="utf-8").read()
+    body = re.search(r"MERGES\s*=\s*\[(.*?)\]", src, re.S).group(1)
+    pairs = re.findall(r"\(\s*'([^']+)'\s*,\s*'([^']+)'\s*\)", body)
+    assert len(pairs) == 3, pairs
+    for a, b in pairs:
+        if a not in history or b not in history:
+            continue
+        for d, v in history[a]["data"].items():
+            if d not in history[b]["data"]:
+                history[b]["data"][d] = v
+        del history[a]
+    return history
+
+
 def build_reference():
-    history = load_history()
+    history = apply_merges(load_history())
     summary = load_summary()
     folders = [p["folder"] for p in summary if p["folder"] in history]
 

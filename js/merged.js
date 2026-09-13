@@ -112,6 +112,7 @@
   }
 
   // patch を当てて、記憶・URL を更新し、購読者へ知らせる。views は箱ごとに混ぜる
+  // opts.silent＝状態と URL だけ直して、購読者にも箱にも知らせない（描き直しの中で正規化した値を書き戻すとき用）
   function set(patch, opts) {
     const before = state;
     const next = Object.assign(clone(state), patch || {});
@@ -120,6 +121,7 @@
     if (state.gap !== before.gap) writeStore(STORE.gap, state.gap);
     if (JSON.stringify(state.views) !== JSON.stringify(before.views)) writeStore(STORE.views, JSON.stringify(state.views));
     if (!opts || !opts.skipUrl) syncUrl();
+    if (opts && opts.silent) return clone(state);
     const changed = Object.keys(patch || {});
     listeners.slice().forEach((fn) => { try { fn(clone(state), changed); } catch (e) { console.error("FtMerged listener", e); } });
     if (!opts || !opts.skipRedraw) {
