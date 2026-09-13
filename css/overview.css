@@ -42,7 +42,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 4px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--overlay-03);
   padding: 4px;
   border-radius: 6px;
   border: 1px solid var(--border-color);
@@ -231,7 +231,7 @@
 }
 
 .ov-ranking-row:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--overlay-04);
 }
 
 .ov-ranking-row .table-pj-link {

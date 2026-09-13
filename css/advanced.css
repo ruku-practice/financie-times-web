@@ -1,27 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
 
+/* 既定＝ライト（白）。OS の設定には追従しない（ルク 2026-09-13 07:17「既定の背景を白に。そのうえでダークに変更できるように」）。文字は両テーマで AA（4.5:1）以上 */
 :root {
-  --bg-primary: #0B0F19;
-  --bg-secondary: #131A26;
-  --bg-tertiary: #1B2536;
-  --border-color: rgba(255, 255, 255, 0.08);
-  --text-primary: #F3F4F6;
-  --text-secondary: #9CA3AF;
-  --accent-color: #2563EB; /* 平らな青1色（釦・面） */
-  --accent-hover: #1D4ED8; /* hoverは明度を1段だけ */
-  --accent-text: #60A5FA; /* 面の上のリンク文字 */
-  --accent-success: #10B981; /* 上昇 */
-  --accent-warning: #F59E0B;
-  --accent-danger: #F87171; /* 下落 */
-  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --border-radius: 8px;
-  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* 背景の白（ライト）：ヘッダー右のトグルで切替・既定はダーク。文字は両テーマで AA（4.5:1）以上 */
-html[data-theme="light"] {
   --bg-primary: #F3F4F6;
   --bg-secondary: #FFFFFF;
   --bg-tertiary: #E9EDF3;
@@ -37,11 +17,71 @@ html[data-theme="light"] {
   --shadow-sm: 0 2px 4px rgba(15, 23, 42, 0.06);
   --shadow-md: 0 6px 12px rgba(15, 23, 42, 0.08);
   --shadow-lg: 0 12px 24px rgba(15, 23, 42, 0.10);
+  --border-radius: 8px;
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 重ね塗り（地の上に薄く色を足す）＝ライトは紺・ダークは白（合体 v3.2.0） */
+  --overlay-02: rgba(15, 23, 42, 0.02);
+  --overlay-03: rgba(15, 23, 42, 0.03);
+  --overlay-04: rgba(15, 23, 42, 0.04);
+  --overlay-06: rgba(15, 23, 42, 0.06);
+  --overlay-07: rgba(15, 23, 42, 0.07);
+  --overlay-08: rgba(15, 23, 42, 0.08);
+  --overlay-10: rgba(15, 23, 42, 0.10);
+  --overlay-20: rgba(15, 23, 42, 0.20);
+  /* グラフ・凡例（JS は FtTheme.color() でここを読む） */
+  --chart-tick: #4b5563;
+  --chart-grid-x: rgba(0, 0, 0, 0.04);
+  --chart-grid-y: rgba(0, 0, 0, 0.08);
+  --chart-note: #55606E;
+  --series-other: #6b7280;
+  --legend-chip-border: #7b8794; /* 白地で約3.7:1＝凡例チップの枠（エマ v3.1 中5） */
+  --legend-off-opacity: 0.7;
+  --disabled-opacity: 0.8; /* エマ v3.1 軽6 */
+  --cap-marker: #b45309;
 }
 
-html[data-theme="light"] .sort-tab-btn:hover,
-html[data-theme="light"] .action-btn:hover,
-html[data-theme="light"] .btn-external:hover {
+/* ダーク：ヘッダー右の切替で選び、localStorage ft_theme に記憶 */
+html[data-theme="dark"] {
+  --bg-primary: #0B0F19;
+  --bg-secondary: #131A26;
+  --bg-tertiary: #1B2536;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --text-primary: #F3F4F6;
+  --text-secondary: #9CA3AF;
+  --accent-color: #2563EB; /* 平らな青1色（釦・面） */
+  --accent-hover: #1D4ED8; /* hoverは明度を1段だけ */
+  --accent-text: #60A5FA; /* 面の上のリンク文字 */
+  --accent-success: #10B981; /* 上昇 */
+  --accent-warning: #F59E0B;
+  --accent-danger: #F87171; /* 下落 */
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  /* 重ね塗り（地の上に薄く色を足す）＝ライトは紺・ダークは白（合体 v3.2.0） */
+  --overlay-02: rgba(255, 255, 255, 0.02);
+  --overlay-03: rgba(255, 255, 255, 0.03);
+  --overlay-04: rgba(255, 255, 255, 0.04);
+  --overlay-06: rgba(255, 255, 255, 0.06);
+  --overlay-07: rgba(255, 255, 255, 0.07);
+  --overlay-08: rgba(255, 255, 255, 0.08);
+  --overlay-10: rgba(255, 255, 255, 0.10);
+  --overlay-20: rgba(255, 255, 255, 0.20);
+  /* グラフ・凡例（JS は FtTheme.color() でここを読む） */
+  --chart-tick: #9ca3af;
+  --chart-grid-x: rgba(255, 255, 255, 0.03);
+  --chart-grid-y: rgba(255, 255, 255, 0.05);
+  --chart-note: #9CA3AF;
+  --series-other: #9ca3af;
+  --legend-chip-border: #6b7686; /* 暗い地で約3.8:1 */
+  --legend-off-opacity: 0.7;
+  --disabled-opacity: 0.8; /* エマ v3.1 軽6 */
+  --cap-marker: #f59e0b;
+}
+
+
+html:not([data-theme="dark"]) .sort-tab-btn:hover,
+html:not([data-theme="dark"]) .action-btn:hover,
+html:not([data-theme="dark"]) .btn-external:hover {
   background: rgba(15, 23, 42, 0.06);
 }
 
@@ -111,13 +151,13 @@ body {
   padding: 0.6rem 1.2rem;
   border-radius: 8px;
   border: 1px solid var(--border-color);
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--overlay-02);
   transition: var(--transition-smooth);
 }
 
 .btn-classic:hover {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--overlay-08);
   border-color: var(--text-secondary);
 }
 
@@ -129,14 +169,14 @@ body {
   padding: 0.6rem 1rem;
   border-radius: 8px;
   border: 1px solid var(--border-color);
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--overlay-02);
   transition: var(--transition-smooth);
   white-space: nowrap;
 }
 
 .btn-external:hover {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--overlay-08);
   border-color: var(--text-secondary);
 }
 
@@ -176,7 +216,7 @@ body {
 
 .search-input {
   width: 100%;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--overlay-04);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 0.8rem 1rem 0.8rem 2.5rem;
@@ -189,7 +229,7 @@ body {
 
 .search-input:focus {
   border-color: var(--accent-color);
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--overlay-07);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
@@ -224,7 +264,7 @@ body {
 }
 
 .project-item:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--overlay-04);
 }
 
 .project-item.active {
@@ -336,7 +376,7 @@ body {
 .detail-title .slug-badge {
   font-size: 0.8rem;
   color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--overlay-06);
   padding: 0.15rem 0.5rem;
   border-radius: 4px;
   display: inline-block;
@@ -345,7 +385,7 @@ body {
 
 .period-selector {
   display: flex;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--overlay-04);
   padding: 0.25rem;
   border-radius: 8px;
   border: 1px solid var(--border-color);
@@ -471,12 +511,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--overlay-10);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--overlay-20);
 }
 
 /* -------------------------------------------------------------
@@ -504,7 +544,7 @@ body {
 
 .tab-nav-btn:hover {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--overlay-04);
 }
 
 .tab-nav-btn.active {
@@ -648,7 +688,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--overlay-06);
   border: 1px solid var(--border-color);
   padding: 0.3rem 0.8rem;
   border-radius: 20px;
@@ -690,7 +730,7 @@ body {
 }
 
 .action-btn {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--overlay-04);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
   font-family: inherit;
@@ -706,7 +746,7 @@ body {
 }
 
 .action-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--overlay-08);
 }
 
 .action-btn.btn-primary {
@@ -723,7 +763,7 @@ body {
   position: relative;
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--overlay-04);
   border: 1px solid var(--border-color);
   border-radius: 6px;
   padding: 0 0.8rem;
@@ -752,7 +792,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--overlay-03);
   padding: 0.25rem;
   border-radius: 6px;
   border: 1px solid var(--border-color);
@@ -794,7 +834,7 @@ body {
 }
 
 .monthly-select-input {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--overlay-04);
   border: 1px solid var(--border-color);
   border-radius: 6px;
   color: var(--text-primary);
@@ -979,7 +1019,7 @@ body {
 .site-notice.notice-error {
   background: rgba(248, 113, 113, 0.12);
   border-color: rgba(248, 113, 113, 0.45);
-  color: #fca5a5;
+  color: var(--accent-danger);
 }
 
 .site-notice.notice-new {

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FiNANCiE TIMES | 市況ダッシュボード</title>
   <link rel="canonical" href="https://ruku-practice.github.io/financie-times-web/">
-  <script>/* 背景の白黒：記憶があれば最初の描画から反映（ちらつき防止） */try{if(localStorage.getItem("ft_theme")==="light"){document.documentElement.setAttribute("data-theme","light");}}catch(e){}</script>
+  <script>/* 背景の白黒：既定はライト（白）・記憶が dark のときだけダーク（OS に追従しない）。ちらつき防止のため最初に。JS 側は data-theme を見るので属性は必ず付ける */(function(){var t="light";try{if(localStorage.getItem("ft_theme")==="dark"){t="dark";}}catch(e){}document.documentElement.setAttribute("data-theme",t);})();</script>
   <link rel="stylesheet" href="css/advanced.css?v=3.1.1">
   <link rel="stylesheet" href="css/overview.css?v=3.1.1">
   <link rel="stylesheet" href="css/analysis.css?v=0.1.0">
