@@ -184,6 +184,17 @@
     price_diff: { value: (item) => item.price_diff, rankable: isPriceRankable }
   };
 
+  // 指標カードの補足を「まとまり」ごとの span にする（span の中は折り返さない＝css/layout.css の .metric-sub .nw）
+  const setSubParts = (el, parts) => {
+    el.textContent = "";
+    parts.forEach((text) => {
+      const span = document.createElement("span");
+      span.className = "nw";
+      span.textContent = text;
+      el.appendChild(span);
+    });
+  };
+
   // N/A対応
   const cleanRank = (rank) => {
     if (!rank || rank === "-") return "圏外";
@@ -447,7 +458,8 @@
       const colorClass = diff > 0 ? "up" : diff < 0 ? "down" : "";
 
       metricPriceSub.className = `metric-sub ${colorClass}`;
-      metricPriceSub.textContent = `前日差: ${formatDiffText(diff, false, 4)} 円（前日比 ${formatDiffText(pct, true, 2)}）`;
+      // 語の途中で折り返さないよう、まとまりごとに span（エマ v3.2.4 中2・軽2＝単位の前に空白なし・括弧は全角）
+      setSubParts(metricPriceSub, [`前日差: ${formatDiffText(diff, false, 4)}円`, `（前日比 ${formatDiffText(pct, true, 2)}）`]);
     } else {
       metricPriceSub.className = "metric-sub";
       metricPriceSub.textContent = "前日差: -";
@@ -469,7 +481,7 @@
       const colorClass = diff > 0 ? "up" : diff < 0 ? "down" : "";
 
       metricMembersSub.className = `metric-sub ${colorClass}`;
-      metricMembersSub.textContent = `前日差: ${formatDiffText(diff)} 人 (アクティブ: ${cleanRank(latest.active_ranking)})`;
+      setSubParts(metricMembersSub, [`前日差: ${formatDiffText(diff)}人`, `（アクティブ: ${cleanRank(latest.active_ranking)}）`]);
     } else {
       metricMembersSub.className = "metric-sub";
       metricMembersSub.textContent = `アクティブ: ${cleanRank(latest.active_ranking)}`;
@@ -538,7 +550,8 @@
       text.textContent = `実寸で表示中です（いちばん大きい日 ${maxDay} の ${maxYen} 円に縦軸を合わせているため、ほかの日の棒は低く見えます）。`;
       btn.textContent = "上限をつけて見る";
     } else {
-      text.textContent = `▲＝縦軸の上限（${Math.round(capInfo.cap).toLocaleString("ja-JP")} 円）を超えた日（${capInfo.overCount}日・棒は上端で切れています）。いちばん大きい日：${maxDay} ${maxYen} 円。`;
+      // 「▲」は増減の下落の記号なので使わない（エマ v3.2.4 軽3）＝棒の上端に描く三角の印を言葉で呼ぶ
+      text.textContent = `棒の上端の印＝縦軸の上限（${Math.round(capInfo.cap).toLocaleString("ja-JP")} 円）を超えた日（${capInfo.overCount}日・棒は上端で切れています）。いちばん大きい日：${maxDay} ${maxYen} 円。`;
       btn.textContent = "実寸で見る";
     }
     btn.setAttribute("aria-pressed", String(volumeFullScale));
@@ -1106,7 +1119,8 @@
       dailySortNote.textContent = "";
       return;
     }
-    dailySortNote.textContent = `価格の上昇率順・上昇額順は、24H 出来高が 1,000円以上で前日価格が分かる PJ だけを、横ばい・下落も含めて並べています（この日 ${rankedCount}件／全${totalCount}件）。`;
+    // 釦の名前を縮めて呼ばない（エマ v3.2.4 軽1）＝「この並べ替えは」
+    dailySortNote.textContent = `この並べ替えは、24H 出来高が 1,000円以上で前日価格が分かる PJ だけを、横ばい・下落も含めて並べています（この日 ${rankedCount}件／全${totalCount}件）。`;
     dailySortNote.hidden = false;
   }
 
@@ -1165,19 +1179,21 @@
       const volumeK = Math.round(item.volume_24h / 1000);
       const volumeKDiff = typeof item.volume_24h_diff === "number" ? item.volume_24h_diff / 1000 : null; // 丸めは formatDiffText が表示の桁で行う
 
-      const tdVolumeVal = `<td class="text-right bold-text" data-label="24H 出来高［千円］">${formatNumber(volumeK)}</td>`;
+      // 並べ替え中の列のセルに印（スマホのカードは見出しが無いので、項目名の横に ↓ を出す＝エマ v3.2.4 軽4）
+      const sortedAttr = (key) => (key === travelSort ? ' data-sorted="true"' : "");
+      const tdVolumeVal = `<td class="text-right bold-text" data-label="24H 出来高［千円］"${sortedAttr("volume")}>${formatNumber(volumeK)}</td>`;
       // 語の使い分け（ルク 2026-09-13 13:27）：％の増減＝「前日比」、差の増減＝「前日差」
       const tdVolumeDiff = `<td class="text-left ${getDiffClass(volumeKDiff)}" data-label="前日差">${formatDiffText(volumeKDiff)}</td>`;
 
       const basePriceDiffPct = priceRateOf(item);
       const tdBasePriceVal = `<td class="text-right bold-text" data-label="前日価格［円］">${formatFloat(basePrice, priceDecimals(basePrice))}</td>`;
-      const tdBasePriceDiff = `<td class="text-left ${getDiffClass(basePriceDiffPct)}" data-label="前日比">${formatDiffText(basePriceDiffPct, true, 2)}</td>`;
+      const tdBasePriceDiff = `<td class="text-left ${getDiffClass(basePriceDiffPct)}" data-label="前日比"${sortedAttr("price_rate")}>${formatDiffText(basePriceDiffPct, true, 2)}</td>`;
 
       const tdPriceVal = `<td class="text-right bold-text" data-label="現在価格［円］">${formatFloat(item.price, priceDecimals(item.price))}</td>`;
-      const tdPriceDiff = `<td class="text-left ${getDiffClass(item.price_diff)}" data-label="前日差">${formatDiffText(item.price_diff, false, priceDecimals(Math.min(item.price, basePrice)))}</td>`;
+      const tdPriceDiff = `<td class="text-left ${getDiffClass(item.price_diff)}" data-label="前日差"${sortedAttr("price_diff")}>${formatDiffText(item.price_diff, false, priceDecimals(Math.min(item.price, basePrice)))}</td>`;
 
       const tdMembersVal = `<td class="text-right bold-text" data-label="メンバー数［人］">${formatNumber(item.members)}</td>`;
-      const tdMembersDiff = `<td class="text-left ${getDiffClass(item.members_diff)}" data-label="前日差">${formatDiffText(item.members_diff)}</td>`;
+      const tdMembersDiff = `<td class="text-left ${getDiffClass(item.members_diff)}" data-label="前日差"${sortedAttr("members")}>${formatDiffText(item.members_diff)}</td>`;
 
       const tdStockVal = `<td class="text-right bold-text" data-label="トークン在庫［個］">${formatNumber(item.stock)}</td>`;
       const tdStockDiff = `<td class="text-left ${getDiffClass(item.stock_diff)}" data-label="前日差">${formatDiffText(item.stock_diff)}</td>`;

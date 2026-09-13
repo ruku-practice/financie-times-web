@@ -13,7 +13,7 @@ VERSION="$(grep -o 'const APP_VERSION = "[0-9.]*"' "$SRC/js/advanced.js" | grep 
 OUT="$(mktemp -d "${TMPDIR:-/tmp}/rank_stg.XXXXXX")"
 mkdir -p "$OUT/site/financie"
 cp "$SRC/index.html" "$SRC/advanced.html" "$OUT/site/financie/"
-[ -f "$SRC/share.html" ] && cp "$SRC/share.html" "$OUT/site/financie/"
+# share.html（SNS 用の正方形画像の試作）は第2段＝公開しない（ルク・社長室 2026-09-13）＝ステージングにも載せない
 cp -R "$SRC/css" "$SRC/js" "$OUT/site/financie/"
 rsync -a --exclude 'history.json' --exclude 'history_checkpoint.json' --exclude '2026.xlsx' --exclude 'ranking_daily (1).json' --exclude 'metadata_last_run.txt' --exclude '/analysis/' "$SRC/data/" "$OUT/site/financie/data/"
 cat > "$OUT/site/index.html" <<HTML

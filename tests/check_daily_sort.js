@@ -303,7 +303,11 @@ async function main() {
       const btns = Array.from(document.querySelectorAll(".sort-criteria-group .sort-tab-btn[data-sort]")).map((b) => { const r = b.getBoundingClientRect(); return { h: Math.round(r.height), right: Math.round(r.right) }; });
       return { before, scrollW: document.documentElement.scrollWidth, innerW: window.innerWidth, noteH: note.getBoundingClientRect().height, noteText: note.textContent.slice(0, 20), btns };
     });
-    record("D9-mobile-card-labels-and-fit", JSON.stringify(d9.before) === JSON.stringify(EXPECT_HEAD) && d9.scrollW <= d9.innerW && d9.noteH > 0 && d9.btns.every((b) => b.h >= 44 && b.right <= d9.innerW), d9);
+    // 価格の上昇率順＝6列目（前日比）の項目名だけに「↓ 並べ替え中」が付く（エマ v3.2.4 軽4）
+    const expectBefore = EXPECT_HEAD.map((h, i) => (i === 5 ? `${h} ↓ 並べ替え中` : h));
+    // 計算値は「"前日比" " ↓ 並べ替え中"」のように文字列が2つ並ぶことがある＝つなぎ目の「" "」を外してから比べる
+    const beforeText = d9.before.map((c) => c.replace(/"\s*"/g, ""));
+    record("D9-mobile-card-labels-and-fit", JSON.stringify(beforeText) === JSON.stringify(expectBefore) && d9.scrollW <= d9.innerW && d9.noteH > 0 && d9.btns.every((b) => b.h >= 44 && b.right <= d9.innerW), { ...d9, expectBefore, beforeText });
     await mctx.close();
 
     // D10 データの無い日を開いたあとに並べ替えを押しても、前の日の行を出さない

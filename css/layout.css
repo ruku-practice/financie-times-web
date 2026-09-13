@@ -153,6 +153,19 @@ html[data-layout="v"] #analysis-view .chart-card.full-width {
   white-space: nowrap;
 }
 
+/* 個別タブの指標カードの補足：まとまり（前日差／前日比・アクティブ）の中では折り返さない（エマ v3.2.4 中2） */
+.metric-sub .nw {
+  white-space: nowrap;
+}
+
+/* スマホのカード：並べ替え中の項目名の横に ↓（見出しが無いので・エマ v3.2.4 軽4） */
+@media (max-width: 768px) {
+  #daily-travel-view .historic-ranking-table td[data-sorted]::before {
+    content: attr(data-label) " ↓ 並べ替え中";
+    color: var(--accent-text);
+  }
+}
+
 /* 価格の上昇率順・上昇額順のときだけ出る足切りの注記（v3.2.4） */
 #daily-travel-view .daily-sort-note {
   margin: 0;

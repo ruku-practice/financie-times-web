@@ -128,10 +128,10 @@ async function run() {
         if (cellText !== expected) diffMismatches.push(`${r.folder}: got=${cellText} expect=${expected}`);
         return;
       }
-      if (r.pct >= 1000 && cellText === "▲10倍超") return; // +1000%以上は「▲10倍超」に丸める仕様
-      const m = /^([▲▼])([\d,.]+)%$/.exec(cellText);
+      if (r.pct >= 1000 && cellText === "+10倍超") return; // +1000%以上は「+10倍超」に丸める仕様（v3.2.4 で ▲10倍超→+10倍超）
+      const m = /^([+▲])([\d,.]+)%$/.exec(cellText); // v3.2.4 から会計表記＝上昇「+」・下落「▲」
       if (!m) { diffMismatches.push(`${r.folder}: got=${cellText}（形式不一致） expect_pct=${r.pct.toFixed(1)}`); return; }
-      const sign = m[1] === "▲" ? 1 : -1;
+      const sign = m[1] === "+" ? 1 : -1;
       const val = sign * Number(m[2].replace(/,/g, ""));
       if (Math.abs(val - r.pct) > 0.1) diffMismatches.push(`${r.folder}: got=${val} expect=${r.pct.toFixed(1)}`);
     });
@@ -315,12 +315,12 @@ async function run() {
     });
     record("A23-metric-in-ranking-card", metricPlace.inCard && metricPlace.distance >= 0 && metricPlace.distance < 200, JSON.stringify(metricPlace));
 
-    // A29: 変化の書式が全指標で1つ（中4）＝4列目は ▲x／▼x／±0／新規／比較なし／▲10倍超 のどれか・期末値は価格2桁／他は整数（＋「（MM/DD時点）」）
+    // A29: 変化の書式が全指標で1つ（中4）＝4列目は +x／▲x／±0／新規／比較なし／+10倍超 のどれか（v3.2.4 で会計表記・順位変化は ↑n／↓n）・期末値は価格2桁／他は整数（＋「（MM/DD時点）」）
     for (const m of ["price", "mcap", "members", "stock"]) {
       await page.click(`#ov-metric-group button[data-metric="${m}"]`);
       await page.waitForTimeout(400);
       const cells = await page.$$eval("#ov-ranking-tbody tr[data-folder] td:nth-child(4)", (tds) => tds.map((t) => t.textContent.trim()));
-      const bad = cells.filter((t) => !/^(▲|▼)[\d,.]+%?$|^±0%?$|^新規$|^比較なし$|^▲10倍超$/.test(t));
+      const bad = cells.filter((t) => !/^(\+|▲)[\d,.]+%?$|^±0%?$|^新規$|^比較なし$|^\+10倍超$/.test(t) || /▼/.test(t));
       const last = await page.$$eval("#ov-ranking-tbody tr[data-folder] td:nth-child(3)", (tds) => tds.map((t) => t.textContent.trim()));
       const badLast = m === "price"
         ? last.filter((t) => !/^[\d,]+\.\d{2}(（\d\d\/\d\d時点）)?$/.test(t))
@@ -330,7 +330,7 @@ async function run() {
     await page.click('#ov-metric-group button[data-metric="volume"]');
     await page.waitForTimeout(300);
     const rankCells = await page.$$eval("#ov-ranking-tbody tr[data-folder] td:nth-child(6)", (tds) => tds.map((t) => t.textContent.trim()));
-    const badRank = rankCells.filter((t) => !/^→$|^(▲|▼)\d+$|^比較なし$/.test(t));
+    const badRank = rankCells.filter((t) => !/^→$|^(↑|↓)\d+$|^比較なし$/.test(t));
     record("A29-rank-change-format", rankCells.length > 0 && badRank.length === 0, `bad=${JSON.stringify(badRank)}`);
 
     // A31: 期間・上位・指標がURLに残り、再読み込みで戻る（軽9）
@@ -712,7 +712,7 @@ async function run() {
       vol[p] = await measureVol();
     }
     record("A40-cng-volume-visible", ["all", "365", "90"].every((p) => vol[p].ratio >= 0.1), JSON.stringify(vol));
-    record("A40-cng-cap-note", vol.all.noteShown && vol.all.note.includes("2024/01/22") && vol.all.note.includes("▲") && vol.all.yMax < vol.all.dataMax && !vol["365"].noteShown && !vol["90"].noteShown && vol["90"].yMax >= vol["90"].dataMax, JSON.stringify({ all: vol.all.note, y365: vol["365"].yMax, d365: vol["365"].dataMax, y90: vol["90"].yMax, d90: vol["90"].dataMax }));
+    record("A40-cng-cap-note", vol.all.noteShown && vol.all.note.includes("2024/01/22") && vol.all.note.includes("棒の上端の印") && !vol.all.note.includes("▲") && vol.all.yMax < vol.all.dataMax && !vol["365"].noteShown && !vol["90"].noteShown && vol["90"].yMax >= vol["90"].dataMax, JSON.stringify({ all: vol.all.note, y365: vol["365"].yMax, d365: vol["365"].dataMax, y90: vol["90"].yMax, d90: vol["90"].dataMax }));
     await page.click('.period-btn[data-days="all"]');
     await page.waitForTimeout(300);
     await page.click("#volume-cap-toggle");
@@ -730,8 +730,8 @@ async function run() {
     await page.waitForFunction(() => document.getElementById("detail-slug").textContent === "@cryptoninjagames", { timeout: 15000 });
     await page.waitForTimeout(600);
     const reset = await measureVol();
-    record("A40-full-scale-resets-per-project", reset.yMax < reset.dataMax && reset.note.includes("▲") && reset.n === vol.all.n, JSON.stringify({ yMax: reset.yMax, n: reset.n, note: reset.note.slice(0, 12) }));
-    record("A40-cng-full-scale-toggle", full.yMax >= full.dataMax && full.note.includes("実寸") && back.yMax < back.dataMax && back.note.includes("▲"), JSON.stringify({ full: { yMax: full.yMax, ratio: full.ratio, note: full.note.slice(0, 20) }, back: { yMax: back.yMax, ratio: back.ratio } }));
+    record("A40-full-scale-resets-per-project", reset.yMax < reset.dataMax && reset.note.includes("棒の上端の印") && reset.n === vol.all.n, JSON.stringify({ yMax: reset.yMax, n: reset.n, note: reset.note.slice(0, 12) }));
+    record("A40-cng-full-scale-toggle", full.yMax >= full.dataMax && full.note.includes("実寸") && back.yMax < back.dataMax && back.note.includes("棒の上端の印"), JSON.stringify({ full: { yMax: full.yMax, ratio: full.ratio, note: full.note.slice(0, 20) }, back: { yMax: back.yMax, ratio: back.ratio } }));
     // A44（v3.1 項目3）: 個別ページの「メンバー数＆在庫」と比較ページの4枚もHTMLの凡例＝Chart.js の凡例は出ない・押すと消える・比較は1枚で消すと4枚とも消える
     const combinedLegend = await page.evaluate(() => {
       const ch = window.FinancieAdvanced._debug.charts().combined;

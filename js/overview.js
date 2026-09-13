@@ -231,7 +231,8 @@
 
   // 変化率の書式（全指標で1つに統一・中3/中4）。
   //   前期間（または期首値）が無い → 「比較なし」／前期間ゼロで今期>0 → 「新規」／ちょうど0 → 「±0%」
-  //   10倍超（+1000%以上）は「▲10倍超」に丸める（巨大な数字が煽りに見えないように）
+  //   10倍超（+1000%以上）は「+10倍超」に丸める（巨大な数字が煽りに見えないように）
+  //   記号は日付別ランキングと同じ会計表記＝上昇「+」・下落「▲」（v3.2.4・ルク 2026-09-13 13:27／エマ v3.2.4 中1＝タブで ▲ の意味が逆だった）
   function fmtChangePct(current, base) {
     if (base === null || base === undefined || current === null || current === undefined) return { text: "比較なし", cls: "diff-flat" };
     if (base === 0) {
@@ -240,25 +241,26 @@
     }
     const pct = ((current - base) / base) * 100;
     if (pct === 0) return { text: "±0%", cls: "diff-flat" };
-    if (pct >= 1000) return { text: "▲10倍超", cls: "diff-up" };
-    const arrow = pct > 0 ? "▲" : "▼";
-    return { text: `${arrow}${Math.abs(pct).toFixed(1)}%`, cls: pct > 0 ? "diff-up" : "diff-down" };
+    if (pct >= 1000) return { text: "+10倍超", cls: "diff-up" };
+    const mark = pct > 0 ? "+" : "▲";
+    return { text: `${mark}${Math.abs(pct).toFixed(1)}%`, cls: pct > 0 ? "diff-up" : "diff-down" };
   }
 
-  // 増減（実数）の書式：▲1,234／▼80,827／±0／比較なし
+  // 増減（実数）の書式：+1,234／▲80,827／±0／比較なし
   function fmtChangeAbs(diff) {
     if (diff === null || diff === undefined || isNaN(diff)) return { text: "比較なし", cls: "diff-flat" };
     if (diff === 0) return { text: "±0", cls: "diff-flat" };
-    const arrow = diff > 0 ? "▲" : "▼";
-    return { text: `${arrow}${fmtInt(Math.abs(diff))}`, cls: diff > 0 ? "diff-up" : "diff-down" };
+    const mark = diff > 0 ? "+" : "▲";
+    return { text: `${mark}${fmtInt(Math.abs(diff))}`, cls: diff > 0 ? "diff-up" : "diff-down" };
   }
 
-  // 順位変化：→（変わらず）／▲3／▼2／比較なし
+  // 順位変化：→（変わらず）／↑3（上がった）／↓2（下がった）／比較なし
+  //   順位は数が小さいほど上＝「+」「▲」だと数の増減と取り違えるので矢印にする（v3.2.4）
   function fmtRankChange(prevRank, nowRank) {
     if (!prevRank) return { text: "比較なし", cls: "diff-flat" };
     const d = prevRank - nowRank;
     if (d === 0) return { text: "→", cls: "diff-flat" };
-    return { text: d > 0 ? `▲${d}` : `▼${Math.abs(d)}`, cls: d > 0 ? "diff-up" : "diff-down" };
+    return { text: d > 0 ? `↑${d}` : `↓${Math.abs(d)}`, cls: d > 0 ? "diff-up" : "diff-down" };
   }
 
   function escapeHtml(s) {
