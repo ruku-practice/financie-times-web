@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>合体 v3.2.1 判断資料</title>
+<title>合体 v3.2.2 判断資料</title>
 <style>
   :root { --bg:#f5f5f5; --card:#ffffff; --ink:#2d3142; --muted:#4f5d75; --line:rgba(45,49,66,.14); --accent:#eb6c36; --accent-tint:rgba(235,108,54,.08); --ok:#047857; --warn:#b45309; --ng:#b91c1c; --link:#2e5aa8; }
   @media (prefers-color-scheme: dark) { :root { --bg:#1b1e2a; --card:#252a3a; --ink:#f3f4f6; --muted:#c3c8d4; --line:rgba(255,255,255,.14); --accent:#f08a59; --accent-tint:rgba(240,138,89,.12); --ok:#34d399; --warn:#fbbf24; --ng:#f87171; --link:#8fb4ef; } }
@@ -30,6 +30,7 @@
   .pair figure img { max-width:360px; }
   .pair .tag { display:inline-block; font-size:12px; font-weight:700; padding:0 8px; border-radius:4px; color:#fff; margin-bottom:6px; }
   .tag.before { background:var(--ng); } .tag.after { background:var(--ok); }
+  .wide img { max-width:100%; }
   .shots { display:grid; grid-template-columns:2fr 1fr; gap:12px; align-items:start; }
   @media (max-width:760px) { .shots, .pair { grid-template-columns:1fr; } }
   .scroll { overflow-x:auto; }
@@ -44,21 +45,21 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="eyebrow">FiNANCiE TIMES Web ・ 全体市況と「分析」の合体 v3.2.1 ・ 2026-09-13 11:56 JST 時点</div>
-  <h1>検収の指摘を直してステージングに出しました。本番に出すかを決めてください</h1>
+  <div class="eyebrow">FiNANCiE TIMES Web ・ 全体市況と「分析」の合体 v3.2.2 ・ 2026-09-13 12:21 JST 時点</div>
+  <h1>検収が通りました。本番に出すかを決めてください</h1>
 
   <div class="card lead">
-    <p><b>全体状況</b>：エマの指摘13件（重1・中8・軽4）と日付別ランキングの軽3件を1回でまとめて直しました。</p>
+    <p><b>全体状況</b>：エマ（2回）と断の指摘をすべて直し、v3.2.2 をステージングに出しました。</p>
     <p><b>結論</b>：検査は8本とも全部通過。本番（GitHub Pages）には出していません（今の本番は v3.1.1）。</p>
-    <p><b>ステージング</b>：<a href="https://financie-times-analysis-staging.ruku-practice.workers.dev/financie/">https://financie-times-analysis-staging.ruku-practice.workers.dev/financie/</a>（右下が v3.2.1 なら最新）</p>
-    <p id="lead-qa"><b>検収</b>：断（深さ標準）・エマ（再確認）は <span class="wait">確認中</span>。結果は下の「検収」に追記します。</p>
+    <p><b>ステージング</b>：<a href="https://financie-times-analysis-staging.ruku-practice.workers.dev/financie/">https://financie-times-analysis-staging.ruku-practice.workers.dev/financie/</a>（右下が v3.2.2 なら最新）</p>
+    <p id="lead-qa"><b>検収</b>：エマ・断とも <span class="ok">通す</span>（12:20・12:21）。残りは任意の1件（KPI の補足の改行）だけです。</p>
   </div>
 
   <h2>選んでください</h2>
   <div class="opts">
     <div class="card opt rec">
       <h3>A　本番に出す<span class="badge">おすすめ</span></h3>
-      <p class="small">断・エマが通したら</p>
+      <p class="small">エマ・断とも通した</p>
       <ol>
         <li>社長室の指示で、旧「分析」タブを外す</li>
         <li>毎晩の処理に集計と検査を足す</li>
@@ -86,28 +87,26 @@
   <h2>いちばん大きかった直し（スマホの見せ方の釦）</h2>
   <div class="pair">
     <figure><span class="tag before">直す前 v3.2.0</span><img src="screenshots/2026-09-13_merged_v320_sp_volume_before.png" alt="直す前のスマホ390の出来高の箱。見せ方の釦4つが右寄せで溢れ、左端の「上位＋その他」が画面の外に出て「束（月次）」も左が切れている"><figcaption>左の「上位＋その他」が画面の外。一度切り替えると既定に戻れなかった</figcaption></figure>
-    <figure><span class="tag after">直した後 v3.2.1</span><img src="screenshots/2026-09-13_merged_v321_sp_volume_buttons.png" alt="直した後のスマホ390の出来高の箱。見せ方の釦4つが左寄せで2段に折り返し、全部が枠の中。下に小中大の釦"><figcaption>釦は左寄せで2段に折り返し、全部が枠の中・高さ 44px</figcaption></figure>
+    <figure><span class="tag after">直した後</span><img src="screenshots/2026-09-13_merged_v321_sp_volume_buttons.png" alt="直した後のスマホ390の出来高の箱。見せ方の釦4つが左寄せで2段に折り返し、全部が枠の中。下に小中大の釦"><figcaption>釦は左寄せで2段に折り返し、全部が枠の中・高さ 44px</figcaption></figure>
   </div>
   <div class="pair">
-    <figure><span class="tag after">スマホの操作帯</span><img src="screenshots/2026-09-13_merged_v321_sp_controls.png" alt="スマホ390の操作帯。期間の釦だけが見え、その下に「絞り込み ▾ 日（自動）・上位10・その他あり・ならす」という畳んだ釦がある"><figcaption>期間だけ見せ、残りは「絞り込み ▾」にたたむ。今の選び方は右に要約</figcaption></figure>
-    <figure><span class="tag after">PC の KPI</span><img src="screenshots/2026-09-13_merged_v321_pc_kpi.png" alt="PC 1280のKPI 6枚。数値の上端がそろい、5枚目が「期間のメンバー純増 +1,243人 前の90日 +1,277人」"><figcaption>数値の上端がそろった。メンバー純増は選んだ期間の値に</figcaption></figure>
+    <figure><span class="tag after">スマホで開いた直後の KPI（v3.2.2）</span><img src="screenshots/2026-09-13_merged_v322_sp_kpi_first_view.png" alt="スマホ390で開いた直後のKPI 6枚。期間のメンバー純増 +1,243人、機運の5指標 0 / 5 まで埋まっている"><figcaption>開いただけで「期間のメンバー純増」「機運の5指標」まで埋まる（v3.2.1 は「-」のままだった）</figcaption></figure>
+    <figure><span class="tag after">スマホの操作帯</span><img src="screenshots/2026-09-13_merged_v321_sp_controls.png" alt="スマホ390の操作帯。期間の釦だけが見え、その下に「絞り込み ▾」の畳んだ釦と今の選び方の要約がある"><figcaption>期間だけ見せ、残りは「絞り込み ▾」にたたむ。今の選び方は右に要約</figcaption></figure>
   </div>
+  <figure class="wide"><span class="tag after" style="display:inline-block;font-size:12px;font-weight:700;padding:0 8px;border-radius:4px;color:#fff;background:var(--ok);margin-bottom:6px">PC 1280・全期間の KPI（v3.2.2）</span><img src="screenshots/2026-09-13_merged_v322_pc_kpi_all.png" alt="PC 1280で全期間を選んだときのKPI 6枚。4,435,076,304 などの数値がカードの中に収まり、数値の上端がそろっている"><figcaption>いちばん桁の多い全期間でも数値がカードに収まる（v3.2.1 は10px はみ出していた）</figcaption></figure>
 
-  <h2>直したもの（エマ 11:01 の指摘＋日付別ランキングの残り）</h2>
+  <h2>直したもの</h2>
   <div class="card scroll">
     <table>
-      <thead><tr><th>重さ</th><th>指摘</th><th>どう直したか</th><th>検査</th></tr></thead>
+      <thead><tr><th>版</th><th>重さ</th><th>指摘</th><th>どう直したか</th><th>検査</th></tr></thead>
       <tbody>
-        <tr><td>重1</td><td>スマホで見せ方の釦が画面外・既定に戻れない</td><td>左寄せ・幅いっぱいで折り返し</td><td>M17 釦27個が枠内・44px／M18 既定へ戻れる</td></tr>
-        <tr><td>中2</td><td>KPI のメンバー純増が期間に従わない</td><td>「期間のメンバー純増」＝選んだ期間の合計＋前の同じ日数</td><td>M10 90日 +1,243・30日 +1,518・全期間 +508,208（別実装と一致）</td></tr>
-        <tr><td>中3</td><td>KPI の数値の高さがずれる・結論と詰まる</td><td>見出しを2行分でそろえ、下に 24px</td><td>M12</td></tr>
-        <tr><td>中4</td><td>9位と10位の色が近い</td><td>上位10は検証済みの10色（11位以降だけ青系）</td><td>M14・色の検証器で10色 PASS</td></tr>
-        <tr><td>中5</td><td>シェアの「束」の見出しが古い</td><td>見せ方ごとに見出しを替え、選択中を読み上げに伝える</td><td>M13</td></tr>
-        <tr><td>中6・中7</td><td>「ISO 週」の誤った注記・全期間で「前期間比 -」</td><td>注記を消し、前期間が無いときは節ごと出さない</td><td>M15・M11</td></tr>
-        <tr><td>中8</td><td>呼び名が3通り・案件と PJ が混在</td><td>「取引のあったPJ数」・PJ にそろえた</td><td>M15</td></tr>
-        <tr><td>中9</td><td>スマホの操作帯が長い（約520px）</td><td>「絞り込み ▾」でたたむ（PC は今のまま）</td><td>M19・M16</td></tr>
-        <tr><td>軽10〜13</td><td>ならすの説明の語・全期間で粒度が黙って週に・小中大 28px・日付別の並べ替え釦 29px</td><td>語をそろえ、注記を出し、44px に</td><td>M15・M11・M17・M21</td></tr>
-        <tr><td>日付別 軽</td><td>どの列で並んでいるか表から分からない</td><td>並べ替え中の列の見出しに ▼</td><td>M20</td></tr>
+        <tr><td>v3.2.2</td><td>中A</td><td>スマホで開いただけだと KPI 2枚と結論が「-」のまま</td><td>KPI の並びが画面に入った時点で描く・取得中は「読み込み中」</td><td>M23</td></tr>
+        <tr><td>v3.2.2</td><td>中B</td><td>PC 全期間で KPI の数値がカードをはみ出す</td><td>カードの幅に合わせて数値の文字を縮める</td><td>M22</td></tr>
+        <tr><td>v3.2.2</td><td>重1（断）</td><td>日付で期間を入れると、前の期間の釦が読み上げで「押されている」のまま</td><td>釦の選択の印を見た目と読み上げの両方で外す</td><td>M24</td></tr>
+        <tr><td>v3.2.2</td><td>軽6</td><td>シェア推移の見出し・「前期間比は比較できず」・注記の句点・要約の「自動」・「前の90日」と「前期間」・ランキングの釦の左端（KPI の補足の改行は任意＝まだ）</td><td>見出しと語をそろえ、余白を 24px に</td><td>M11・M13・M17・M19</td></tr>
+        <tr><td>v3.2.1</td><td>重1</td><td>スマホで見せ方の釦が画面外・既定に戻れない</td><td>左寄せ・幅いっぱいで折り返し</td><td>M17・M18</td></tr>
+        <tr><td>v3.2.1</td><td>中2〜中9</td><td>メンバー純増が期間に従わない・KPI の高さ・9位と10位の色・シェアの束の見出し・ISO 週の注記・前期間比 -・呼び名・スマホの操作帯が長い</td><td>期間の合計に／高さをそろえる／検証済み10色／見出しと語をそろえる／「絞り込み ▾」でたたむ</td><td>M10〜M16・M19</td></tr>
+        <tr><td>v3.2.1</td><td>軽</td><td>ならすの説明の語・全期間で粒度が黙って週に・小中大と日付別の並べ替え釦が 44px 未満・並べ替え中の列が分からない</td><td>語をそろえ、注記を出し、44px に、見出しに ▼</td><td>M11・M17・M20・M21</td></tr>
       </tbody>
     </table>
   </div>
@@ -118,8 +117,8 @@
     <figcaption>設計の画面イメージ（PC 1280）。オレンジ＝全図に効く「欠測・一斉変動の日」と、箱ごとの「見せ方」</figcaption>
   </figure>
   <div class="shots">
-    <figure><img src="screenshots/2026-09-13_merged_v321_1280_light.png" alt="v3.2.1 の実際の画面（PC 1280・ライト）の全体"><figcaption>実際の画面（PC 1280・ライト・90日）</figcaption></figure>
-    <figure><img src="screenshots/2026-09-13_merged_v321_390.png" alt="v3.2.1 の実際の画面（スマホ 390）の全体"><figcaption>スマホ 390</figcaption></figure>
+    <figure><img src="screenshots/2026-09-13_merged_v321_1280_light.png" alt="実際の画面（PC 1280・ライト）の全体"><figcaption>実際の画面（PC 1280・ライト・90日）</figcaption></figure>
+    <figure><img src="screenshots/2026-09-13_merged_v321_390.png" alt="実際の画面（スマホ 390）の全体"><figcaption>スマホ 390</figcaption></figure>
   </div>
 
   <h2>見せ方の切り替え方</h2>
@@ -141,19 +140,19 @@
       <tbody>
         <tr><td>名寄せ</td><td>TEAM RED・肝高の山本商店・音夢パンダの3PJは前身の記録を含みます（409→406PJ）。個別ページは今の記録だけのままです</td></tr>
         <tr><td>欠測</td><td>既定は「ならす」。「記録どおり」にすると出来高は分析レポートと同じ数字になります（90日：ならす 48,405,782円／記録どおり 49,034,819円）</td></tr>
-        <tr><td>メンバー純増</td><td>KPI は選んだ期間の合計（90日 +1,243人）。機運の5指標の④は「期末からの窓」の値で、期間では変わりません</td></tr>
+        <tr><td>メンバー純増</td><td>KPI は選んだ期間の合計（90日 +1,243人・前期間 +1,277人）。機運の5指標の④は「期末からの窓」の値で、期間では変わりません</td></tr>
         <tr><td>期間と週</td><td>期間は暦日で数えます。週は期末を末尾にした7日で、先頭の7日に満たない日は週に入れません（その旨を操作帯に表示）</td></tr>
         <tr><td>色</td><td>上位10は検証済みの10色、「その他」は斜線の見本で見分けます</td></tr>
       </tbody>
     </table>
   </div>
 
-  <h2>検査（担当が 11:46〜11:51 に回した分）</h2>
+  <h2>検査（担当が 12:10〜12:16 に回した分）</h2>
   <div class="card scroll">
     <table>
       <thead><tr><th>検査</th><th class="num">項目</th><th>結果</th></tr></thead>
       <tbody>
-        <tr><td>合体の画面（今回 M10〜M21 の12項目を追加）</td><td class="num">29</td><td class="ok">ALL PASS</td></tr>
+        <tr><td>合体の画面（直しのたびに M10〜M24 の15項目を追加）</td><td class="num">32</td><td class="ok">ALL PASS</td></tr>
         <tr><td>全体市況（既存・スマホの操作帯は開いてから測る形に変更）</td><td class="num">80</td><td class="ok">ALL PASS</td></tr>
         <tr><td>分析タブ（旧・残す間）</td><td class="num">57</td><td class="ok">ALL PASS</td></tr>
         <tr><td>集計の式を実データで別実装と突き合わせ</td><td class="num">31</td><td class="ok">ALL PASS</td></tr>
@@ -170,10 +169,11 @@
     <table>
       <thead><tr><th>誰が</th><th>判定</th><th>要点</th></tr></thead>
       <tbody>
-        <tr id="qa-dan"><td>断（コード・深さ標準・v3.2.1）</td><td class="wait">確認中</td><td>検査の自己実行と故意に壊す確認（前回の申し送り）</td></tr>
-        <tr id="qa-emma"><td>エマ（使いやすさ・v3.2.1 再確認）</td><td class="wait">確認中</td><td>前回の13件＋日付別3件の○×と、新しい崩れの有無</td></tr>
-        <tr><td>エマ（v3.2.0・PC 1280／スマホ 390）</td><td>条件つき</td><td>重1・中8・軽4 → 上の表のとおり直した</td></tr>
-        <tr><td>断（軽・v3.2.0）</td><td class="ok">通す</td><td>申し送り＝本番の前に深さ標準で1回（今回実施中）</td></tr>
+        <tr id="qa-emma-322"><td>エマ（v3.2.2・軽）</td><td class="ok">通す</td><td>中A（開いて1.4秒で埋まる）・中B（余裕 17.6px）・断の重1 は○。軽7のうち KPI の補足の改行だけ×（任意・次の版）</td></tr>
+        <tr id="qa-dan-322"><td>断（v3.2.2・軽）</td><td class="ok">通す</td><td>検査32件を自分で回して ALL PASS・わざと壊した1件（KPI の見張りを外す）で検査が正しく赤くなった・重1は3か所とも直っている</td></tr>
+        <tr><td>エマ（v3.2.1・再確認）</td><td>条件つき</td><td>前回の16件は全部○。新しく中A・中B・軽7 → v3.2.2 で直した</td></tr>
+        <tr><td>断（v3.2.1・深さ標準）</td><td>条件つき</td><td>検査239件を自分で回して ALL PASS・わざと壊した3件はすべて検査が正しく赤くなった。重1 → v3.2.2 で直した</td></tr>
+        <tr><td>エマ（v3.2.0）・断（v3.2.0 軽）</td><td>条件つき・通す</td><td>重1・中8・軽4 → v3.2.1 で直した</td></tr>
         <tr><td>Astra（設計のセカンドオピニオン）</td><td class="ok">方向は OK</td><td>重大6点を実装の前に「契約」として決めて反映済み</td></tr>
       </tbody>
     </table>
@@ -183,11 +183,12 @@
   <div class="card scroll">
     <table>
       <tbody>
-        <tr><td>スマホの「絞り込み ▾」</td><td>最初はたたむ。右に「粒度・上位・その他・欠測」の要約を出す。PC では出さない</td></tr>
+        <tr><td>スマホの「絞り込み ▾」</td><td>最初はたたむ。右に「粒度・上位・その他・欠測」の要約。「（自動）」は期間に合わせて週にしたときだけ。PC では出さない</td></tr>
         <tr><td>9位・10位の色</td><td>青緑 #0e8fa8・赤茶 #a0522d（ダーク #118fa6・#c0703a）。色の検証器で10色の必須の関門を通したもの</td></tr>
-        <tr><td>メンバー純増の KPI</td><td>見出しを「期間のメンバー純増」にして、下に「前のN日」の値。窓の値は機運の表に残す</td></tr>
+        <tr><td>比べ方の呼び名</td><td>KPI・結論・ランキング表とも「前期間」（選んだ期間と同じ長さの直前）</td></tr>
+        <tr><td>KPI の数値</td><td>桁が多いときはカードの幅に合わせて文字を縮める（「44.4億」のような丸めはしない）</td></tr>
         <tr><td>本番のスクリプト</td><td>旧分析タブが残っている／毎晩の集計が無い／版がそろわない、のどれかで実行を止める（今のドライランでは前2つで止まる＝A の1・2が先）</td></tr>
-        <tr><td>版</td><td>v3.2.1（直した分の配信を画面で見分けるため）</td></tr>
+        <tr><td>版</td><td>v3.2.2（直した分の配信を画面で見分けるため）</td></tr>
       </tbody>
     </table>
   </div>
@@ -200,8 +201,9 @@
       <li>日付欄の「適用」釦（今は打ち終わると反映）</li>
       <li>ランキング表の「シェア」「期末直近30日」の列（分析の上位30表の吸収）</li>
       <li>検査の追加分（通信の競合・古い URL・境界のデータ）の一部</li>
+      <li>KPI の補足文が語の途中で改行される（「前期間より28.8%少な／い」・エマ v3.2.2 の任意の指摘）</li>
     </ul>
-    <p class="small">正本：設計書 <code>docs/2026-09-13_合体_設計.md</code>・検収メモ <code>docs/qa/</code>・完了報告 <code>company/logs/2026-09-13_FiNANCiE-TIMES-Web_分析タブ_完了報告.md</code>（「合体」の節）・枝 <code>feature/analysis-tab</code>（<code>8b920dd9</code>・未push）・本番スクリプト <code>scripts/release_merged.sh</code></p>
+    <p class="small">正本：設計書 <code>docs/2026-09-13_合体_設計.md</code>・検収メモ <code>docs/qa/</code>・完了報告 <code>company/logs/2026-09-13_FiNANCiE-TIMES-Web_分析タブ_完了報告.md</code>（「合体」の節）・枝 <code>feature/analysis-tab</code>（<code>c8165f5c</code>・未push）・本番スクリプト <code>scripts/release_merged.sh</code></p>
   </div>
 </div>
 </body>
