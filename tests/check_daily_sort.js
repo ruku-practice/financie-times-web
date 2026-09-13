@@ -303,11 +303,21 @@ async function main() {
       const btns = Array.from(document.querySelectorAll(".sort-criteria-group .sort-tab-btn[data-sort]")).map((b) => { const r = b.getBoundingClientRect(); return { h: Math.round(r.height), right: Math.round(r.right) }; });
       return { before, scrollW: document.documentElement.scrollWidth, innerW: window.innerWidth, noteH: note.getBoundingClientRect().height, noteText: note.textContent.slice(0, 20), btns };
     });
-    // 価格の上昇率順＝6列目（前日比）の項目名だけに「↓ 並べ替え中」が付く（エマ v3.2.4 軽4）
-    const expectBefore = EXPECT_HEAD.map((h, i) => (i === 5 ? `${h} ↓ 並べ替え中` : h));
+    // 価格の上昇率順＝6列目（前日比）の項目名だけに「↓」が付く（エマ v3.2.4 軽4・再確認 新中1 で「↓ 並べ替え中」→「↓」）
+    const expectBefore = EXPECT_HEAD.map((h, i) => (i === 5 ? `${h} ↓` : h));
     // 計算値は「"前日比" " ↓ 並べ替え中"」のように文字列が2つ並ぶことがある＝つなぎ目の「" "」を外してから比べる
     const beforeText = d9.before.map((c) => c.replace(/"\s*"/g, ""));
     record("D9-mobile-card-labels-and-fit", JSON.stringify(beforeText) === JSON.stringify(expectBefore) && d9.scrollW <= d9.innerW && d9.noteH > 0 && d9.btns.every((b) => b.h >= 44 && b.right <= d9.innerW), { ...d9, expectBefore, beforeText });
+
+    // D9b 390：いちばん長い項目名（24H 出来高［千円］）で並べ替えても、印つきの項目名が2行に割れない
+    //   カードは2列＝同じ行の隣のセル（前日差）と高さがそろう（エマ再確認 新中1「↓並べ替｜え中」）
+    await mp.click('.sort-criteria-group .sort-tab-btn[data-sort="volume"]');
+    await mp.waitForTimeout(200);
+    const d9b = await mp.evaluate(() => Array.from(document.querySelectorAll("#historic-ranking-tbody tr")).slice(0, 20).map((tr) => {
+      const tds = tr.querySelectorAll("td");
+      return { sorted: tds[2].hasAttribute("data-sorted"), h: Math.round(tds[2].getBoundingClientRect().height), hNext: Math.round(tds[3].getBoundingClientRect().height) };
+    }));
+    record("D9b-mobile-sorted-label-one-line", d9b.length === 20 && d9b.every((c) => c.sorted && Math.abs(c.h - c.hNext) <= 1), { rows: d9b.length, bad: d9b.filter((c) => !c.sorted || Math.abs(c.h - c.hNext) > 1).slice(0, 3) });
     await mctx.close();
 
     // D10 データの無い日を開いたあとに並べ替えを押しても、前の日の行を出さない

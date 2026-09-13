@@ -158,10 +158,12 @@ html[data-layout="v"] #analysis-view .chart-card.full-width {
   white-space: nowrap;
 }
 
-/* スマホのカード：並べ替え中の項目名の横に ↓（見出しが無いので・エマ v3.2.4 軽4） */
+/* スマホのカード：並べ替え中の項目名の横に ↓（見出しが無いので・エマ v3.2.4 軽4）。
+   「↓ 並べ替え中」は「24H 出来高［千円］」で2行に割れた（エマ再確認 新中1）＝PC の見出しと同じ ↓ だけ */
 @media (max-width: 768px) {
   #daily-travel-view .historic-ranking-table td[data-sorted]::before {
-    content: attr(data-label) " ↓ 並べ替え中";
+    content: attr(data-label) " ↓";
+    white-space: nowrap;
     color: var(--accent-text);
   }
 }

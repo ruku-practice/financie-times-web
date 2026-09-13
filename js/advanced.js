@@ -469,7 +469,7 @@
     metricVolume.textContent = `${formatFloat(latest.volume, 2)} 円`;
     
     // 累計取引量
-    metricVolumeSub.textContent = `累計出来高: ${formatFloat(latest.volume, 2)} 円`;
+    metricVolumeSub.textContent = `累計出来高: ${formatFloat(latest.volume, 2)}円`; // 単位の前に空白なし（エマ再確認 新軽1）
 
     // メンバー数
     metricMembers.textContent = `${formatNumber(latest.members)} 人`;
@@ -488,7 +488,7 @@
     }
 
     // トークン在庫
-    metricStock.textContent = `${formatNumber(latest.stock)} 円`;
+    metricStock.textContent = `${formatNumber(latest.stock)} 個`; // トークン在庫は個数（日付別の見出し［個］と同じ・前から「円」だった＝エマ再確認 新軽2）
     metricMarketcapSub.textContent = `時価総額: ¥${formatNumber(latest.marketCap)}`;
   }
 
