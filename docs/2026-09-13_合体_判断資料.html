@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>合体 v3.2.0 判断資料</title>
+<style>
+  :root { --bg:#f5f5f5; --card:#ffffff; --ink:#2d3142; --muted:#4f5d75; --line:rgba(45,49,66,.14); --accent:#eb6c36; --accent-tint:rgba(235,108,54,.08); --ok:#047857; --warn:#b45309; --link:#2e5aa8; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#1b1e2a; --card:#252a3a; --ink:#f3f4f6; --muted:#c3c8d4; --line:rgba(255,255,255,.14); --accent:#f08a59; --accent-tint:rgba(240,138,89,.12); --ok:#34d399; --warn:#fbbf24; --link:#8fb4ef; } }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:'Hiragino Sans','Noto Sans JP',system-ui,sans-serif; line-height:1.7; }
+  .wrap { max-width:1040px; margin:0 auto; padding:24px 20px 64px; }
+  h1 { font-size:26px; margin:0 0 4px; }
+  .eyebrow { font-size:12px; color:var(--muted); letter-spacing:.06em; }
+  h2 { font-size:19px; margin:36px 0 10px; border-top:1px solid var(--line); padding-top:20px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:16px 18px; }
+  .lead { border-color:var(--accent); background:var(--accent-tint); }
+  .lead p { margin:4px 0; }
+  .opts { display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:12px; }
+  @media (max-width:760px) { .opts { grid-template-columns:1fr; } }
+  .opt h3 { margin:0 0 6px; font-size:16px; }
+  .opt.rec { border:2px solid var(--accent); }
+  .badge { display:inline-block; font-size:12px; padding:1px 8px; border-radius:999px; background:var(--accent); color:#fff; margin-left:6px; vertical-align:middle; }
+  .opt ul { margin:6px 0 0; padding-left:18px; }
+  a { color:var(--link); }
+  code { background:var(--line); padding:0 4px; border-radius:4px; }
+  figure { margin:14px 0 22px; }
+  figure img { width:100%; height:auto; border:1px solid var(--line); border-radius:6px; background:#f5f5f5; }
+  figcaption { font-size:13px; color:var(--muted); margin-top:4px; }
+  .shots { display:grid; grid-template-columns:2fr 1fr; gap:12px; align-items:start; }
+  @media (max-width:760px) { .shots { grid-template-columns:1fr; } }
+  .scroll { overflow-x:auto; }
+  table { border-collapse:collapse; width:100%; font-size:14px; }
+  th, td { border-bottom:1px solid var(--line); padding:6px 8px; text-align:left; vertical-align:top; }
+  th { color:var(--muted); font-weight:600; }
+  td.num { text-align:right; white-space:nowrap; }
+  .ok { color:var(--ok); font-weight:600; }
+  .wait { color:var(--warn); font-weight:600; }
+  .small { font-size:13px; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">FiNANCiE TIMES Web ・ 全体市況と「分析」の合体 v3.2.0 ・ 2026-09-13 10:41 JST 時点</div>
+  <h1>合体版はステージングで見られます。本番に出すかを決めてください</h1>
+
+  <div class="card lead">
+    <p><b>全体状況</b>：タブは「全体市況」1つになり、上の操作帯が全部の図に効き、箱ごとに見せ方を切り替えられます。既定の背景は白です。</p>
+    <p><b>結論</b>：検査は全部通り、ステージングに出しました。本番（GitHub Pages）には出していません。</p>
+    <p><b>ステージング</b>：<a href="https://financie-times-analysis-staging.ruku-practice.workers.dev/financie/">https://financie-times-analysis-staging.ruku-practice.workers.dev/financie/</a>（右下が v3.2.0 なら最新）</p>
+    <p><b>検収</b>：断（コード）・エマ（使いやすさ）は <span class="wait">確認中</span>。結果はこの資料の下の「検収」に追記します。</p>
+  </div>
+
+  <h2>選んでください</h2>
+  <div class="opts">
+    <div class="card opt rec">
+      <h3>A　本番に出す<span class="badge">おすすめ</span></h3>
+      <p class="small">断・エマが通したら</p>
+      <ul>
+        <li>分析タブは消して出す（決裁6）</li>
+        <li>毎晩の処理に集計を足してから出す</li>
+        <li>残り3つは次の版で直す</li>
+      </ul>
+    </div>
+    <div class="card opt">
+      <h3>B　残りを直してから出す</h3>
+      <ul>
+        <li>日付欄の「適用」釦</li>
+        <li>ランキング表にシェアと期末直近30日の列</li>
+        <li>KPI のメンバー純増を選んだ期間に</li>
+      </ul>
+    </div>
+    <div class="card opt">
+      <h3>C　もう少しステージングで使う</h3>
+      <ul>
+        <li>気になった所を溜めて、まとめて1回直す</li>
+        <li>本番は v3.1.1 のまま</li>
+      </ul>
+    </div>
+  </div>
+  <p><b>次の一歩</b>：ステージングを開いて、出来高の箱の「束（月次）」と、操作帯の「記録どおり」を押してみる → 社長室に「A」「B」「C」のどれかを一言。</p>
+
+  <h2>画面イメージ（設計）と実際の画面</h2>
+  <figure>
+    <img src="diagrams/merge_screen.png" alt="合体後の全体市況タブの画面イメージ。操作帯、KPI、結論、機運の5指標、出来高・シェア・ランキング・価格・メンバーの箱の順に並び、箱ごとに見せ方の釦がある">
+    <figcaption>設計の画面イメージ（PC 1280）。オレンジ＝全図に効く「欠測・一斉変動の日」と、箱ごとの「見せ方」</figcaption>
+  </figure>
+  <div class="shots">
+    <figure><img src="screenshots/2026-09-13_merged_1280_light.png" alt="ステージングの実際の画面（PC 1280・ライト）の全体"><figcaption>実際の画面（PC 1280・ライト・90日）</figcaption></figure>
+    <figure><img src="screenshots/2026-09-13_merged_390.png" alt="ステージングの実際の画面（スマホ 390）の全体"><figcaption>スマホ 390</figcaption></figure>
+  </div>
+
+  <h2>見せ方の切り替え方</h2>
+  <figure>
+    <img src="diagrams/merge_view_state.png" alt="出来高の箱の見せ方の状態図。画面に入ると既定の上位＋その他の積み上げで描き、釦で束・合計＋7日平均・取引のあったPJ数へ移る。期間や欠測を変えても見せ方はそのまま描き直す">
+    <figcaption>出来高の箱の例。見せ方は箱ごとに覚えます（再読み込みしても同じ）</figcaption>
+  </figure>
+  <div class="card scroll">
+    <table>
+      <thead><tr><th>箱</th><th>見せ方（最初＝既定）</th></tr></thead>
+      <tbody>
+        <tr><td>出来高</td><td>上位＋その他の積み上げ ／ 束（月次） ／ 合計＋7日平均 ／ 取引のあったPJ数</td></tr>
+        <tr><td>シェア</td><td>円 ／ 推移 ／ 束</td></tr>
+        <tr><td>ランキング</td><td>表 ／ 上位8の今と前</td></tr>
+        <tr><td>価格</td><td>円 ／ 最初の値＝100、選び方＝出来高上位 ／ 価格上位</td></tr>
+        <tr><td>メンバー</td><td>日ごとの純増 ／ 水準（全PJ合計と公式PJ）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>データの流れ</h2>
+  <figure>
+    <img src="diagrams/merge_dataflow.png" alt="データの流れ。毎晩の収集→集計を1本に（名寄せ3組で406PJ）→静的JSON→ブラウザが1回だけ読み共通の状態から描く">
+    <figcaption>集計は1本に。ブラウザは自サイトの静的 JSON だけを読みます（本家へはバッチだけ）</figcaption>
+  </figure>
+
+  <h2>数字が変わる所（知っておいてほしいこと）</h2>
+  <div class="card scroll">
+    <table>
+      <thead><tr><th>変わる所</th><th>中身</th></tr></thead>
+      <tbody>
+        <tr><td>名寄せ</td><td>TEAM RED・肝高の山本商店・音夢パンダの3PJは前身の記録を含みます（409→406PJ）。個別ページは今の記録だけのままです</td></tr>
+        <tr><td>欠測</td><td>既定は「ならす」。「記録どおり」にすると出来高は分析レポートと同じ数字になります（90日：ならす 48,405,782円／記録どおり 49,034,819円）</td></tr>
+        <tr><td>期間と週</td><td>期間は暦日で数えます。週は期末を末尾にした7日で、先頭の7日に満たない日は週に入れません</td></tr>
+        <tr><td>色</td><td>系列の色を検証済みの8色に替え、「その他」は斜線の見本で見分けます</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>検査（担当が回した分）</h2>
+  <div class="card scroll">
+    <table>
+      <thead><tr><th>検査</th><th class="num">項目</th><th>結果</th></tr></thead>
+      <tbody>
+        <tr><td>全体市況（既存・定義の変更を反映）</td><td class="num">80</td><td class="ok">ALL PASS</td></tr>
+        <tr><td>合体の画面（新規）</td><td class="num">17</td><td class="ok">ALL PASS</td></tr>
+        <tr><td>分析タブ（旧・残す間）</td><td class="num">57</td><td class="ok">ALL PASS</td></tr>
+        <tr><td>集計の式を実データで別実装と突き合わせ</td><td class="num">31</td><td class="ok">ALL PASS</td></tr>
+        <tr><td>集計の式の単体</td><td class="num">15</td><td class="ok">ALL PASS</td></tr>
+        <tr><td>集計ファイルの中身</td><td class="num">13</td><td class="ok">ALL PASS</td></tr>
+        <tr><td>日付別ランキングの並べ替え（全992日）</td><td class="num">8</td><td class="ok">ALL PASS</td></tr>
+        <tr><td>分析の部品の分離</td><td class="num">6</td><td class="ok">ALL PASS</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>検収</h2>
+  <div class="card scroll" id="qa">
+    <table>
+      <thead><tr><th>誰が</th><th>判定</th><th>要点</th></tr></thead>
+      <tbody>
+        <tr><td>断（コード）</td><td class="wait">確認中</td><td>―</td></tr>
+        <tr><td>エマ（使いやすさ・PC 1280／スマホ 390）</td><td class="wait">確認中</td><td>―</td></tr>
+        <tr><td>Astra（設計のセカンドオピニオン）</td><td class="ok">方向は OK</td><td>重大6点を実装の前に「契約」として決めて反映済み</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>決めた点（決裁の範囲で担当が選んだもの）</h2>
+  <div class="card scroll">
+    <table>
+      <tbody>
+        <tr><td>テーマ・縦横の釦</td><td>ヘッダー右に1つずつ（どのタブでも効くように）</td></tr>
+        <tr><td>分析タブ</td><td>中身をそのまま残す（全体市況の箱とは別に動く）。消すのは1か所</td></tr>
+        <tr><td>欠測の釦の文言</td><td>「ならす／記録どおり」＋左に「欠測・一斉変動の日」</td></tr>
+        <tr><td>見せ方の記憶</td><td>箱ごとに覚える（URL には入れない）。期間・欠測は URL に残る</td></tr>
+        <tr><td>版</td><td>v3.2.0 に1本化</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>まだやっていないこと</h2>
+  <div class="card">
+    <ul>
+      <li>日付欄の「適用」釦（今は打ち終わると反映）</li>
+      <li>ランキング表の「シェア」「期末直近30日」の列（分析の上位30表の吸収）</li>
+      <li>KPI の「メンバー純増」を選んだ期間の値に（今は機運の窓の値）</li>
+      <li>毎晩の処理（daily.yml・metadata.yml）に集計と検査を足す＝本番に出す時</li>
+      <li>検査の追加分（通信の競合・古い URL・境界のデータ）の一部</li>
+    </ul>
+    <p class="small">正本：設計書 <code>docs/2026-09-13_合体_設計.md</code>・完了報告 <code>company/logs/2026-09-13_FiNANCiE-TIMES-Web_分析タブ_完了報告.md</code>（「合体」の節）・枝 <code>feature/analysis-tab</code>（<code>b73daf84</code>・未push）</p>
+  </div>
+</div>
+</body>
+</html>
