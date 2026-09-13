@@ -372,8 +372,8 @@ async function run() {
       const n = ch.data.labels.length;
       let stackMax = 0;
       for (let i = 0; i < n; i++) { let s = 0; ch.data.datasets.forEach((d, di) => { if (ch.isDatasetVisible(di)) s += d.data[i] || 0; }); stackMax = Math.max(stackMax, s); }
-      const grid = document.querySelector(".ov-charts-grid");
-      const cards = Array.from(document.querySelectorAll(".ov-chart-card")).map((c) => Math.round(c.getBoundingClientRect().width / grid.getBoundingClientRect().width * 100));
+      const grid = document.querySelector("#overview-view .ov-charts-grid"); // 分析の箱（同じクラス）を数えない
+      const cards = Array.from(document.querySelectorAll("#overview-view .ov-chart-card")).map((c) => Math.round(c.getBoundingClientRect().width / grid.getBoundingClientRect().width * 100));
       return { yMax: ch.scales.y.max, stackMax: Math.round(stackMax), cards };
     });
     record("A42-volume-headroom-and-wide", headroom.yMax >= headroom.stackMax * 1.06 && headroom.cards.length === 4 && headroom.cards.every((w) => w >= 95), JSON.stringify(headroom));
@@ -570,25 +570,26 @@ async function run() {
       });
       return { n, bad: [...new Set(bad)].slice(0, 8), theme: document.documentElement.getAttribute("data-theme") || "dark" };
     });
-    const darkContrast = await contrastCheck();
-    record("A32-contrast-dark", darkContrast.n > 30 && darkContrast.bad.length === 0, JSON.stringify(darkContrast));
+    // v3.2.0：既定はライト（記憶なし＝白・OS に追従しない＝ルク 07:17）
+    const firstContrast = await contrastCheck();
+    record("A32-contrast-light-default", firstContrast.n > 30 && firstContrast.bad.length === 0 && firstContrast.theme === "light", JSON.stringify(firstContrast));
     // トグルはヘッダーの右端（ルク要望1「ヘッダー右」）＝右端がヘッダー内側の右端から 40px 以内
     const togglePos = await page.evaluate(() => { const t = document.getElementById("theme-toggle").getBoundingClientRect(); const h = document.querySelector(".app-header").getBoundingClientRect(); return { gap: Math.round(h.right - t.right) }; });
     record("A32-toggle-right", togglePos.gap >= 0 && togglePos.gap <= 40, JSON.stringify(togglePos));
     await page.click("#theme-toggle");
     await page.waitForTimeout(500);
-    const lightState = await page.evaluate(() => ({ theme: document.documentElement.getAttribute("data-theme"), stored: localStorage.getItem("ft_theme"), tick: window.FinancieOverview._debug.charts.volume.options.scales.y.ticks.color, bg: getComputedStyle(document.body).backgroundColor }));
-    record("A32-theme-toggle", lightState.theme === "light" && lightState.stored === "light" && lightState.tick === "#4b5563" && lightState.bg === "rgb(243, 244, 246)", JSON.stringify(lightState));
-    const lightContrast = await contrastCheck();
-    record("A32-contrast-light", lightContrast.n > 30 && lightContrast.bad.length === 0, JSON.stringify(lightContrast));
+    const darkState = await page.evaluate(() => ({ theme: document.documentElement.getAttribute("data-theme"), stored: localStorage.getItem("ft_theme"), tick: window.FinancieOverview._debug.charts.volume.options.scales.y.ticks.color, bg: getComputedStyle(document.body).backgroundColor }));
+    record("A32-theme-toggle", darkState.theme === "dark" && darkState.stored === "dark" && darkState.tick === "#9ca3af" && darkState.bg === "rgb(11, 15, 25)", JSON.stringify(darkState));
+    const darkContrast = await contrastCheck();
+    record("A32-contrast-dark", darkContrast.n > 30 && darkContrast.bad.length === 0, JSON.stringify(darkContrast));
     await page.reload({ waitUntil: "domcontentloaded" });
     await waitOverviewReady(page);
     const persisted = await page.evaluate(() => ({ theme: document.documentElement.getAttribute("data-theme"), label: document.getElementById("theme-toggle").textContent }));
-    record("A32-theme-persist", persisted.theme === "light" && persisted.label.includes("ダーク"), JSON.stringify(persisted));
+    record("A32-theme-persist", persisted.theme === "dark" && persisted.label.includes("ライト"), JSON.stringify(persisted));
     await page.click("#theme-toggle");
     await page.waitForTimeout(300);
-    const backDark = await page.evaluate(() => (document.documentElement.getAttribute("data-theme") || "dark") + "/" + localStorage.getItem("ft_theme"));
-    record("A32-theme-back", backDark === "dark/dark", backDark);
+    const backLight = await page.evaluate(() => (document.documentElement.getAttribute("data-theme") || "light") + "/" + localStorage.getItem("ft_theme"));
+    record("A32-theme-back", backLight === "light/light", backLight);
 
     // A33: グラフの高さ＝各グラフ右上の小／中／大（既定＝中）・グラフごとに記憶・再読み込みで保たれる・chartArea が実際に増える
     const sizeBefore = await page.evaluate(() => { const c = window.FinancieOverview._debug.charts.volume; return { area: Math.round(c.chartArea.bottom - c.chartArea.top), h: c.canvas.closest(".chart-wrapper").getBoundingClientRect().height, active: c.canvas.closest(".chart-card").querySelector(".ov-size-btn.active").getAttribute("data-size") }; });
