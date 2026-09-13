@@ -37,19 +37,24 @@
     mcap: "時価総額"
   };
 
-  // 1〜10位は見分けのつく10色。11位以降は同じ青系で明るさだけ変える（同じ色が2本出ない・中6）。
-  // 10色は色相を離して取る（旧配色はオレンジ2本・緑〜シアン3本が近くて凡例と線が結び付かなかった＝エマ v3.1 中4）
-  const OV_COLORS = [
-    "#2563eb", "#f97316", "#16a34a", "#dc2626", "#7c3aed",
-    "#db2777", "#0891b2", "#a3e635", "#b45309", "#94a3b8"
-  ];
-  const OV_OTHER_COLOR = "#6b7280";
+  // 系列の色（v3.2.0）：1〜8位は dataviz スキルの検証済み8色（テーマごとに段を変える＝CSS 変数 --series-1..8）。
+  // 9位以降は同じ青系の明るさ違い（凡例と表で識別）。「その他」は灰（--series-other）＋凡例は斜線の見本。
+  // 旧10色は灰青 #94a3b8 が「その他」と近かった（ΔE 19＝エマ v3.1 中4）・検査で明度帯と CVD が FAIL だった。
+  const OV_FALLBACK_COLORS = {
+    light: ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948"],
+    dark: ["#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#008300", "#9085e9", "#e66767"]
+  };
 
   function ovColor(i) {
-    if (i < OV_COLORS.length) return OV_COLORS[i];
-    const k = i - OV_COLORS.length; // 0..19 を想定（上位30まで）
-    const light = 78 - (k % 20) * 2.2; // 78% → 36.2%（20段・重複なし）
-    return `hsl(217, 55%, ${light.toFixed(1)}%)`;
+    const t = currentTheme();
+    if (i < 8) return tc(`--series-${i + 1}`, OV_FALLBACK_COLORS[t][i]);
+    const k = i - 8; // 0..21（上位30まで）
+    const l = (t === "light" ? 70 : 62) - (k % 22) * 1.6;
+    return `hsl(214, 45%, ${l.toFixed(1)}%)`;
+  }
+
+  function ovOtherColor() {
+    return tc("--series-other", currentTheme() === "light" ? "#6b7280" : "#9ca3af");
   }
 
   function isMobile() {
@@ -57,44 +62,52 @@
   }
 
   /* ------------------------------------------------------------
-   * 背景の白黒（ダーク／ライト）：既定＝ダーク・ヘッダー右のトグルで切替・localStorage に記憶（ルク要望1）
+   * テーマ（v3.2.0）：切替と色の正本は js/theme.js（FtTheme）と css/advanced.css の CSS 変数。
+   * 既定＝ライト。theme.js が読まれていないとき（古い index.html）だけ、ここで切替を持つ。
    * ------------------------------------------------------------ */
   const THEME_KEY = "ft_theme";
+  const tc = (name, fallback) => (window.FtTheme ? window.FtTheme.color(name, fallback) : fallback);
 
   function currentTheme() {
-    return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+    if (window.FtTheme) return window.FtTheme.current();
+    return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
   }
 
   function updateThemeToggle() {
+    if (window.FtTheme) { window.FtTheme.updateToggle(); return; }
     const b = document.getElementById("theme-toggle");
     if (!b) return;
     const light = currentTheme() === "light";
     b.textContent = light ? "🌙 ダーク" : "☀️ ライト";
-    b.setAttribute("aria-pressed", String(light));
+    b.setAttribute("aria-pressed", String(!light));
     b.title = light ? "背景を黒にする" : "背景を白にする";
   }
 
   function applyTheme(theme) {
-    document.documentElement.setAttribute("data-theme", theme === "light" ? "light" : "dark");
+    if (window.FtTheme) { window.FtTheme.apply(theme, true); return; } // 描き直しは ft-theme-change で
+    document.documentElement.setAttribute("data-theme", theme === "dark" ? "dark" : "light");
     try { localStorage.setItem(THEME_KEY, theme); } catch (e) { /* 記憶できなくても動く */ }
     updateThemeToggle();
-    if (ovState.initialized) recomputeAll(); // グラフの文字色をテーマに合わせて描き直す
+    if (ovState.initialized) recomputeAll();
   }
 
   function setupThemeToggle() {
+    // テーマが変わったら描き直す（見えていない箱は遅延描画のまま＝画面に入ったときに新しい色で描かれる）
+    window.addEventListener("ft-theme-change", () => { if (ovState.initialized) recomputeAll(); });
+    if (window.FtTheme) return; // 釦は theme.js が持つ
     const b = document.getElementById("theme-toggle");
     if (!b) return;
     updateThemeToggle();
     b.addEventListener("click", () => applyTheme(currentTheme() === "light" ? "dark" : "light"));
   }
 
-  // グラフの文字・罫線の色（テーマごと）
+  // グラフの文字・罫線の色（CSS 変数から・無ければテーマごとの既定値）
   function chartColors() {
     const light = currentTheme() === "light";
     return {
-      tick: light ? "#4b5563" : "#9ca3af",
-      gridX: light ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.03)",
-      gridY: light ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.05)"
+      tick: tc("--chart-tick", light ? "#4b5563" : "#9ca3af"),
+      gridX: tc("--chart-grid-x", light ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.03)"),
+      gridY: tc("--chart-grid-y", light ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.05)")
     };
   }
 
@@ -558,7 +571,7 @@
     datasetsA.push({
       label: "その他",
       data: othersData,
-      backgroundColor: OV_OTHER_COLOR,
+      backgroundColor: ovOtherColor(),
       stack: "vol",
       hidden: !ovState.showOthers,
       ftLocked: !ovState.showOthers // 「その他を表示」で隠したときは凡例の記憶・「全部出す」の対象にしない
@@ -607,7 +620,7 @@
     shareDatasets.push({
       label: "その他",
       data: othersData.map((v, bi) => bucketTotals[bi] > 0 ? (v / bucketTotals[bi]) * 100 : 0),
-      backgroundColor: OV_OTHER_COLOR,
+      backgroundColor: ovOtherColor(),
       stack: "share",
       hidden: !ovState.showOthers,
       ftLocked: !ovState.showOthers // 「その他を表示」で隠したときは凡例の記憶・「全部出す」の対象にしない
@@ -644,7 +657,7 @@
       totals.push(othersData.reduce((a, b) => a + b, 0));
       labels.push("その他");
       ids.push("その他");
-      colors.push(OV_OTHER_COLOR);
+      colors.push(ovOtherColor());
     }
     const grand = totals.reduce((a, b) => a + b, 0);
     if (dom.shareTitle) dom.shareTitle.textContent = `出来高シェア（期間合計・上位${ovState.topN}${ovState.showOthers ? "＋その他" : ""}）`;
@@ -653,7 +666,7 @@
     const ctx = document.getElementById("ovShareChart").getContext("2d");
     ovCharts.share = new Chart(ctx, {
       type: "doughnut",
-      data: { labels, datasets: [{ data: totals, ftIds: ids, backgroundColor: colors, borderColor: currentTheme() === "light" ? "#ffffff" : "#131A26", borderWidth: 1 }] },
+      data: { labels, datasets: [{ data: totals, ftIds: ids, backgroundColor: colors, borderColor: tc("--donut-gap", currentTheme() === "light" ? "#ffffff" : "#131A26"), borderWidth: 1 }] },
       options: {
         responsive: true,
         maintainAspectRatio: false,
@@ -1062,7 +1075,7 @@
       datasets.push({
         label: "その他",
         data: othersData,
-        backgroundColor: OV_OTHER_COLOR,
+        backgroundColor: ovOtherColor(),
         stack: "members",
         hidden: !ovState.showOthers,
       ftLocked: !ovState.showOthers // 「その他を表示」で隠したときは凡例の記憶・「全部出す」の対象にしない

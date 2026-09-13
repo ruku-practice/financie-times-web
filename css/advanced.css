@@ -33,11 +33,30 @@
   --chart-grid-x: rgba(0, 0, 0, 0.04);
   --chart-grid-y: rgba(0, 0, 0, 0.08);
   --chart-note: #55606E;
+  /* 系列の8色＝dataviz スキルの検証済みパレット（validate_palette.js --mode light --surface #FFFFFF で ALL PASS・並び順が CVD 対策の一部＝入れ替えない） */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --series-5: #e87ba4;
+  --series-6: #008300;
+  --series-7: #4a3aa7;
+  --series-8: #e34948;
   --series-other: #6b7280;
   --legend-chip-border: #7b8794; /* 白地で約3.7:1＝凡例チップの枠（エマ v3.1 中5） */
   --legend-off-opacity: 0.7;
   --disabled-opacity: 0.8; /* エマ v3.1 軽6 */
   --cap-marker: #b45309;
+  --tooltip-bg: rgba(255, 255, 255, 0.96);
+  --tooltip-text: #1F2430;
+  --tooltip-border: rgba(15, 23, 42, 0.16);
+  --donut-gap: #FFFFFF; /* ドーナツの切片の隙間＝カードの地の色 */
+  --price-gradient-top: rgba(37, 99, 235, 0.28);
+  --price-gradient-bottom: rgba(37, 99, 235, 0.0);
+  --volume-gradient-top: rgba(37, 99, 235, 0.55);
+  --volume-gradient-bottom: rgba(37, 99, 235, 0.12);
+  --series-members: #047857; /* 個別ページのメンバー数の線（白地で 5.5:1） */
+  --series-stock: #B45309; /* 個別ページの在庫の線（白地で 5.0:1） */
 }
 
 /* ダーク：ヘッダー右の切替で選び、localStorage ft_theme に記憶 */
@@ -71,11 +90,30 @@ html[data-theme="dark"] {
   --chart-grid-x: rgba(255, 255, 255, 0.03);
   --chart-grid-y: rgba(255, 255, 255, 0.05);
   --chart-note: #9CA3AF;
+  /* 系列の8色＝dataviz スキルの検証済みパレット（validate_palette.js --mode dark --surface #131A26 で ALL PASS・並び順が CVD 対策の一部＝入れ替えない） */
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --series-5: #d55181;
+  --series-6: #008300;
+  --series-7: #9085e9;
+  --series-8: #e66767;
   --series-other: #9ca3af;
   --legend-chip-border: #6b7686; /* 暗い地で約3.8:1 */
   --legend-off-opacity: 0.7;
   --disabled-opacity: 0.8; /* エマ v3.1 軽6 */
   --cap-marker: #f59e0b;
+  --tooltip-bg: rgba(19, 26, 38, 0.92);
+  --tooltip-text: #F3F4F6;
+  --tooltip-border: rgba(255, 255, 255, 0.10);
+  --donut-gap: #131A26;
+  --price-gradient-top: rgba(37, 99, 235, 0.4);
+  --price-gradient-bottom: rgba(37, 99, 235, 0.0);
+  --volume-gradient-top: rgba(37, 99, 235, 0.65);
+  --volume-gradient-bottom: rgba(37, 99, 235, 0.15);
+  --series-members: #10b981;
+  --series-stock: #f59e0b;
 }
 
 

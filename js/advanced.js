@@ -143,7 +143,9 @@
   };
 
   // グラフの文字色（背景の白黒に合わせる。トグルは overview.js）
-  const chartTextColor = () => (document.documentElement.getAttribute("data-theme") === "light" ? "#4b5563" : "#9ca3af");
+  // 色の正本は css/advanced.css の CSS 変数（js/theme.js の FtTheme で読む・読めないときは既定値）＝v3.2.0
+  const themeColor = (name, fallback) => (window.FtTheme ? window.FtTheme.color(name, fallback) : fallback);
+  const chartTextColor = () => themeColor("--chart-tick", document.documentElement.getAttribute("data-theme") === "dark" ? "#9ca3af" : "#4b5563");
 
   const getDiffClass = (diff) => {
     if (!diff || diff === 0) return "diff-flat";
@@ -474,7 +476,7 @@
         const values = chart.data.datasets[0].data;
         const { ctx, chartArea } = chart;
         ctx.save();
-        ctx.fillStyle = "#f59e0b";
+        ctx.fillStyle = themeColor("--cap-marker", "#f59e0b");
         meta.data.forEach((bar, i) => {
           if (!(values[i] > cap)) return;
           const top = chartArea.top + 1;
@@ -539,8 +541,8 @@
     if (priceChart) priceChart.destroy();
     
     const priceGradient = priceCtx.createLinearGradient(0, 0, 0, 300);
-    priceGradient.addColorStop(0, 'rgba(37, 99, 235, 0.4)');
-    priceGradient.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
+    priceGradient.addColorStop(0, themeColor("--price-gradient-top", 'rgba(37, 99, 235, 0.4)'));
+    priceGradient.addColorStop(1, themeColor("--price-gradient-bottom", 'rgba(37, 99, 235, 0.0)'));
 
     priceChart = new Chart(priceCtx, {
       type: 'line',
@@ -566,8 +568,8 @@
     if (volumeChart) volumeChart.destroy();
 
     const volumeGradient = volumeCtx.createLinearGradient(0, 0, 0, 300);
-    volumeGradient.addColorStop(0, 'rgba(37, 99, 235, 0.65)');
-    volumeGradient.addColorStop(1, 'rgba(37, 99, 235, 0.15)');
+    volumeGradient.addColorStop(0, themeColor("--volume-gradient-top", 'rgba(37, 99, 235, 0.65)'));
+    volumeGradient.addColorStop(1, themeColor("--volume-gradient-bottom", 'rgba(37, 99, 235, 0.15)'));
 
     // 期間の中に突出があるときだけ縦軸に上限（v3.1 項目1）。上限を超えた棒は上端で切り、▲と注記で実値を示す
     const volumeCap = volumeAxisCap(volumes);
@@ -611,7 +613,7 @@
           {
             label: 'メンバー数 (人)',
             data: members,
-            borderColor: '#10b981',
+            borderColor: themeColor("--series-members", '#10b981'),
             borderWidth: 2,
             pointRadius: labels.length > 50 ? 0 : 2,
             pointHoverRadius: 6,
@@ -622,7 +624,7 @@
           {
             label: 'トークン在庫 (個)',
             data: stocks,
-            borderColor: '#f59e0b',
+            borderColor: themeColor("--series-stock", '#f59e0b'),
             borderWidth: 2,
             pointRadius: labels.length > 50 ? 0 : 2,
             pointHoverRadius: 6,
@@ -644,29 +646,29 @@
         },
         scales: {
           x: {
-            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+            grid: { color: themeColor("--chart-grid-y", 'rgba(255, 255, 255, 0.05)') },
             ticks: { color: chartTextColor(), maxTicksLimit: 12 }
           },
           'y-members': {
             type: 'linear',
             position: 'left',
-            grid: { color: 'rgba(255, 255, 255, 0.05)' },
-            ticks: { color: '#10b981' },
+            grid: { color: themeColor("--chart-grid-y", 'rgba(255, 255, 255, 0.05)') },
+            ticks: { color: themeColor("--series-members", '#10b981') },
             title: {
               display: true,
               text: 'メンバー数 (人)',
-              color: '#10b981'
+              color: themeColor("--series-members", '#10b981')
             }
           },
           'y-stock': {
             type: 'linear',
             position: 'right',
             grid: { display: false },
-            ticks: { color: '#f59e0b' },
+            ticks: { color: themeColor("--series-stock", '#f59e0b') },
             title: {
               display: true,
               text: 'トークン在庫 (個)',
-              color: '#f59e0b'
+              color: themeColor("--series-stock", '#f59e0b')
             }
           }
         }
@@ -685,21 +687,21 @@
         tooltip: {
           mode: 'index',
           intersect: false,
-          backgroundColor: 'rgba(19, 26, 38, 0.9)',
-          titleColor: '#f3f4f6',
-          bodyColor: '#e5e7eb',
-          borderColor: 'rgba(255, 255, 255, 0.1)',
+          backgroundColor: themeColor("--tooltip-bg", 'rgba(19, 26, 38, 0.9)'),
+          titleColor: themeColor("--tooltip-text", '#f3f4f6'),
+          bodyColor: themeColor("--tooltip-text", '#e5e7eb'),
+          borderColor: themeColor("--tooltip-border", 'rgba(255, 255, 255, 0.1)'),
           borderWidth: 1,
           padding: 10
         }
       },
       scales: {
         x: {
-          grid: { color: 'rgba(255, 255, 255, 0.03)' },
+          grid: { color: themeColor("--chart-grid-x", 'rgba(255, 255, 255, 0.03)') },
           ticks: { color: chartTextColor(), maxTicksLimit: 12 }
         },
         y: {
-          grid: { color: 'rgba(255, 255, 255, 0.05)' },
+          grid: { color: themeColor("--chart-grid-y", 'rgba(255, 255, 255, 0.05)') },
           ticks: { color: chartTextColor() }
         }
       }
@@ -915,21 +917,21 @@
         tooltip: {
           mode: 'index',
           intersect: false,
-          backgroundColor: 'rgba(19, 26, 38, 0.9)',
-          titleColor: '#f3f4f6',
-          bodyColor: '#e5e7eb',
-          borderColor: 'rgba(255, 255, 255, 0.1)',
+          backgroundColor: themeColor("--tooltip-bg", 'rgba(19, 26, 38, 0.9)'),
+          titleColor: themeColor("--tooltip-text", '#f3f4f6'),
+          bodyColor: themeColor("--tooltip-text", '#e5e7eb'),
+          borderColor: themeColor("--tooltip-border", 'rgba(255, 255, 255, 0.1)'),
           borderWidth: 1,
           padding: 10
         }
       },
       scales: {
         x: {
-          grid: { color: 'rgba(255, 255, 255, 0.03)' },
+          grid: { color: themeColor("--chart-grid-x", 'rgba(255, 255, 255, 0.03)') },
           ticks: { color: chartTextColor(), maxTicksLimit: 12 }
         },
         y: {
-          grid: { color: 'rgba(255, 255, 255, 0.05)' },
+          grid: { color: themeColor("--chart-grid-y", 'rgba(255, 255, 255, 0.05)') },
           ticks: { color: chartTextColor() },
           title: {
             display: true,
@@ -1297,6 +1299,7 @@
       compareNotice.classList.add("hidden-element");
       if (currentProjectData) {
         detailView.classList.remove("hidden-element");
+        if (singleChartsThemeStale) { singleChartsThemeStale = false; updateCharts(); } // 隠れている間にテーマが変わった
       } else {
         welcomeView.classList.remove("hidden-element");
       }
@@ -1379,6 +1382,15 @@
   btnLoadMoreDaily.addEventListener("click", () => {
     showAllDaily = true;
     renderDailyTable();
+  });
+
+  // テーマの切替（js/theme.js が投げる）＝見えている個別・比較のグラフだけ描き直す。
+  // 隠れている個別のグラフは、次にタブを開いたときに描き直す（比較はタブを開くたびに描くので不要）＝v3.2.0
+  let singleChartsThemeStale = false;
+  window.addEventListener("ft-theme-change", () => {
+    if (currentTab === "single-tab" && currentProjectData) updateCharts();
+    else if (currentTab === "compare-tab") updateCompareCharts();
+    else if (currentProjectData) singleChartsThemeStale = true;
   });
 
   // 月次用のイベント登録

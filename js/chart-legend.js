@@ -35,14 +35,15 @@
     if (isSliceChart(chart)) {
       const colors = chart.data.datasets[0].backgroundColor;
       const ids = chart.data.datasets[0].ftIds || [];
-      return chart.data.labels.map((label, i) => ({ id: ids[i] || label, label, color: Array.isArray(colors) ? colors[i] : colors, visible: chart.getDataVisibility(i), locked: false }));
+      return chart.data.labels.map((label, i) => ({ id: ids[i] || label, label, color: Array.isArray(colors) ? colors[i] : colors, visible: chart.getDataVisibility(i), locked: false, other: (ids[i] || label) === "その他" }));
     }
     return chart.data.datasets.map((ds, i) => ({
       id: ds.ftId || ds.label, // 記憶の識別子＝folder（同名の案件が2つあるため名前では区別できない・断 v3.1 重2）
       label: ds.label,
       color: !ds.backgroundColor || ds.backgroundColor === "transparent" || typeof ds.backgroundColor !== "string" ? ds.borderColor : ds.backgroundColor,
       visible: chart.isDatasetVisible(i),
-      locked: ds.ftLocked === true
+      locked: ds.ftLocked === true,
+      other: ds.ftOther === true || ds.label === "その他" // 「その他」は斜線の見本（灰の系列と見分ける＝エマ v3.1 中4）
     }));
   }
 
@@ -99,7 +100,7 @@
       // 押せると分かる手がかり（エマ v3.1 重1）：開閉の印は CSS（::before）・文言に「押すと出し入れ」
       if (summary) summary.textContent = offCount > 0 ? `凡例（${entries.length}・${offCount}件を非表示）｜押すと出し入れ` : `凡例（${entries.length}）｜押すと出し入れ`;
       items.innerHTML = entries.map((en, i) =>
-        `<button type="button" class="ov-legend-item${en.visible ? "" : " off"}" data-index="${i}" aria-pressed="${en.visible}" title="${en.visible ? "押すと隠す" : "押すと出す"}"><span class="ov-legend-swatch" style="background:${escapeHtml(en.color || "#6b7280")}"></span>${escapeHtml(en.label)}</button>`
+        `<button type="button" class="ov-legend-item${en.visible ? "" : " off"}" data-index="${i}" aria-pressed="${en.visible}" title="${en.visible ? "押すと隠す" : "押すと出す"}"><span class="ov-legend-swatch${en.other ? " other" : ""}" style="${en.other ? "--swatch" : "background"}:${escapeHtml(en.color || "var(--series-other)")}"></span>${escapeHtml(en.label)}</button>`
       ).join("") + `<button type="button" class="ov-legend-all" data-legend-all="1"${offCount > 0 ? ` title="非表示の${offCount}件を全部出す"` : " disabled aria-disabled=\"true\" title=\"非表示の項目がありません\""}>全部出す</button>`;
 
       items.querySelectorAll(".ov-legend-item").forEach((btn) => {
