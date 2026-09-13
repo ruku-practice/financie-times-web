@@ -24,7 +24,7 @@
 (function () {
   "use strict";
 
-  const AN_VERSION = "3.2.2";
+  const AN_VERSION = "3.2.3";
   const C = window.FtAnalysisCore;
 
   const AN_CONFIG = {

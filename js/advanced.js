@@ -1,5 +1,5 @@
 
-  const APP_VERSION = "3.2.2";
+  const APP_VERSION = "3.2.3";
   console.info("FiNANCiE TIMES v" + APP_VERSION);
 
   let projectsList = [];
@@ -176,9 +176,13 @@
       if (initialProject) {
         switchTab("single-tab");
         selectProject(initialProject);
-      } else if (urlParams.get('tab') === 'analysis') {
-        switchTab("analysis-tab");
       } else {
+        // 旧「分析」タブ（?tab=analysis）は合体 v3.2.3 で全体市況に入った＝全体市況を出し、URL から tab だけ消す（ほかのキーは残す・ルク決裁 12:33）
+        if (urlParams.get('tab') === 'analysis' && window.history && window.history.replaceState) {
+          urlParams.delete('tab');
+          const qs = urlParams.toString();
+          window.history.replaceState(null, "", `${window.location.pathname}${qs ? `?${qs}` : ""}${window.location.hash}`);
+        }
         switchTab("overview-tab");
       }
     })
@@ -1291,13 +1295,7 @@
     overviewView.classList.add("hidden-element");
     if (analysisView) analysisView.classList.add("hidden-element");
 
-    if (tabId === "analysis-tab") {
-      dashboardLayout.classList.add("no-sidebar");
-      if (analysisView) analysisView.classList.remove("hidden-element");
-      if (window.FinancieAnalysis && typeof window.FinancieAnalysis.onShow === "function") {
-        window.FinancieAnalysis.onShow();
-      }
-    } else if (tabId === "overview-tab") {
+    if (tabId === "overview-tab" || tabId === "analysis-tab") { // 旧「分析」タブは外した（v3.2.3）＝来ても全体市況
       dashboardLayout.classList.add("no-sidebar");
       overviewView.classList.remove("hidden-element");
       if (window.FinancieOverview && typeof window.FinancieOverview.onShow === "function") {

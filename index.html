@@ -6,10 +6,10 @@
   <title>FiNANCiE TIMES | 市況ダッシュボード</title>
   <link rel="canonical" href="https://ruku-practice.github.io/financie-times-web/">
   <script>/* 背景の白黒：既定はライト（白）・記憶が dark のときだけダーク（OS に追従しない）。ちらつき防止のため最初に。JS 側は data-theme を見るので属性は必ず付ける */(function(){var t="light";try{if(localStorage.getItem("ft_theme")==="dark"){t="dark";}}catch(e){}document.documentElement.setAttribute("data-theme",t);})();</script>
-  <link rel="stylesheet" href="css/advanced.css?v=3.2.2">
-  <link rel="stylesheet" href="css/overview.css?v=3.2.2">
-  <link rel="stylesheet" href="css/analysis.css?v=3.2.2">
-  <link rel="stylesheet" href="css/layout.css?v=3.2.2">
+  <link rel="stylesheet" href="css/advanced.css?v=3.2.3">
+  <link rel="stylesheet" href="css/overview.css?v=3.2.3">
+  <link rel="stylesheet" href="css/analysis.css?v=3.2.3">
+  <link rel="stylesheet" href="css/layout.css?v=3.2.3">
   <script>/* 箱の並び：記憶があれば最初の描画から反映 */try{document.documentElement.setAttribute("data-layout",localStorage.getItem("ft_layout")==="h"?"h":"v");}catch(e){document.documentElement.setAttribute("data-layout","v");}</script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -27,7 +27,6 @@
       <!-- Tab menu -->
       <nav class="tabs-navigation">
         <button class="tab-nav-btn active" data-tab="overview-tab">全体市況</button>
-        <button class="tab-nav-btn" data-tab="analysis-tab">分析</button>
         <button class="tab-nav-btn" data-tab="single-tab">個別プロジェクト分析</button>
         <button class="tab-nav-btn" data-tab="compare-tab">複数プロジェクト比較</button>
         <button class="tab-nav-btn" data-tab="daily-tab">日付別ランキング</button>
@@ -374,193 +373,12 @@
           <footer class="ov-footer" id="ov-footer">
             <p>非公式サイトです。FiNANCiE から許可を得て、公開ページの表示値を毎日1回記録しています。</p>
             <p>全データを取り切れていない可能性があります。参考値としてご覧ください（正確性は保証しません）。</p>
-            <p>「ならす」は 24H 出来高が取れなかった日（24H＝30日の一致）を除きます（「記録どおり」で元の値）・期間は暦日で数え、週は期末を末尾にした7日です・期間合計は毎晩1回の記録の合計で厳密な期間出来高ではありません・出来高の単位は円・v3.2.2</p>
+            <p>「ならす」は 24H 出来高が取れなかった日（24H＝30日の一致）を除きます（「記録どおり」で元の値）・期間は暦日で数え、週は期末を末尾にした7日です・期間合計は毎晩1回の記録の合計で厳密な期間出来高ではありません・出来高の単位は円・v3.2.3</p>
           </footer>
         </div>
 
-        <!-- 分析タブ（分析レポート 2026-09-12 の図10枚を期間切替で・v0.1.0） -->
-        <div id="analysis-view" class="hidden-element flex-column">
-          <div class="section-title-area">
-            <h2>分析</h2>
-            <p class="an-desc">分析レポート（2026-09-12）の図を、期間を切り替えて見られます。数字は毎日1回の記録からの自動計算で、人の解釈は入れていません（PJ＝プロジェクト）。</p>
-            <p class="ov-meta" id="an-meta">非公式・毎日1回の記録</p>
-          </div>
-
-          <div id="an-error" class="ov-error hidden-element" role="alert">
-            <span id="an-error-text">分析のデータの読み込みに失敗しました。</span>
-            <button type="button" class="action-btn" id="an-error-reload">もう一度読み込む</button>
-          </div>
-
-          <div class="travel-controls-bar overview-controls-bar" id="an-controls">
-            <div class="ov-control-group" id="an-period-group">
-              <span class="ov-control-label">期間</span>
-              <button class="sort-tab-btn" data-period="30">30日</button>
-              <button class="sort-tab-btn active" data-period="90">90日</button>
-              <button class="sort-tab-btn" data-period="365">1年</button>
-              <button class="sort-tab-btn" data-period="all">全期間</button>
-            </div>
-            <div class="ov-control-group" id="an-range-group">
-              <span class="ov-control-label">自由（開始〜終了を入れて「適用」）</span>
-              <input type="date" id="an-start-date" class="travel-date-picker-input ov-date-input" aria-label="開始日">
-              <span class="ov-control-sep">〜</span>
-              <input type="date" id="an-end-date" class="travel-date-picker-input ov-date-input" aria-label="終了日">
-              <button type="button" class="sort-tab-btn" id="an-apply">適用</button>
-              <span id="an-range-note" class="ov-range-note hidden-element"></span>
-            </div>
-          </div>
-
-          <div id="an-loading" class="an-loading">分析のデータを読み込んでいます…</div>
-
-          <div id="an-body" class="hidden-element">
-          <!-- 0. 結論 -->
-          <section class="an-section" id="an-sec-conclusion">
-            <div class="an-section-head"><h3>結論</h3><span class="an-section-sub" id="an-conclusion-sub">数字から自動で組み立てた3行（解釈は入れていません）</span></div>
-            <div class="metrics-grid" id="an-kpi-grid">
-              <div class="metric-card"><span class="metric-label" id="an-kpi-total-label">期間の出来高合計</span><div class="metric-value" id="an-kpi-total">-</div><span class="metric-sub" id="an-kpi-total-sub">-</span></div>
-              <div class="metric-card"><span class="metric-label">前期間比（同じ長さ）</span><div class="metric-value" id="an-kpi-change">-</div><span class="metric-sub" id="an-kpi-change-sub">-</span></div>
-              <div class="metric-card"><span class="metric-label">取引のあったPJ数</span><div class="metric-value" id="an-kpi-active">-</div><span class="metric-sub" id="an-kpi-active-sub">-</span></div>
-              <div class="metric-card"><span class="metric-label" id="an-kpi-members-label">メンバー純増（期末直近90日）</span><div class="metric-value" id="an-kpi-members">-</div><span class="metric-sub" id="an-kpi-members-sub">-</span></div>
-              <div class="metric-card"><span class="metric-label">機運の5指標</span><div class="metric-value" id="an-kpi-verdict">-</div><span class="metric-sub" id="an-kpi-verdict-sub">-</span></div>
-            </div>
-            <ul class="an-conclusion" id="an-conclusion"></ul>
-          </section>
-
-          <!-- 1. 日次 -->
-          <section class="an-section" id="an-sec-daily">
-            <div class="an-section-head"><h3>1. 日次出来高と7日平均</h3><span class="an-section-sub" id="an-daily-sub"></span></div>
-            <div class="chart-card ov-chart-card">
-              <div class="chart-card-header"><h3 class="chart-card-title">日次出来高（棒）＋7日移動平均（線）</h3></div>
-              <div class="an-chart-wrapper"><canvas id="anDailyChart"></canvas></div>
-              <div class="an-legend" id="an-legend-daily"></div>
-              <p class="an-note" id="an-daily-note"></p>
-            </div>
-          </section>
-
-          <!-- 2. 週次 -->
-          <section class="an-section" id="an-sec-weekly">
-            <div class="an-section-head"><h3>2. 週次出来高と、取引のあったPJ数</h3><span class="an-section-sub" id="an-weekly-sub"></span></div>
-            <div class="charts-grid ov-charts-grid">
-              <div class="chart-card ov-chart-card">
-                <div class="chart-card-header"><h3 class="chart-card-title">週次出来高（期末を末尾にした7日区切り）</h3></div>
-                <div class="an-chart-wrapper"><canvas id="anWeeklyVolChart"></canvas></div>
-              </div>
-              <div class="chart-card ov-chart-card">
-                <div class="chart-card-header"><h3 class="chart-card-title">取引のあったPJ数（週に1日でも出来高＞0）</h3></div>
-                <div class="an-chart-wrapper"><canvas id="anWeeklyActiveChart"></canvas></div>
-              </div>
-            </div>
-            <p class="an-note" id="an-weekly-note"></p>
-          </section>
-
-          <!-- 3. 上位8の今期間 vs 前期間 -->
-          <section class="an-section" id="an-sec-dumbbell">
-            <div class="an-section-head"><h3>3. 出来高 上位8PJ：今期間と前期間の比較</h3><span class="an-section-sub" id="an-dumbbell-sub"></span></div>
-            <div class="charts-grid ov-charts-grid">
-              <div class="chart-card ov-chart-card">
-                <div class="chart-card-header"><h3 class="chart-card-title">上位8PJの出来高（前期間＝同じ長さの直前）</h3></div>
-                <div class="an-chart-wrapper"><canvas id="anDumbbellChart"></canvas></div>
-                <div class="an-legend" id="an-legend-dumbbell"></div>
-              </div>
-              <div class="chart-card ov-chart-card">
-                <div class="chart-card-header"><h3 class="chart-card-title" id="an-index2-title">出来高 上位2PJの価格（期間初日＝100）</h3></div>
-                <div class="an-chart-wrapper"><canvas id="anIndex2Chart"></canvas></div>
-                <div class="an-legend" id="an-legend-index2"></div>
-              </div>
-            </div>
-            <p class="an-note" id="an-dumbbell-note"></p>
-          </section>
-
-          <!-- 4. 月次 -->
-          <section class="an-section" id="an-sec-monthly">
-            <div class="an-section-head"><h3>4. 月次出来高（束＋単独PJ＋その他の積み上げ）</h3><span class="an-section-sub" id="an-monthly-sub"></span></div>
-            <div class="chart-card ov-chart-card">
-              <div class="chart-card-header"><h3 class="chart-card-title">月次出来高（翌月1日時点の30日出来高＝前月分）</h3></div>
-              <div class="an-chart-wrapper"><canvas id="anMonthlyChart"></canvas></div>
-              <div class="an-legend" id="an-legend-monthly"></div>
-              <p class="an-note" id="an-monthly-note"></p>
-            </div>
-          </section>
-
-          <!-- 5. シェア -->
-          <section class="an-section" id="an-sec-share">
-            <div class="an-section-head"><h3>5. 出来高シェア（期間合計）</h3><span class="an-section-sub" id="an-share-sub"></span></div>
-            <div class="charts-grid ov-charts-grid">
-              <div class="chart-card ov-chart-card">
-                <div class="chart-card-header"><h3 class="chart-card-title">束＋単独PJ＋その他</h3></div>
-                <div class="an-chart-wrapper"><canvas id="anShareBundleChart"></canvas></div>
-                <div class="an-legend" id="an-legend-share-bundle"></div>
-              </div>
-              <div class="chart-card ov-chart-card">
-                <div class="chart-card-header"><h3 class="chart-card-title">上位5PJ＋その他</h3></div>
-                <div class="an-chart-wrapper"><canvas id="anShareTopChart"></canvas></div>
-                <div class="an-legend" id="an-legend-share-top"></div>
-              </div>
-            </div>
-            <p class="an-note" id="an-share-note"></p>
-          </section>
-
-          <!-- 6. 上位30 -->
-          <section class="an-section" id="an-sec-top30">
-            <div class="an-section-head"><h3>6. 出来高 上位30PJ</h3><span class="an-section-sub" id="an-top30-sub"></span></div>
-            <div class="historical-table-card an-table-card">
-              <div class="table-scroll-container">
-                <table class="historic-ranking-table an-table" id="an-top30-table">
-                  <thead><tr><th>順位</th><th>プロジェクト</th><th class="num">期間合計（円）</th><th class="num">シェア</th><th class="num">期末直近30日（円）</th><th class="num">前期間比</th></tr></thead>
-                  <tbody id="an-top30-tbody"></tbody>
-                </table>
-              </div>
-            </div>
-            <p class="an-note" id="an-top30-note"></p>
-          </section>
-
-          <!-- 7. 価格 -->
-          <section class="an-section" id="an-sec-price">
-            <div class="an-section-head"><h3>7. 価格 上位10PJの推移（指数）</h3><span class="an-section-sub" id="an-price-sub"></span></div>
-            <div class="chart-card ov-chart-card">
-              <div class="chart-card-header"><h3 class="chart-card-title">期末時点の価格 上位10PJ（期間内で最初に0より大きい日＝100）</h3></div>
-              <div class="an-chart-wrapper"><canvas id="anPriceChart"></canvas></div>
-              <div class="an-legend" id="an-legend-price"></div>
-              <p class="an-note" id="an-price-note"></p>
-            </div>
-          </section>
-
-          <!-- 8. メンバー -->
-          <section class="an-section" id="an-sec-members">
-            <div class="an-section-head"><h3>8. メンバー推移</h3><span class="an-section-sub" id="an-members-sub"></span></div>
-            <div class="charts-grid ov-charts-grid">
-              <div class="chart-card ov-chart-card">
-                <div class="chart-card-header"><h3 class="chart-card-title">FiNANCiE公式PJのメンバー数</h3></div>
-                <div class="an-chart-wrapper"><canvas id="anMembersOfficialChart"></canvas></div>
-              </div>
-              <div class="chart-card ov-chart-card">
-                <div class="chart-card-header"><h3 class="chart-card-title">全PJ合計のメンバー数（停止PJは最後の値を据え置き）</h3></div>
-                <div class="an-chart-wrapper"><canvas id="anMembersAllChart"></canvas></div>
-              </div>
-            </div>
-            <p class="an-note" id="an-members-note"></p>
-          </section>
-
-          <!-- 9. 機運の5指標 -->
-          <section class="an-section" id="an-sec-indicators">
-            <div class="an-section-head"><h3>9. 「盛り上がる機運」の5指標</h3><span class="an-section-sub" id="an-indicators-sub"></span>
-              <div class="ov-control-group" id="an-window-group"><span class="ov-control-label">窓（期末からさかのぼる日数・上の期間とは別）</span><button type="button" class="sort-tab-btn" data-window="30">30日</button><button type="button" class="sort-tab-btn active" data-window="90">90日</button><button type="button" class="sort-tab-btn" data-window="180">180日</button></div></div>
-            <div class="historical-table-card an-table-card">
-              <div class="table-scroll-container">
-                <table class="historic-ranking-table an-table" id="an-indicators-table">
-                  <thead><tr><th>#</th><th>指標</th><th>定義・算出</th><th>閾値</th><th class="num">実測</th><th>判定</th></tr></thead>
-                  <tbody id="an-indicators-tbody"></tbody>
-                </table>
-              </div>
-            </div>
-            <p class="an-note" id="an-indicators-note">判定ルール：当てはまりが 4〜5＝あり・2〜3＝兆しあり・0〜1＝なし。窓は期末を基準にした固定の日数（既定90日・30日は「直近の兆し」・180日は鈍い）で、期間ボタンでは変わりません。</p>
-          </section>
-
-          <footer class="ov-footer" id="an-footer">
-            <p>非公式サイトです。FiNANCiE から許可を得て、公開ページの表示値を毎日1回記録しています。</p>
-            <p>出来高は各日の24H 出来高（記録値）の合算で、全体市況タブと欠測の扱いが違います（分析＝生の記録値をそのまま・全体市況＝24H＝30日の日を欠測扱い）。単位は円・v3.2.2</p>
-          </footer>
-          </div>
-        </div>
+        <!-- 旧「分析」タブ（#analysis-view）は合体 v3.2.3 で外した＝図は全体市況の箱の見せ方に入った（ルク決裁 2026-09-13 12:33）。
+             部品 js/analysis-core.js・js/analysis.js（AnalysisParts）と css/analysis.css は全体市況が使うので残す -->
 
         <!-- 4. Historical Daily rankings -->
         <div id="daily-travel-view" class="hidden-element flex-column">
@@ -670,18 +488,18 @@
 
     </div>
 
-    <footer class="app-footer">FiNANCiE TIMES v3.2.2（非公式） ・ 毎晩自動更新 ・ <a href="https://financie.jp">FiNANCiE公式</a></footer>
+    <footer class="app-footer">FiNANCiE TIMES v3.2.3（非公式） ・ 毎晩自動更新 ・ <a href="https://financie.jp">FiNANCiE公式</a></footer>
   </div>
 
-  <script src="js/theme.js?v=3.2.2"></script>
-  <script src="js/merged-core.js?v=3.2.2"></script>
-  <script src="js/merged.js?v=3.2.2"></script>
-  <script src="js/chart-legend.js?v=3.2.2"></script>
-  <script src="js/advanced.js?v=3.2.2"></script>
-  <script src="js/overview.js?v=3.2.2"></script>
-  <script src="js/analysis-core.js?v=3.2.2"></script>
-  <script src="js/analysis.js?v=3.2.2"></script>
-  <script src="js/merged-analysis.js?v=3.2.2"></script>
-  <script src="js/layout.js?v=3.2.2"></script>
+  <script src="js/theme.js?v=3.2.3"></script>
+  <script src="js/merged-core.js?v=3.2.3"></script>
+  <script src="js/merged.js?v=3.2.3"></script>
+  <script src="js/chart-legend.js?v=3.2.3"></script>
+  <script src="js/advanced.js?v=3.2.3"></script>
+  <script src="js/overview.js?v=3.2.3"></script>
+  <script src="js/analysis-core.js?v=3.2.3"></script>
+  <script src="js/analysis.js?v=3.2.3"></script>
+  <script src="js/merged-analysis.js?v=3.2.3"></script>
+  <script src="js/layout.js?v=3.2.3"></script>
 </body>
 </html>

@@ -25,7 +25,7 @@ BUILD_OVERVIEW_PATH = os.path.join(BASE_DIR, "scripts", "build_overview.py")
 # window_compare.py は本体リポジトリ側（worktree には無い）。
 # worktree: <repo>/.claude/worktrees/analysis-tab → 3つ上が <repo>。
 MAIN_REPO_DIR = os.path.normpath(os.path.join(BASE_DIR, "..", "..", ".."))
-WINDOW_COMPARE_PATH = os.path.join(MAIN_REPO_DIR, "docs", "analysis_code", "window_compare.py")
+WINDOW_COMPARE_PATH = os.environ.get("FT_WINDOW_COMPARE_PATH") or os.path.join(MAIN_REPO_DIR, "docs", "analysis_code", "window_compare.py")
 if not os.path.exists(WINDOW_COMPARE_PATH):
     # 保険：worktree 側にも同名ファイルがあればそちらを使う
     alt = os.path.join(BASE_DIR, "docs", "analysis_code", "window_compare.py")
@@ -111,9 +111,11 @@ def main():
     summary = load_json(SUMMARY_PATH)
 
     build_text = open(BUILD_OVERVIEW_PATH, encoding="utf-8").read()
-    window_text = open(WINDOW_COMPARE_PATH, encoding="utf-8").read()
     build_merges = extract_merges(build_text)
-    window_merges = extract_merges(window_text)
+    # window_compare.py（名寄せの正本）は公開リポジトリに入れていない＝GitHub Actions（FT_CI=1）では突き合わせを飛ばし件数だけ見る。
+    # 手元（FT_CI なし）でファイルが無いときは FAIL にする（黙って通さない）
+    ci_without_window = os.environ.get("FT_CI") == "1" and not os.path.exists(WINDOW_COMPARE_PATH)
+    window_merges = extract_merges(open(WINDOW_COMPARE_PATH, encoding="utf-8").read()) if os.path.exists(WINDOW_COMPARE_PATH) else None
 
     # ---- 1. schema 2・存在するファイルで days・projects が完全一致 ----
     ref_days = None
@@ -144,11 +146,12 @@ def main():
     check("project_count_406", n_proj == EXPECTED_PROJECTS, f"projects数={n_proj}（期待{EXPECTED_PROJECTS}）")
 
     # ---- 3. MERGES 完全一致（build_overview.py vs window_compare.py） ----
-    check(
-        "merges_match_window_compare",
-        build_merges == window_merges and len(build_merges) == 3,
-        f"build_overview={build_merges} window_compare={window_merges}",
-    )
+    if ci_without_window:
+        check("merges_match_window_compare", len(build_merges) == 3,
+              f"GitHub Actions（FT_CI=1）＝window_compare.py が無いので件数3だけ確認（突き合わせは手元の検査で）・build_overview={build_merges}")
+    else:
+        check("merges_match_window_compare", window_merges is not None and build_merges == window_merges and len(build_merges) == 3,
+              f"build_overview={build_merges} window_compare={window_merges}（{WINDOW_COMPARE_PATH}）")
 
     # ---- 4. 前身3つが projects に無い ----
     predecessors = {a for a, b in build_merges}
@@ -302,6 +305,7 @@ def main():
 
     all_ok = all(r["ok"] for r in results)
     out = {"allOk": all_ok, "results": results}
+    os.makedirs(OUT_DIR, exist_ok=True)  # GitHub Actions では tests/out が無い
     with open(os.path.join(OUT_DIR, "check_overview_data.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
 

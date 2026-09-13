@@ -135,6 +135,8 @@ jobs:
       # test_mode のときは commit/push ごと行わない（ランナーごと破棄される）。
       - name: Commit and push changes
         if: steps.check.outputs.run == 'true' && !(github.event_name == 'workflow_dispatch' && inputs.test_mode == true)
+        env:
+          FT_CI: "1"
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -145,6 +147,16 @@ jobs:
             git commit -m "chore: daily data update ($(TZ=Asia/Tokyo date +%Y-%m-%dT%H:%MJST))"
             # metadata.yml がほぼ同時刻に data/ をpushするため、rebaseしないと弾かれる
             git pull --rebase --autostash origin main
+            # 合体 v3.2.3：全体市況が読む data/overview（schema 2）を、pull 後の最新の history.json から作り直して検査する
+            # （pull の後に作る＝daily.yml と metadata.yml が同時に走っても data/overview の JSON が rebase で衝突しない）。
+            # 作り直しか検査に失敗したら、前回の data/overview のまま出す（日次データの push は止めない）
+            if python scripts/build_overview.py && python tests/check_overview_data.py; then
+              git add data/overview
+              git diff --cached --quiet || git commit -m "chore: overview data (schema 2) ($(TZ=Asia/Tokyo date +%Y-%m-%dT%H:%MJST))"
+            else
+              echo "::warning::data/overview の作り直しか検査に失敗＝前回の data/overview のまま出します"
+              git checkout -- data/overview
+            fi
             git push
           fi
 

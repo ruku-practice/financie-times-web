@@ -24,7 +24,7 @@
 # =============================================================================
 set -euo pipefail
 
-VERSION="3.2.2"
+VERSION="3.2.3"
 PRODUCT_DIR="/Users/kkr/ruku_data/00_products/apps/FiNANCiE-times-web"
 WORKTREE="$PRODUCT_DIR/.claude/worktrees/analysis-tab"
 BRANCH="feature/analysis-tab"
@@ -78,6 +78,10 @@ MISSING=""
 if grep -q 'data-tab="analysis-tab"' index.html; then
   MISSING="${MISSING}
   P1 旧「分析」タブがまだ index.html にある（決裁6＝本番に出さない。社長室の指示で外す）"
+fi
+if [ -n "$(git ls-files data/analysis)" ]; then
+  MISSING="${MISSING}
+  P1 旧分析タブのデータ data/analysis がまだ git に入っている（本番に出すファイルから外す＝git rm -r --cached data/analysis）"
 fi
 for wf in .github/workflows/daily.yml .github/workflows/metadata.yml; do
   if ! grep -q "build_overview.py" "$wf" || ! grep -q "check_overview_data.py" "$wf"; then

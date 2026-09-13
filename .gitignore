@@ -8,6 +8,9 @@ service_account*.json
 __pycache__/
 *.pyc
 
+# 旧「分析」タブのデータ（合体 v3.2.3 で本番に出すファイルから外した・手元には残す＝scripts/build_analysis.py で作り直せる）
+data/analysis/
+
 # 実行ログ
 *.log
 

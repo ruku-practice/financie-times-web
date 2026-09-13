@@ -245,6 +245,24 @@ async function main() {
     await page.click('.tab-nav-btn[data-tab="overview-tab"]');
     record("M20-daily-sorted-column-mark", m20a.length === 1 && m20a[0].col === "volume" && /▼/.test(m20a[0].after) && m20b.length === 1 && m20b[0].col === "members", { m20a, m20b });
 
+    // M25 旧「分析」タブを外した（ルク決裁 12:33）＝釦も画面も無い・?tab=analysis で来ても全体市況が出て URL から tab だけ消える・data/analysis は読まない
+    const oldTab = await ctx.newPage();
+    const anReq = [];
+    oldTab.on("request", (r) => { if (/\/data\/analysis\//.test(r.url())) anReq.push(r.url()); });
+    oldTab.on("pageerror", (e) => errors.push(`[tab=analysis] ${String(e)}`));
+    await oldTab.goto(`${BASE}?tab=analysis&ov_p=30`, { waitUntil: "domcontentloaded" });
+    await ready(oldTab);
+    await oldTab.waitForTimeout(1500);
+    const m25 = await oldTab.evaluate(() => ({
+      btn: document.querySelectorAll('.tab-nav-btn[data-tab="analysis-tab"]').length, view: document.querySelectorAll("#analysis-view").length,
+      tabs: Array.from(document.querySelectorAll(".tab-nav-btn")).map((b) => b.textContent.trim()), active: (document.querySelector(".tab-nav-btn.active") || {}).textContent,
+      overviewShown: !document.getElementById("overview-view").classList.contains("hidden-element"), search: location.search,
+      period30: !!document.querySelector('#ov-period-group button[data-period="30"].active')
+    }));
+    await oldTab.close();
+    record("M25-old-analysis-tab-removed", m25.btn === 0 && m25.view === 0 && m25.tabs.length === 5 && !m25.tabs.includes("分析") && m25.active === "全体市況" && m25.overviewShown
+      && !/tab=analysis/.test(m25.search) && /ov_p=30/.test(m25.search) && m25.period30 && anReq.length === 0, Object.assign({}, m25, { anReq }));
+
     const sp = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
     await sp.route("**/financie.jp/**", (r) => r.fulfill({ status: 404, body: "" }));
     await sp.route("**/image-financie.storage.googleapis.com/**", (r) => r.fulfill({ status: 404, body: "" }));
