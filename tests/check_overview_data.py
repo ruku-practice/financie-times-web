@@ -33,7 +33,6 @@ if not os.path.exists(WINDOW_COMPARE_PATH):
         WINDOW_COMPARE_PATH = alt
 
 MAX_BYTES = 25 * 1024 * 1024
-EXPECTED_PROJECTS = 406
 
 METRIC_FILES = ["v24.json", "v30.json", "price.json", "members.json", "stock.json", "mcap.json"]
 ALL_FILES = ["market.json"] + METRIC_FILES + ["monthly.json", "bundles.json"]
@@ -141,9 +140,11 @@ def main():
     check("days_identical_across_files", days_ok, "全ファイルの days が完全一致")
     check("projects_identical_across_files", projects_ok, "全ファイルの projects（同じ中身・同じ順）が完全一致")
 
-    # ---- 2. 406PJ ----
+    # ---- 2. PJ数 ----
+    # 固定値にしない。新規PJが増えるたびに不合格になり、全体市況が前回のまま止まる（2026-10-07〜11-03 実測）。
     n_proj = len(ref_projects) if ref_projects else 0
-    check("project_count_406", n_proj == EXPECTED_PROJECTS, f"projects数={n_proj}（期待{EXPECTED_PROJECTS}）")
+    expected_projects = len(load_json(os.path.join(DATA_DIR, "projects_summary.json"))) - len(build_merges)
+    check("project_count_matches_summary", n_proj == expected_projects, f"projects数={n_proj}（期待{expected_projects}＝summaryの件数−名寄せ件数）")
 
     # ---- 3. MERGES 完全一致（build_overview.py vs window_compare.py） ----
     if ci_without_window:

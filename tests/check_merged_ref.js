@@ -16,7 +16,7 @@ const results = [];
 const record = (id, ok, detail) => { results.push({ id, ok: !!ok, detail }); console.log(`${ok ? "PASS" : "FAIL"} ${id} ${JSON.stringify(detail)}`); };
 const near = (a, b) => (a === null || b === null || a === undefined || b === undefined) ? a == b : Math.abs(a - b) < 0.5;
 
-record("R0-same-days", JSON.stringify(days) === JSON.stringify(members.days) && v24.projects.length === 406, { days: days.length, projects: v24.projects.length });
+record("R0-same-days", JSON.stringify(days) === JSON.stringify(members.days) && v24.projects.length === members.projects.length, { days: days.length, projects: v24.projects.length });
 
 Object.entries(ref.periods).forEach(([key, rp]) => {
   let spec;
